@@ -1,0 +1,4 @@
+Character,CharDesc,Level,HPGR,ATKGR,MGGR,DEFGR,RESGR,SPDGR,EVAGR,LCKGR,HP,ATK,MAG,DEF,RES,SPD,EVA,LUCK,MOV,StartClass,Filler
+YoungFelix,Older Brother of Lilith,3,50,100,20,20,30,40,50,50,10,8,2,6,4,5,4,2,0,Villager,Filler
+YoungLilith,Younger sister of Felix,1,80,30,50,20,30,10,50,50,12,5,8,4,5,7,5,3,1,Villager,Filler
+Felix,Young Adventurer seeking his missing sister,3,50,55,25,35,30,50,45,45,14,8,3,6,4,5,4,2,0,Adventurer,Filler

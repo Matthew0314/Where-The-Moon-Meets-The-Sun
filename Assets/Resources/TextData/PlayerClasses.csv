@@ -1,0 +1,3 @@
+Class Name,Class Description,Class Type,HP,ATK,MAG,DEF,RES,SPD,EVA,LUCK,MOVE,AirBorn,Mounted,Armored,Whisper
+Villager,Inexperienced towns folk,Base,5,10,0,5,0,10,0,0,3,FALSE,FALSE,FALSE,FALSE
+Adventurer,Seeks an adventure,Base,5,15,0,5,0,10,0,0,3,FALSE,FALSE,FALSE,FALSE
