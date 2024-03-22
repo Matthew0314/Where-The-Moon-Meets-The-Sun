@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Purpose of this class is to inilize the stats for each class, store them, and allow for player units to call them
 public class PlayerClassManager : MonoBehaviour
 {
     private PlayerClass uClass;

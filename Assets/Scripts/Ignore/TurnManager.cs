@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//This class is currently being worked on right now please ignore for now
 public class TurnManager : MonoBehaviour
 {
     private UnitRosterManager playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();

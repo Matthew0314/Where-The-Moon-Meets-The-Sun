@@ -282,6 +282,8 @@ public class FindPath : MonoBehaviour
 
 }
 
+//Below is old code, please ignore
+
 
 /* private void CalculateAttack(int startX, int startZ, int charAttack, int charMovement)
  {

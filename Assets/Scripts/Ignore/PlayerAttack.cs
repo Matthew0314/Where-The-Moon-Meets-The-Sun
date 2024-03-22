@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Class is still being worked on, please ignore for now
 public class PlayerAttack : MonoBehaviour
 {
     private GenerateGrid grid;

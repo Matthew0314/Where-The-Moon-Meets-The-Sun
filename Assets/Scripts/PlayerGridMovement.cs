@@ -29,8 +29,6 @@ public class PlayerGridMovement : MonoBehaviour
         cursorMovement();
     }
 
-
-
     void cursorMovement()
     {
         //updates "player" position to where "PlayerMove" is on the grid

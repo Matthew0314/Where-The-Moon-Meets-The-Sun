@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+//Class Has not been implemented yet please ignore
 public class CameraFollow : MonoBehaviour
 {
     public float rotationSpeed = 10f;
