@@ -16,4 +16,4 @@ What Is Being Worked On Right Now:
 - Enabling player units to traverse the grid
 - Developing a turn system that will only allow a unit to act once per turn
 - Integrating capabilities for units to execute attacks, utilize items, wait for the next turn.
-- Designing enemy AI, allowing them to chose which actions to take against the player
+- Designing enemy AI, allowing them to choose which actions to take against the player
