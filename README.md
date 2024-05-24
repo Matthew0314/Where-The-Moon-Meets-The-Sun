@@ -11,9 +11,9 @@ What Has Been Implemented:
 - Developed grid generation that stores movement and position data for each tile
 - Designed algorithms that dictacts where a unit can move and attack on the grid based on their stats
 - Impleemnted a database that stores character and class statistics which can be easily called and manipulated during gameplay
-
-What Is Being Worked On Right Now:
 - Enabling player units to traverse the grid
 - Developing a turn system that will only allow a unit to act once per turn
-- Integrating capabilities for units to execute attacks, utilize items, wait for the next turn.
+
+What Is Being Worked On Right Now:
+- Integrating capabilities for units to execute attacks and utilize items.
 - Designing enemy AI, allowing them to choose which actions to take against the player
