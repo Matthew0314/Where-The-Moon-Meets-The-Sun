@@ -40,33 +40,33 @@ public class FindPath : MonoBehaviour
     {
         //These are eventually going to be moved to a seperate class
         
-        if (Input.GetKeyDown(KeyCode.Space) && !charSelected && playerCollide.collPlayer)
-        {
-            ResetArea();
-            currUnit = playerCollide.currPlayer;
-            //canMove[movementVars.x, movementVars.z] = true;
-            attackRangeStat = playerCollide.GetPlayerAttack();
-            CalcAttack(movementVars.x, movementVars.z, attackRangeStat , playerCollide.GetPlayerMove());
-            PrintArea();
+        // if (Input.GetKeyDown(KeyCode.Space) && !charSelected && playerCollide.collPlayer)
+        // {
+        //     ResetArea();
+        //     currUnit = playerCollide.currPlayer;
+        //     //canMove[movementVars.x, movementVars.z] = true;
+        //     attackRangeStat = playerCollide.GetPlayerAttack();
+        //     CalcAttack(movementVars.x, movementVars.z, attackRangeStat , playerCollide.GetPlayerMove());
+        //     PrintArea();
             
-            charSelected = true;
-        }
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            DestroyArea();
-            charSelected = false;
-        }
-        if (Input.GetKeyDown(KeyCode.Space) && charSelected)
-        {
-            Debug.Log("Move Unit");
-            //MoveUnit();
-        }
-        if (Input.GetKeyDown(KeyCode.G)) {
-            currUnit = playerCollide.currPlayer;
-            attackRangeStat = playerCollide.GetPlayerAttack();
-            attackPath.CalculateAttack(movementVars.x, movementVars.z, attackRangeStat);
-            attackPath.HighlightAttack();
-        }
+        //     charSelected = true;
+        // }
+        // if (Input.GetKeyDown(KeyCode.B))
+        // {
+        //     DestroyArea();
+        //     charSelected = false;
+        // }
+        // if (Input.GetKeyDown(KeyCode.Space) && charSelected)
+        // {
+        //     Debug.Log("Move Unit");
+        //     //MoveUnit();
+        // }
+        // if (Input.GetKeyDown(KeyCode.G)) {
+        //     currUnit = playerCollide.currPlayer;
+        //     attackRangeStat = playerCollide.GetPlayerAttack();
+        //     attackPath.CalculateAttack(movementVars.x, movementVars.z, attackRangeStat);
+        //     attackPath.HighlightAttack();
+        // }
     }
 
      public void PrintArea()
@@ -95,7 +95,7 @@ public class FindPath : MonoBehaviour
         }
     }
 
-    private void DestroyArea()
+   public void DestroyArea()
     {
         foreach(GameObject areaT in movementTiles)
         {
@@ -103,7 +103,7 @@ public class FindPath : MonoBehaviour
         }
     }
 
-    private void ResetArea()
+    public void ResetArea()
     {
         canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];

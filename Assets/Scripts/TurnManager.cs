@@ -7,7 +7,7 @@ using UnityEngine;
 //This class is currently being worked on right now please ignore for now
 public class TurnManager : MonoBehaviour
 {
-    private UnitRosterManager playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
+    private UnitRosterManager playerList;
     private List<UnitStats> currUnits;  // Current player units
     private int turns = 0;
     private bool playerTurn;
@@ -18,13 +18,14 @@ public class TurnManager : MonoBehaviour
     void Start()
     {
         playerTurn = true; enemyTurn = false; turns++;
-        SetLists();
+        playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
+        SetLists(); //This needs to removed later, should be called when player clicks start
     }
 
     // Update is called once per frame
     void Update()
     {
-        CheckPhase();
+        // CheckPhase();
     }
 
     private void SetLists()
@@ -34,9 +35,10 @@ public class TurnManager : MonoBehaviour
 
     //After unit completes an action this is called
     //Possibly see if you can pass object as a parameter
-    private void RemovePlayer()
+    public void RemovePlayer(UnitStats player)
     {
-
+        currUnits.Remove(player);
+        CheckPhase();
     }
 
     private void AddPlayer()
@@ -53,15 +55,23 @@ public class TurnManager : MonoBehaviour
                 playerTurn = false;
                 enemyTurn = true;
                 SetLists();
+                Debug.Log("ENEMY PHASE");
             }
         }
         if (enemyTurn)
         {
+            playerTurn = true;
+            enemyTurn = false;
+            turns++;
             
+            Debug.Log("PLAYER PHASE");
+            Debug.Log("Turn: " + turns);
         }
     }
 
-    bool isPlayerTurn() { return playerTurn; }
-    bool isEnemyTurn() { return enemyTurn; }
+    public bool isPlayerTurn() { return playerTurn; }
+    public bool isEnemyTurn() { return enemyTurn; }
+
+    public bool isActive(UnitStats player) { return currUnits.Contains(player); }
     
 }

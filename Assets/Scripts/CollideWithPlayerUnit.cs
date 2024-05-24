@@ -8,9 +8,14 @@ public class CollideWithPlayerUnit : MonoBehaviour
 {
     private PlayerUnit player;
     public PlayerUnit enemy;
-    public FindPath path;
     public bool collPlayer;
-    public GameObject currPlayer;
+    public bool cantPlace;
+    private GameObject currPlayer;
+    private PlayerGridMovement movementVars;
+
+    void Start () {
+        movementVars = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -22,6 +27,10 @@ public class CollideWithPlayerUnit : MonoBehaviour
             player = other.gameObject.GetComponent<PlayerUnit>();
             collPlayer = true;
             currPlayer = other.gameObject;
+            cantPlace = false;
+        }
+        if ((other.gameObject.CompareTag("PlayerUnit") || other.gameObject.CompareTag("EnemyUnit")) && collPlayer && (other.gameObject != currPlayer)) {
+            cantPlace = true;
         }
         if (other.gameObject.CompareTag("EnemyUnit")) {
             enemy = other.gameObject.GetComponent<PlayerUnit>();
@@ -32,15 +41,27 @@ public class CollideWithPlayerUnit : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        //If it exits both will be set to null, only if the unit hasn't been selected by the player
-        if (other.gameObject.CompareTag("PlayerUnit") && collPlayer)
+        
+        if (!movementVars.isCharSelected() && collPlayer && other.CompareTag("PlayerUnit"))
         {
             player = null;
             collPlayer = false;
         }
+        cantPlace = false;
        
     }
 
+    
+
+    public void removePlayer() {
+        Debug.Log("Remove Player");
+        player = null;
+        collPlayer = false;
+
+    }
+
+    //Returns player unit data that would be needed
+    public GameObject GetPlayerObject() {return currPlayer;}
     public PlayerUnit GetPlayer() { return player; }
     public int GetPlayerMove() { return player.getMove();  }
     public int GetPlayerAttack() { return player.getAttack(); }

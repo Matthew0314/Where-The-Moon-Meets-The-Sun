@@ -17,8 +17,8 @@ public class PrologueMap : MonoBehaviour, IMaps
     private int length = 10;
     private int width = 10;
     private List<UnitStats> mapUnits;
-    [SerializeField] GameObject felix; //Remove Later
-    [SerializeField] GameObject lilith; //Remove Later
+    // [SerializeField] GameObject felix; //Remove Later
+    // [SerializeField] GameObject lilith; //Remove Later
 
     // Start is called before the first frame update
     void Start()
