@@ -14,11 +14,9 @@ public class GridTile
     private float yPos;
     private float zPos;
     private int tileNum;
-    //private bool tileOccupied; //Set up Getter and Setters later
-    //private string tileType; //Set up Getter and Setters later
 
 
-
+    //Constructor
     public GridTile(int x, int z, bool pass, bool tall, int moveCost, int atkCost, int tileNumber, float xPoss, float yPoss, float zPoss)
     {
         gridX = x;
@@ -31,13 +29,9 @@ public class GridTile
         xPos = xPoss;
         yPos = yPoss;
         zPos = zPoss;
-
-        //tileOccupied = false;
-        //tileType = "Hello World";
-
     }
 
-    //Only have getters because these variables are not meant to be changed
+    //Returns the values of all variables for thsi class
     public bool GetPassable() { return passable; }
     public int GetMovementCost() { return movementCost; }
     public int GetAttackCost() { return attackCost; }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Class is still being worked on, please ignore for now
 public class PlayerAttack : MonoBehaviour
 {
     private GenerateGrid grid;
@@ -10,6 +11,11 @@ public class PlayerAttack : MonoBehaviour
     private int[,] distances;
     private FindPath pathFinder;
     List<GameObject> movementTiles;
+    public GameObject attackTile;
+    int sX;
+    int sZ;
+  
+    
     //private GridTile gridCell;
 
 
@@ -18,7 +24,8 @@ public class PlayerAttack : MonoBehaviour
     void Start()
     {
         grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
-        canAttack = new bool[grid.GetWidth(), grid.GetLength()];
+        movementTiles = new List<GameObject>();
+        
     }
 
     // Update is called once per frame
@@ -35,11 +42,15 @@ public class PlayerAttack : MonoBehaviour
         List<GridTile> cellList = new List<GridTile>();
         List<GridTile> processedList = new List<GridTile>();
 
+        sX = startX;
+        sZ = startZ;
+
         cellList.Add(grid.grid[startX, startZ]);
         processedList.Add(grid.grid[startX, startZ]);
 
         distances = new int[grid.GetWidth(), grid.GetLength()];
         visited = new bool[grid.GetWidth(), grid.GetLength()];
+        canAttack = new bool[grid.GetWidth(), grid.GetLength()];
 
         for (int i = 0; i < grid.GetWidth(); i++)
         {
@@ -120,11 +131,11 @@ public class PlayerAttack : MonoBehaviour
         {
             for (int j = 0; j < grid.GetLength(); j++)
             {
-                if (canAttack[i, j])
+                if (grid.IsValid(i, j) && canAttack[i, j] && (sX != i || sZ != j))
                 {
 
                     GameObject areaTile;
-                    areaTile = Instantiate(pathFinder.attackTile, new Vector3(grid.grid[i, j].GetXPos(), grid.grid[i, j].GetYPos() + 0.005f, grid.grid[i, j].GetZPos()), Quaternion.identity);
+                    areaTile = Instantiate(attackTile, new Vector3(grid.grid[i, j].GetXPos(), grid.grid[i, j].GetYPos() + 0.005f, grid.grid[i, j].GetZPos()), Quaternion.identity);
                     movementTiles.Add(areaTile);
                 }
             }
@@ -133,7 +144,10 @@ public class PlayerAttack : MonoBehaviour
 
     public void DestroyRange()
     {
-
+         foreach(GameObject areaT in movementTiles)
+        {
+            Destroy(areaT);
+        }
     }
 
     //Will return list of enemies in attack range

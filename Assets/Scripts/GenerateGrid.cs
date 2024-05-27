@@ -94,8 +94,8 @@ public class GenerateGrid : MonoBehaviour
     //Initlize to where we want the cursor to be for each map
     public void initlizeCursor()
     {
-        int x = playerCursor.x;
-        int z = playerCursor.z;
+        int x = playerCursor.getX();
+        int z = playerCursor.getZ();
         playerCursor.transform.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.01f, grid[x, z].GetZPos());
         playerCursor.moveCursor.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.01f, grid[x, z].GetZPos());
         playerCursor.moveCursor.parent = null;
@@ -111,7 +111,7 @@ public class GenerateGrid : MonoBehaviour
         return false;
     }
 
-    //returns variables of the class that are not meant to be changed
+    //returns the width and length of the grid and size of each cell
     public int GetWidth() { return width; }
     public int GetLength() { return length; }
     public float GetCellSize() { return cellSize; }
