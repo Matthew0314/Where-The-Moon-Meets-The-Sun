@@ -7,6 +7,7 @@ using UnityEngine;
 public class PrologueMap : MonoBehaviour, IMaps
 {
     private UnitRosterManager unitRos;
+    private WeaponManager manageWeapons;
     private UnitStats stats;
     private PlayerClassManager classRos;
     private PlayerClass uClass;
@@ -21,6 +22,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     private EnemyStats eStats;
     public TextAsset enemyTextData;
     private List<EnemyUnit> mapEnemies = new List<EnemyUnit>();
+  
     
     // [SerializeField] GameObject felix; //Remove Later
     // [SerializeField] GameObject lilith; //Remove Later
@@ -31,6 +33,8 @@ public class PrologueMap : MonoBehaviour, IMaps
         grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         unitRos = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
         classRos = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
+        manageWeapons = GameObject.Find("GridManager").GetComponent<WeaponManager>();
+        manageWeapons.ReadCSV();
         unitRos.ReadCSV();
         classRos.Init();
         Init();
@@ -92,6 +96,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             enemy.stats = eStats;
             Debug.Log("Hello Enemies");
             mapEnemies.Add(enemy);
+           
 
             
         }

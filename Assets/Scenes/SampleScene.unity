@@ -409,9 +409,10 @@ GameObject:
   - component: {fileID: 641421681}
   - component: {fileID: 641421682}
   - component: {fileID: 641421684}
+  - component: {fileID: 641421687}
   - component: {fileID: 641421685}
   - component: {fileID: 641421686}
-  - component: {fileID: 641421687}
+  - component: {fileID: 641421688}
   m_Layer: 0
   m_Name: GridManager
   m_TagString: Untagged
@@ -499,6 +500,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d656003b83760479dc74dda118d396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &641421688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641421680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e35afb8b62b1554eae7631d138f9f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponTextData: {fileID: 4900000, guid: 59ce0a5ecf960894fa016b0c0c818003, type: 3}
 --- !u!1 &648300292
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,17 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AggressiveAI : MonoBehaviour
+public class AggressiveAI : MonoBehaviour, IEnemyAI
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public void enemyAttack(GameObject enemy) {
+        Debug.Log("Agressive");
     }
 }

@@ -46,6 +46,10 @@ public class TurnManager : MonoBehaviour
 
     }
 
+    private void EnemyPhase() {
+        
+    }
+
     private void CheckPhase()
     {
         if (playerTurn)
