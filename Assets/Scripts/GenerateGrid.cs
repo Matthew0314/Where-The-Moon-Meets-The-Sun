@@ -115,6 +115,7 @@ public class GenerateGrid : MonoBehaviour
     public int GetWidth() { return width; }
     public int GetLength() { return length; }
     public float GetCellSize() { return cellSize; }
+    public GridTile GetGridTile(int x, int z) { return grid[x,z]; }
 }
 
 

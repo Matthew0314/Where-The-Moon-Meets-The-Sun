@@ -8,7 +8,9 @@ using UnityEngine;
 public class TurnManager : MonoBehaviour
 {
     private UnitRosterManager playerList;
+    private IMaps _currentMap;
     private List<UnitStats> currUnits;  // Current player units
+    private Queue<EnemyUnit> currEnemies;
     private int turns = 0;
     private bool playerTurn;
     private bool enemyTurn; //possibly add another one for ally later on
@@ -19,7 +21,8 @@ public class TurnManager : MonoBehaviour
     {
         playerTurn = true; enemyTurn = false; turns++;
         playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
-        SetLists(); //This needs to removed later, should be called when player clicks start
+        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        // SetLists(); //This needs to removed later, should be called when player clicks start
     }
 
     // Update is called once per frame
@@ -28,9 +31,29 @@ public class TurnManager : MonoBehaviour
         // CheckPhase();
     }
 
-    private void SetLists()
+    public void SetLists()
     {
-        currUnits = playerList.getMapUnits();
+        currUnits = new List<UnitStats>();
+
+
+        List<UnitStats> temp = playerList.getMapUnits();
+ 
+        for (int i = 0; i < temp.Count; i++)
+        {
+            currUnits.Add(temp[i]);
+        }
+    }
+
+    public void SetEnemyList() {
+        currEnemies = new Queue<EnemyUnit>();
+
+        Queue<EnemyUnit> temp = _currentMap.GetMapEnemies();
+
+        foreach(EnemyUnit element in temp) {
+            currEnemies.Enqueue(element);
+            Debug.Log(currEnemies.Peek().stats.UnitName);
+        }
+
     }
 
     //After unit completes an action this is called
@@ -38,7 +61,7 @@ public class TurnManager : MonoBehaviour
     public void RemovePlayer(UnitStats player)
     {
         currUnits.Remove(player);
-        CheckPhase();
+        // CheckPhase();
     }
 
     private void AddPlayer()
@@ -46,11 +69,42 @@ public class TurnManager : MonoBehaviour
 
     }
 
-    private void EnemyPhase() {
-        
+    // private void EnemyPhase() {
+    //     int count = currEnemies.Count;
+    //     for (int i = 0; i < count; i++)
+    //     {
+    //         EnemyUnit temp = currEnemies.Dequeue();
+    //         GameObject tempGameObj = temp.gameObject;
+    //         IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
+    //         AIenemy.enemyAttack(temp.gameObject);
+    //     }
+
+    // }
+
+    private IEnumerator EnemyPhase() {
+        int count = currEnemies.Count;
+        for (int i = 0; i < count; i++)
+        {
+            EnemyUnit temp = currEnemies.Dequeue();
+            GameObject tempGameObj = temp.gameObject;
+            IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
+            yield return StartCoroutine(AIenemy.enemyAttack(temp.gameObject));
+        }
+
+        SetEnemyList();
+
+        turns++;
+            
+        Debug.Log("PLAYER PHASE");
+        Debug.Log("Turn: " + turns);
+
+        playerTurn = true;
+        enemyTurn = false;
+
+
     }
 
-    private void CheckPhase()
+    public void CheckPhase()
     {
         if (playerTurn)
         {
@@ -64,18 +118,17 @@ public class TurnManager : MonoBehaviour
         }
         if (enemyTurn)
         {
-            playerTurn = true;
-            enemyTurn = false;
-            turns++;
             
-            Debug.Log("PLAYER PHASE");
-            Debug.Log("Turn: " + turns);
+            StartCoroutine(EnemyPhase());
+            
         }
     }
 
     public bool isPlayerTurn() { return playerTurn; }
     public bool isEnemyTurn() { return enemyTurn; }
 
-    public bool isActive(UnitStats player) { return currUnits.Contains(player); }
+    public bool isActive(UnitStats player) { 
+        return currUnits.Contains(player); 
+    }
     
 }

@@ -1,3 +1,9 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.Versioning;
+using UnityEngine;
+
 public interface IMaps
 {
     void Init(); //Initlializes the map
@@ -8,4 +14,6 @@ public interface IMaps
     
     void CheckClearCondition(); //After every action checks if clear condition has been met
     void CheckMainChars();  //After every action checks if main characters have died
+
+    Queue<EnemyUnit> GetMapEnemies();
 }

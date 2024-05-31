@@ -43,9 +43,7 @@ public class PlayerClassManager : MonoBehaviour
 
             uClass = new PlayerClass(cName, cDesc, cType, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp);
 
-            Debug.Log("Class Name: " + uClass.ClassName);
-            Debug.Log("Movement: " + uClass.Movement);
-            Debug.Log("Whisper: " + uClass.Whisper);
+          
 
             fullClassList.Add(cName, uClass);
         }

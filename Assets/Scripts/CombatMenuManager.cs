@@ -16,15 +16,14 @@ public class CombatMenuManager : MonoBehaviour
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+ 
 
 
     public void playerWait() {
+        
         manageTurn.RemovePlayer(moveGrid.playerCollide.GetPlayer().stats);
         moveGrid.unitWait();
+        manageTurn.CheckPhase();
+        
     }
 }

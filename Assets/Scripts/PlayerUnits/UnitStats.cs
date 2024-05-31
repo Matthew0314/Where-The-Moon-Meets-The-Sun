@@ -34,6 +34,8 @@ public class UnitStats
     //Usually set to 0, movement is tied to class but this variable is used when items that permanantly increase mov are used
     private int movement;
 
+    private List<Weapon> weapons;
+
     //need to add weapon types
 
 
@@ -61,6 +63,8 @@ public class UnitStats
         evasion = EVA;
         luck = LCK;
         movement = MOV;
+
+        weapons = new List<Weapon>();
 
     }
 
@@ -198,6 +202,10 @@ public class UnitStats
     {
         get { return movement; }
         set { movement = value; }
+    }
+
+    public void AddWeapon(Weapon weapon) {
+        weapons.Add(weapon);
     }
 }
 

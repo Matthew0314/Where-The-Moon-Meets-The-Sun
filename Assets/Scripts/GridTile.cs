@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Stores information for each tile on the grid
 public class GridTile
 {
     private int gridX;
@@ -31,7 +32,7 @@ public class GridTile
         zPos = zPoss;
     }
 
-    //Returns the values of all variables for thsi class
+    //Returns the values of all variables for this class
     public bool GetPassable() { return passable; }
     public int GetMovementCost() { return movementCost; }
     public int GetAttackCost() { return attackCost; }

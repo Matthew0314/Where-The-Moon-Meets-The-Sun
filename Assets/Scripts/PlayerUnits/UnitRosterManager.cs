@@ -26,7 +26,7 @@ public class UnitRosterManager : MonoBehaviour
     {
         string[] data = statTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         
-        for (int i = 22; i < data.Length - 1; i += 22)
+        for (int i = 28; i < data.Length - 1; i += 28)
         {
             string chrName = data[i];
             string chrDesc = data[i + 1];
@@ -49,6 +49,12 @@ public class UnitRosterManager : MonoBehaviour
             int LCK = int.Parse(data[i + 18]);
             int MOV = int.Parse(data[i + 19]);
             string charClass = data[i + 20];
+            string item1 = data[i + 21];
+            string item2 = data[i + 22];
+            string item3 = data[i + 23];
+            string item4 = data[i + 24];
+            string item5 = data[i + 25];
+            string item6 = data[i + 26];
 
             Debug.Log(chrName);
             Debug.Log(chrDesc);
@@ -58,6 +64,17 @@ public class UnitRosterManager : MonoBehaviour
             stats = new UnitStats(chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
             Debug.Log("Name: " + stats.UnitName);
             Debug.Log("Player Class: " + stats.UnitClass);
+
+            for (int j = 0; j < 6; j++) {
+                if (data[i + 21 + j] == "NULL") {
+                    Debug.Log("Null Weapon");
+                    break;
+                }
+
+                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 21 + j]);
+                stats.AddWeapon(tempWeapon);
+                Debug.Log("Added " + tempWeapon.WeaponName);
+            }
 
 
             fullRoster.Add(chrName, stats);

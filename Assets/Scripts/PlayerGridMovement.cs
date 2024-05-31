@@ -122,7 +122,7 @@ public class PlayerGridMovement : MonoBehaviour
             attackPath.CalculateAttack(x, z, attackRangeStat);
             attackPath.HighlightAttack();
             
-           curX = x;
+            curX = x;
             curZ = z;
             MoveUnit(curX, curZ);
  
@@ -216,7 +216,7 @@ public class PlayerGridMovement : MonoBehaviour
         waitButton.SetActive(false);
         itemButton.SetActive(false);
     }
-
+    
     public void unitWait() {
         deactivateFirstMenu();
         
@@ -229,12 +229,11 @@ public class PlayerGridMovement : MonoBehaviour
         charSelected = false;
         inMenu = false;            
            
+
         playerCollide.removePlayer();
             
     }
 
-    // public void getCurrX() {return curX;}
-    // public void getCurrY() {return curY;}
     public int getX() { return x;}
     public int getZ() { return z;}
     public bool isCharSelected() { return charSelected; }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Stores data for every weapon in the game
 public abstract class Weapon 
 {
     public string WeaponName {get; set;}
@@ -23,8 +24,11 @@ public abstract class Weapon
     public float MultArmored {get; set;}
     public float MultWhisper {get; set;}
     public float MultInfantry {get; set;}
+    public int NumHits {get; set;}
+    public bool CanCounter {get; set;}
 
-    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf) {
+    //Constructor
+    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) {
         WeaponName = name;
         WeaponDescription = desc;
         WeaponType = Wtype;
@@ -44,14 +48,20 @@ public abstract class Weapon
         MultArmored = MArm;
         MultWhisper = MWhisp;
         MultInfantry = MInf;
+        NumHits = nHit;
+        CanCounter = counter;
     }
 
+    //If theres a special ability this function will be called
     public abstract void SpecialAbility();
+
+    // public virtual Queue
 }
 
+//Class for all weapons without a special ability
 public class NormalWeapon : Weapon
 {
-    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf) {}
+    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter) {}
     
     public override void SpecialAbility() {}
 }

@@ -26,6 +26,8 @@ public class EnemyStats
 
     private int healthBars;
 
+     private List<Weapon> weapons;
+
     public EnemyStats(string uName,string uDesc,string uType,int lev, int HP,int ATK,int MAG,int DEF,int RES,int SPD,int EVA,int LUCK,int MOVE,bool air,bool mount,bool arm,bool whisp, int hBars)
     {
         unitName = uName; 
@@ -46,6 +48,8 @@ public class EnemyStats
         armored = arm;
         whisper = whisp;   
         healthBars = hBars;     
+
+        weapons = new List<Weapon>();
     }
 
      public string UnitName
@@ -154,5 +158,9 @@ public class EnemyStats
     {
         get { return healthBars; }
         set { healthBars = value; }
+    }
+
+    public void AddWeapon(Weapon weapon) {
+        weapons.Add(weapon);
     }
 }
