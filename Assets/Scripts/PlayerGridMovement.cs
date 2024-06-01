@@ -68,11 +68,13 @@ public class PlayerGridMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && !charSelected && playerCollide.collPlayer && oneAction && manageTurn.isActive(playerCollide.GetPlayer().stats)) {
             pathFinder.ResetArea();
             currUnit = playerCollide.GetPlayerObject();
-            
+            Debug.Log("Hello");
             attackRangeStat = playerCollide.GetPlayerAttack();
-            
+            Debug.Log("No");
             pathFinder.CalcAttack(x, z, attackRangeStat , playerCollide.GetPlayerMove());
+            Debug.Log("No");
             pathFinder.PrintArea();
+            Debug.Log("No");
             
             orgX = x;
             orgZ = z;
@@ -119,6 +121,8 @@ public class PlayerGridMovement : MonoBehaviour
             pathFinder.DestroyArea();
             currUnit = playerCollide.GetPlayerObject();
             attackRangeStat = playerCollide.GetPlayerAttack();
+            
+
             attackPath.CalculateAttack(x, z, attackRangeStat);
             attackPath.HighlightAttack();
             
@@ -134,7 +138,7 @@ public class PlayerGridMovement : MonoBehaviour
         
 
         if (Input.GetKeyDown(KeyCode.G)) {
-            PlayerUnit temp = playerCollide.GetPlayer();
+            UnitManager temp = playerCollide.GetPlayer();
             Debug.Log("Hello player Mov: " + temp.getMove());
         }
         if (!inMenu && !manageTurn.isEnemyTurn()) {
@@ -154,7 +158,7 @@ public class PlayerGridMovement : MonoBehaviour
             if (Mathf.Abs(Input.GetAxis("Horizontal")) >= cursorSen)
             {
                 //Checks if the next tile is not a TallObstacle or if a chracter is not selected
-                if (gridControl.IsValid(x + (int)Mathf.Sign(Input.GetAxis("Horizontal")), z) && !gridControl.grid[x + (int)Mathf.Sign(Input.GetAxis("Horizontal")), z].GetTallObstacle() && !charSelected)
+                if (gridControl.IsValid(x + (int)Mathf.Sign(Input.GetAxis("Horizontal")), z) && !gridControl.GetGridTile(x + (int)Mathf.Sign(Input.GetAxis("Horizontal")), z).GetTallObstacle() && !charSelected)
                 {
                     moveCursor.position += new Vector3(Mathf.Sign(Input.GetAxis("Horizontal")) * gridControl.GetCellSize(), 0f, 0f);
 
@@ -175,7 +179,7 @@ public class PlayerGridMovement : MonoBehaviour
 
             if (Mathf.Abs(Input.GetAxis("Vertical")) >= cursorSen)
             {
-                if (gridControl.IsValid(x, z + (int)Mathf.Sign(Input.GetAxis("Vertical"))) && !gridControl.grid[x, z + (int)Mathf.Sign(Input.GetAxis("Vertical"))].GetTallObstacle() && !charSelected)
+                if (gridControl.IsValid(x, z + (int)Mathf.Sign(Input.GetAxis("Vertical"))) && !gridControl.GetGridTile(x, z + (int)Mathf.Sign(Input.GetAxis("Vertical"))).GetTallObstacle() && !charSelected)
                 {
                     moveCursor.position += new Vector3(0f, 0f, Mathf.Sign(Input.GetAxis("Vertical")) * gridControl.GetCellSize());
 
@@ -200,7 +204,7 @@ public class PlayerGridMovement : MonoBehaviour
     private void MoveUnit(int movX, int movZ) {
 
         Vector3 currentPosition = currUnit.transform.position;
-        currUnit.transform.position = new Vector3(gridControl.grid[movX, movZ].GetXPos(), currentPosition.y, gridControl.grid[movX, movZ].GetZPos());
+        currUnit.transform.position = new Vector3(gridControl.GetGridTile(movX, movZ).GetXPos(), currentPosition.y, gridControl.GetGridTile(movX, movZ).GetZPos());
     }
 
 

@@ -1295,7 +1295,7 @@ GameObject:
   - component: {fileID: 71946459294361099}
   - component: {fileID: 7547962370928320102}
   - component: {fileID: 6643643860125401545}
-  - component: {fileID: 4684348292623419013}
+  - component: {fileID: -8875682771882337267}
   m_Layer: 0
   m_Name: Whisper
   m_TagString: EnemyUnit
@@ -1381,7 +1381,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: -0.0038286448, y: 0.9848441, z: 0}
---- !u!114 &4684348292623419013
+--- !u!114 &-8875682771882337267
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1390,9 +1390,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 71946459301746123}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71cf80c1590bdec4ca582de9a7963d32, type: 3}
+  m_Script: {fileID: 11500000, guid: 2ecfd3641b332f64b89c5641d3193cc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 0
+  UnitType: Enemy
+  movement: 0
+  attackRange: 0
+  unitName: Whisper
 --- !u!1 &71946459301746127
 GameObject:
   m_ObjectHideFlags: 0

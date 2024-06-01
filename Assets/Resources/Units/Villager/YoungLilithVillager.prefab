@@ -354,7 +354,7 @@ GameObject:
   - component: {fileID: 5473311345843212374}
   - component: {fileID: 361885167376790227}
   - component: {fileID: 8100495445808298443}
-  - component: {fileID: 4442188961306748448}
+  - component: {fileID: -6575062246988429640}
   m_Layer: 0
   m_Name: YoungLilithVillager
   m_TagString: PlayerUnit
@@ -424,7 +424,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: -0.0037897825, y: 1.0238087, z: 0}
---- !u!114 &4442188961306748448
+--- !u!114 &-6575062246988429640
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -433,12 +433,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3109600941807490450}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f696cecfd29ddf24e97fc8f1519fecea, type: 3}
+  m_Script: {fileID: 11500000, guid: b2ff08f779e7b66408c71d135f1cd0b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 0
-  movement: 1
-  attackRange: 2
+  UnitType: Player
+  movement: 0
+  attackRange: 0
   unitName: YoungLilith
 --- !u!1 &3431412522824541635
 GameObject:

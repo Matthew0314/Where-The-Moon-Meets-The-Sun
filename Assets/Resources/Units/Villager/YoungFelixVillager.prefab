@@ -845,7 +845,7 @@ GameObject:
   - component: {fileID: 736488751025619245}
   - component: {fileID: 5900975802800104561}
   - component: {fileID: 1450567884757394702}
-  - component: {fileID: 5108464705186386566}
+  - component: {fileID: 3489638444614074727}
   m_Layer: 0
   m_Name: YoungFelixVillager
   m_TagString: PlayerUnit
@@ -907,7 +907,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: -0.002772808, y: 1.1940556, z: 0}
---- !u!114 &5108464705186386566
+--- !u!114 &3489638444614074727
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -916,12 +916,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 6421910953515290783}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f696cecfd29ddf24e97fc8f1519fecea, type: 3}
+  m_Script: {fileID: 11500000, guid: b2ff08f779e7b66408c71d135f1cd0b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 0
-  movement: 1
-  attackRange: 1
+  UnitType: Player
+  movement: 0
+  attackRange: 0
   unitName: YoungFelix
 --- !u!1 &6425930840641065695
 GameObject:

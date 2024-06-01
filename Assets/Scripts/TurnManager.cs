@@ -10,7 +10,7 @@ public class TurnManager : MonoBehaviour
     private UnitRosterManager playerList;
     private IMaps _currentMap;
     private List<UnitStats> currUnits;  // Current player units
-    private Queue<EnemyUnit> currEnemies;
+    private Queue<UnitManager> currEnemies;
     private int turns = 0;
     private bool playerTurn;
     private bool enemyTurn; //possibly add another one for ally later on
@@ -45,13 +45,13 @@ public class TurnManager : MonoBehaviour
     }
 
     public void SetEnemyList() {
-        currEnemies = new Queue<EnemyUnit>();
+        currEnemies = new Queue<UnitManager>();
 
-        Queue<EnemyUnit> temp = _currentMap.GetMapEnemies();
+        Queue<UnitManager> temp = _currentMap.GetMapEnemies();
 
-        foreach(EnemyUnit element in temp) {
+        foreach(UnitManager element in temp) {
             currEnemies.Enqueue(element);
-            Debug.Log(currEnemies.Peek().stats.UnitName);
+            // Debug.Log(currEnemies.Peek().stats.UnitName);
         }
 
     }
@@ -85,7 +85,7 @@ public class TurnManager : MonoBehaviour
         int count = currEnemies.Count;
         for (int i = 0; i < count; i++)
         {
-            EnemyUnit temp = currEnemies.Dequeue();
+            UnitManager temp = currEnemies.Dequeue();
             GameObject tempGameObj = temp.gameObject;
             IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
             yield return StartCoroutine(AIenemy.enemyAttack(temp.gameObject));

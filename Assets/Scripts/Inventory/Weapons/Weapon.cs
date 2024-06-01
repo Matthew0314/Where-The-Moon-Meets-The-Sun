@@ -53,7 +53,10 @@ public abstract class Weapon
     }
 
     //If theres a special ability this function will be called
+    public virtual void unitAttack(GameObject attacker, GameObject defender) {}
+
     public abstract void SpecialAbility();
+
 
     // public virtual Queue
 }
@@ -63,5 +66,6 @@ public class NormalWeapon : Weapon
 {
     public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter) {}
     
+    public override void unitAttack(GameObject attacker, GameObject defender) {}
     public override void SpecialAbility() {}
 }

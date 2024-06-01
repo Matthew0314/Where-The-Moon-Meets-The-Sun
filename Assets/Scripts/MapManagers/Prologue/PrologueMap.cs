@@ -10,7 +10,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     private WeaponManager manageWeapons;
     private UnitStats stats;
     private PlayerClassManager classRos;
-    private PlayerClass uClass;
+    // private PlayerClass uClass;
     private GenerateGrid grid;
     private TurnManager manageTurn;   
     private string[] newUnits = { "YoungFelix", "YoungLilith" };
@@ -18,11 +18,11 @@ public class PrologueMap : MonoBehaviour, IMaps
     private int[] startGridX = { 2, 3 };
     private int[] startGridZ = { 1, 2 };
     private int length = 10;
-    private int width = 10;
+    private int width = 15;
     private List<UnitStats> mapUnits;
-    private EnemyStats eStats;
+    // private EnemyStats eStats;
     [SerializeField] TextAsset enemyTextData;
-    public Queue<EnemyUnit> mapEnemies = new Queue<EnemyUnit>();
+    private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
   
     // Start is called before the first frame update
     void Start()
@@ -37,8 +37,9 @@ public class PrologueMap : MonoBehaviour, IMaps
         //Reads in data for weapons, all units in the game, and all player classes
         //THESE WILL NEVER BE CALLED AGAIN AFTER THE PROLOGUE MAP
         manageWeapons.ReadCSV();
-        unitRos.ReadCSV();
         classRos.Init();
+        unitRos.ReadCSV();
+        
 
         //Initilizes the prologue map
         Init();
@@ -70,6 +71,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     private void InitEnemies() {
         
         string[] data = enemyTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+        Type unitType = Type.GetType("EnemyStats");
 
         for (int i = 23; i < data.Length - 1; i += 23)
         {
@@ -101,19 +103,22 @@ public class PrologueMap : MonoBehaviour, IMaps
             string AIenemy = data[i + 21];
             
             //Stores Necessary data in EnemyStats
-            eStats = new EnemyStats(cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
+            UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
+            // eStats = new EnemyStats(cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
 
-            
+            Debug.Log("Init Enemy Stats");
             //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
             GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
             GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos() + 0.005f, grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
-            
+            // Type typeUnit = Type.GetType("EnemyUnit");
+            // UnitManager enemyUnit = newEnemy.AddComponent(typeUnit) as UnitManager;
+
             //Ataches an AI script interface depending on the characterististics of the nemy specified in the CSV file
             Type type = Type.GetType(AIenemy);
             IEnemyAI enemyAI = newEnemy.AddComponent(type) as IEnemyAI;
             
             //Stores the enemy stats in the EnemyUnit object and stores in a queue
-            EnemyUnit enemy = newEnemy.GetComponent<EnemyUnit>();
+            UnitManager enemy = newEnemy.GetComponent<UnitManager>();
             enemy.stats = eStats;
             mapEnemies.Enqueue(enemy);
            
@@ -129,6 +134,8 @@ public class PrologueMap : MonoBehaviour, IMaps
         {
             unitRos.AddPlayableUnit(newUnits[i]);
         }
+
+        
     }
 
     public void PrintCharacters()
@@ -142,7 +149,9 @@ public class PrologueMap : MonoBehaviour, IMaps
             //Loads the prefab based on the units class and instantiates it on one of the positions specified by StartGrid
             stats = mapUnits[i];
             GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
-            Instantiate(unitPrefab, new Vector3(grid.grid[startGridX[i], startGridZ[i]].GetXPos(), grid.grid[startGridX[i], startGridZ[i]].GetYPos() + 0.005f, grid.grid[startGridX[i], startGridZ[i]].GetZPos()), Quaternion.identity);
+            Instantiate(unitPrefab, new Vector3(grid.GetGridTile(startGridX[i], startGridZ[i]).GetXPos(), grid.GetGridTile(startGridX[i], startGridZ[i]).GetYPos() + 0.005f, grid.GetGridTile(startGridX[i], startGridZ[i]).GetZPos()), Quaternion.identity);
+            // Type typePUnit = Type.GetType("PlayerUnit");
+            // UnitManager enemyUnit = unitPrefab.AddComponent(typePUnit) as UnitManager;
         }
     }
 
@@ -155,13 +164,13 @@ public class PrologueMap : MonoBehaviour, IMaps
     }
 
     //Niether YoungFelix nor YoungLilith can die, check to see if alive
-    public void CheckMainChars()
+    public void CheckDefeatCondition()
     {
         //Check to see if felix and lilith have been removed after every action
         //Game over if they have been removed
     }
 
-    public Queue<EnemyUnit> GetMapEnemies() {
+    public Queue<UnitManager> GetMapEnemies() {
         return mapEnemies;
     }
 

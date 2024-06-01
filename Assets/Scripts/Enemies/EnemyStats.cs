@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -163,4 +163,4 @@ public class EnemyStats
     public void AddWeapon(Weapon weapon) {
         weapons.Add(weapon);
     }
-}
+}*/

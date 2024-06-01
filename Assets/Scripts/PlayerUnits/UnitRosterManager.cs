@@ -25,6 +25,7 @@ public class UnitRosterManager : MonoBehaviour
     public void ReadCSV()
     {
         string[] data = statTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+        Type unitType = Type.GetType("PlayerStats");
         
         for (int i = 28; i < data.Length - 1; i += 28)
         {
@@ -61,7 +62,10 @@ public class UnitRosterManager : MonoBehaviour
             Debug.Log(lev);
             Debug.Log("MOV: " + MOV);
 
-            stats = new UnitStats(chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
+            
+            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
+            // stats = new UnitStats(chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
+           
             Debug.Log("Name: " + stats.UnitName);
             Debug.Log("Player Class: " + stats.UnitClass);
 

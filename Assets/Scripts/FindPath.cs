@@ -41,7 +41,7 @@ public class FindPath : MonoBehaviour
        
     }
 
-     public void PrintArea()
+    public void PrintArea()
      {
         for(int i = 0; i < gridTraverse.GetWidth(); i++)
         {
@@ -53,11 +53,11 @@ public class FindPath : MonoBehaviour
                     GameObject areaTile;
                     if (canAttack[i, j] && !canMove[i, j])
                     {
-                        areaTile = Instantiate(attackTile, new Vector3(gridTraverse.grid[i, j].GetXPos(), gridTraverse.grid[i, j].GetYPos() + 0.005f, gridTraverse.grid[i, j].GetZPos()), Quaternion.identity);
+                        areaTile = Instantiate(attackTile, new Vector3(gridTraverse.GetGridTile(i, j).GetXPos(), gridTraverse.GetGridTile(i, j).GetYPos() + 0.005f, gridTraverse.GetGridTile(i, j).GetZPos()), Quaternion.identity);
                     }
                     else
                     {
-                        areaTile = Instantiate(movementAreaTile, new Vector3(gridTraverse.grid[i, j].GetXPos(), gridTraverse.grid[i, j].GetYPos() + 0.005f, gridTraverse.grid[i, j].GetZPos()), Quaternion.identity);
+                        areaTile = Instantiate(movementAreaTile, new Vector3(gridTraverse.GetGridTile(i, j).GetXPos(), gridTraverse.GetGridTile(i, j).GetYPos() + 0.005f, gridTraverse.GetGridTile(i, j).GetZPos()), Quaternion.identity);
                     }
 
                     
@@ -92,9 +92,9 @@ public class FindPath : MonoBehaviour
         movableCells = new List<GridTile>();
 
         //Adds the starting cell to both cellList and movableCells
-        cellList.Add(gridTraverse.grid[startX, startZ]);
-        movableCells.Add(gridTraverse.grid[startX, startZ]);
-        processedList.Add(gridTraverse.grid[startX, startZ]);
+        cellList.Add(gridTraverse.GetGridTile(startX, startZ));
+        movableCells.Add(gridTraverse.GetGridTile(startX, startZ));
+        processedList.Add(gridTraverse.GetGridTile(startX, startZ));
 
         //creates arrays that store the distance number and which cells have been visited
         distances = new int[gridTraverse.GetWidth(), gridTraverse.GetLength()];
@@ -139,14 +139,14 @@ public class FindPath : MonoBehaviour
                     {
 
                         //If implementing flier class later on change this to check that case
-                        int currCost = gridTraverse.grid[nextX, nextZ].GetMovementCost();
+                        int currCost = gridTraverse.GetGridTile(nextX, nextZ).GetMovementCost();
 
                         if (currCost == int.MaxValue)
                         {
                             //Since its an edge cell it will be added tp movable cells and used to calculate attack area
-                            if (!movableCells.Contains(gridTraverse.grid[currX, currZ]))
+                            if (!movableCells.Contains(gridTraverse.GetGridTile(currX, currZ)))
                             {
-                                movableCells.Add(gridTraverse.grid[currX, currZ]);
+                                movableCells.Add(gridTraverse.GetGridTile(currX, currZ));
                             }
                             continue;
                         }
@@ -157,16 +157,16 @@ public class FindPath : MonoBehaviour
                         {
                             canMove[nextX, nextZ] = true;
                             distances[nextX, nextZ] = newDistance;
-                            if (!processedList.Contains(gridTraverse.grid[nextX, nextZ]))
+                            if (!processedList.Contains(gridTraverse.GetGridTile(nextX, nextZ)))
                             {
-                                cellList.Add(gridTraverse.grid[nextX, nextZ]);
+                                cellList.Add(gridTraverse.GetGridTile(nextX, nextZ));
                             }
                         }
                         else
                         {
-                            if (!movableCells.Contains(gridTraverse.grid[currX, currZ]))
+                            if (!movableCells.Contains(gridTraverse.GetGridTile(currX, currZ)))
                             {
-                                movableCells.Add(gridTraverse.grid[currX, currZ]);
+                                movableCells.Add(gridTraverse.GetGridTile(currX, currZ));
                             }
                         }
                     }
@@ -223,11 +223,11 @@ public class FindPath : MonoBehaviour
 
                     if (gridTraverse.IsValid(nextX, nextZ))
                     {
-                        int currCost = gridTraverse.grid[nextX, nextZ].GetAttackCost();
+                        int currCost = gridTraverse.GetGridTile(nextX, nextZ).GetAttackCost();
 
                         if (currCost == int.MaxValue) { continue; }
 
-                        int newDistance = newDistances[currX, currZ] + gridTraverse.grid[nextX, nextZ].GetAttackCost(); ;
+                        int newDistance = newDistances[currX, currZ] + gridTraverse.GetGridTile(nextX, nextZ).GetAttackCost(); ;
 
                         if (!newVisited[nextX, nextZ] && newDistance <= charAttack)
                         {
@@ -238,10 +238,10 @@ public class FindPath : MonoBehaviour
                                 newDistances[nextX, nextZ] = newDistance;
                             }
 
-                            if (!processedCells.Contains(gridTraverse.grid[nextX, nextZ]))
+                            if (!processedCells.Contains(gridTraverse.GetGridTile(nextX, nextZ)))
                             {
-                                attackCellList.Add(gridTraverse.grid[nextX, nextZ]);
-                                processedCells.Add(gridTraverse.grid[nextX, nextZ]);
+                                attackCellList.Add(gridTraverse.GetGridTile(nextX, nextZ));
+                                processedCells.Add(gridTraverse.GetGridTile(nextX, nextZ));
                             }
                         }
                     }

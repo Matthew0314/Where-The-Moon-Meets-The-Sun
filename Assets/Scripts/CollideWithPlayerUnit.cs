@@ -7,7 +7,7 @@ using UnityEngine;
 public class CollideWithPlayerUnit : MonoBehaviour
 {
     private PlayerUnit player;
-    public PlayerUnit enemy;
+    public UnitManager enemy;
     public bool collPlayer;
     public bool cantPlace;
     private GameObject currPlayer;
@@ -33,8 +33,9 @@ public class CollideWithPlayerUnit : MonoBehaviour
             cantPlace = true;
         }
         if (other.gameObject.CompareTag("EnemyUnit")) {
-            enemy = other.gameObject.GetComponent<PlayerUnit>();
+            enemy = other.gameObject.GetComponent<UnitManager>();
             Debug.Log("Hello Enemy");
+            Debug.Log(enemy.getAttack());
         }
 
     }
@@ -62,7 +63,7 @@ public class CollideWithPlayerUnit : MonoBehaviour
 
     //Returns player unit data that would be needed
     public GameObject GetPlayerObject() {return currPlayer;}
-    public PlayerUnit GetPlayer() { return player; }
+    public UnitManager GetPlayer() { return player; }
     public int GetPlayerMove() { return player.getMove();  }
     public int GetPlayerAttack() { return player.getAttack(); }
   

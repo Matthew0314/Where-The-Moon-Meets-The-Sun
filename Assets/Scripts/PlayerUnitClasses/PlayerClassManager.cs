@@ -51,7 +51,7 @@ public class PlayerClassManager : MonoBehaviour
 
 
 
-    public PlayerClass GetUnitClass(string name)
+    public static PlayerClass GetUnitClass(string name)
     {
 
         if (fullClassList.ContainsKey(name))

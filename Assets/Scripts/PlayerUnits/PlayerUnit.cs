@@ -1,52 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
-
-//using System.Diagnostics;
 using UnityEngine;
 
-public class PlayerUnit : MonoBehaviour
+public class PlayerUnit : UnitManager
 {
-    [SerializeField] int maxHealth;
-    public UnitStats stats;
-    public PlayerClass uClass;
-    //private UnitRosterManager roster;
-    private PlayerClassManager classList;
-    public int movement;
-    public int attackRange;
-    [SerializeField] string unitName;
-    //public PlayerStats stats;
-
-    // Start is called before the first frame update
-    void Start()
+    protected override void InitializeUnitData()
     {
-        //roster = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
-        classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
+        
         stats = UnitRosterManager.GetUnitStats(unitName);
-        Debug.Log(stats.UnitClass);
-        uClass = classList.GetUnitClass(stats.UnitClass);
-        Debug.Log("Move Test " + uClass.Movement);
-
         maxHealth = stats.Health;
-        //movement += stats.Movement;
+        primaryWeapon = stats.GetWeaponAt(0);
+        // Additional Player-specific initialization logic here
     }
 
-    // Update is called once per frame
-    void Update()
-    {
+    public override int getMove() { Debug.Log("Return"); return stats.getClass().Movement + stats.Movement; }
+    public override int getAttack() { return primaryWeapon.Range; }
 
-    }
-
-
-
-
-    void initlizeUnitData()
-    {
-        //stats.movement = movement;
-        //stats.maxHealth = maxHealth;
-    }
-
-    //Return Stats Section
-
-    public int getMove() { return uClass.Movement + stats.Movement; }
-    public int getAttack() { return attackRange;  }
+    // Additional Player-specific methods here
 }

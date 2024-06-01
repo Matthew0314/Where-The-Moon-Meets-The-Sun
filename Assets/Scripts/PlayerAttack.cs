@@ -45,8 +45,8 @@ public class PlayerAttack : MonoBehaviour
         sX = startX;
         sZ = startZ;
 
-        cellList.Add(grid.grid[startX, startZ]);
-        processedList.Add(grid.grid[startX, startZ]);
+        cellList.Add(grid.GetGridTile(startX, startZ));
+        processedList.Add(grid.GetGridTile(startX, startZ));
 
         distances = new int[grid.GetWidth(), grid.GetLength()];
         visited = new bool[grid.GetWidth(), grid.GetLength()];
@@ -94,7 +94,7 @@ public class PlayerAttack : MonoBehaviour
                     {
 
                         //If implementing flier class later on change this to check that case
-                        int currCost = grid.grid[nextX, nextZ].GetAttackCost();
+                        int currCost = grid.GetGridTile(nextX, nextZ).GetAttackCost();
 
                         if (currCost == int.MaxValue)
                         {
@@ -106,12 +106,15 @@ public class PlayerAttack : MonoBehaviour
 
 
                         if (!visited[nextX, nextZ] && newDistance <= attackRange)
-                        {
-                            canAttack[nextX, nextZ] = true;
+                        {   
+                            if (newDistance == attackRange) {
+                                canAttack[nextX, nextZ] = true;
+                            } 
+                            
                             distances[nextX, nextZ] = newDistance;
-                            if (!processedList.Contains(grid.grid[nextX, nextZ]))
+                            if (!processedList.Contains(grid.GetGridTile(nextX, nextZ)))
                             {
-                                cellList.Add(grid.grid[nextX, nextZ]);
+                                cellList.Add(grid.GetGridTile(nextX, nextZ));
                             }
 
 
@@ -135,7 +138,7 @@ public class PlayerAttack : MonoBehaviour
                 {
 
                     GameObject areaTile;
-                    areaTile = Instantiate(attackTile, new Vector3(grid.grid[i, j].GetXPos(), grid.grid[i, j].GetYPos() + 0.005f, grid.grid[i, j].GetZPos()), Quaternion.identity);
+                    areaTile = Instantiate(attackTile, new Vector3(grid.GetGridTile(i, j).GetXPos(), grid.GetGridTile(i, j).GetYPos() + 0.005f, grid.GetGridTile(i, j).GetZPos()), Quaternion.identity);
                     movementTiles.Add(areaTile);
                 }
             }

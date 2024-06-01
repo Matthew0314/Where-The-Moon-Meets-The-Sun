@@ -13,7 +13,7 @@ public interface IMaps
     //Need function for add and remove characters later on
     
     void CheckClearCondition(); //After every action checks if clear condition has been met
-    void CheckMainChars();  //After every action checks if main characters have died
+    void CheckDefeatCondition();  //After every action checks if main characters have died
 
-    Queue<EnemyUnit> GetMapEnemies();
+    Queue<UnitManager> GetMapEnemies();
 }

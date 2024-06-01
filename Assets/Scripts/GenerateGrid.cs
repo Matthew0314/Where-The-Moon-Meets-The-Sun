@@ -5,7 +5,7 @@ using UnityEngine;
 //Purpose of this class is to initlize the information for the grid based on the layer that the tile collides with
 public class GenerateGrid : MonoBehaviour
 {
-    public GridTile[,] grid;
+    private GridTile[,] grid;
     private PlayerGridMovement playerCursor;
     private float cellSize = 4;
     private int length;
