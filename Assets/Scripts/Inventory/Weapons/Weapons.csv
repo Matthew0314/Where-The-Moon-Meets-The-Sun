@@ -1,4 +1,4 @@
 Class,Name,Description,Type,TomeType,Rank,Attack,Hit,Crit,Weight,Uses,Range1,Range2,Range3,Range,MultMounted,MultAirBorn,MultArmored,MultWhisper,MultInfantry,NumHits,CanCounter,FILLER
 NormalWeapon,Iron Sword,Basic Sword,Sword,NULL,E,5,90,0,5,40,TRUE,FALSE,FALSE,1,1,1,1,1,1,1,TRUE,FILLER
-NormalWeapon,Iron Bow,Basic Bow,Bow,NULL,E,6,85,0,6,40,FALSE,TRUE,FALSE,2,1,1.5,1,1,1,1,TRUE,FILLER
+NormalWeapon,Iron Bow,Basic Bow,Bow,NULL,E,6,85,0,6,40,FALSE,FALSE,TRUE,4,1,1.5,1,1,1,1,TRUE,FILLER
 NormalWeapon,Whisper Claw,Claw of A Whisper,Fist,NULL,E,3,95,0,1,40,TRUE,FALSE,FALSE,1,1,1,1,1,1,2,TRUE,FILLER

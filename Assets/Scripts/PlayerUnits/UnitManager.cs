@@ -86,7 +86,7 @@ using UnityEngine;
 public class UnitManager : MonoBehaviour
 {
     protected int maxHealth;
-    protected int currentHealth;
+    public int currentHealth;
     public UnitStats stats;
     public string UnitType;
     protected PlayerClassManager classList;

@@ -17,7 +17,7 @@ public class PassiveAI : MonoBehaviour, IEnemyAI
         // Transform objTransform = enemy.transform;
         // Vector3 targetPosition = new Vector3(grid.GetGridTile(4, 3).GetXPos(), grid.GetGridTile(4, 3).GetYPos(), grid.GetGridTile(4, 3).GetZPos());
         // objTransform.position = Vector3.MoveTowards(objTransform.position, targetPosition, 20f * Time.deltaTime);
-        // Debug.Log("Passive");
+        Debug.Log("Passive");
 
     
 
@@ -40,7 +40,7 @@ public class PassiveAI : MonoBehaviour, IEnemyAI
 
         // Debug.Log("Enemy reached the target position.");
 
-        yield return null;
+        yield return new WaitForSeconds(3.0f);
 
        
 

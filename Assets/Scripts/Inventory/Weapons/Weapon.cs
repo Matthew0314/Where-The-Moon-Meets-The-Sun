@@ -29,6 +29,11 @@ public abstract class Weapon
 
     public Queue<UnitManager> AttackingQueue {get; set;}
     public Queue<UnitManager> DefendingQueue {get; set;}
+    public int AttackerCurrentHealth {get; set;}
+    public int DefenderCurrentHealth {get; set;}
+
+    private PlayerAttack attackPath = GameObject.Find("Player").GetComponent<PlayerAttack>();
+    private IMaps _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
 
     //Constructor
     public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) {
@@ -53,23 +58,84 @@ public abstract class Weapon
         MultInfantry = MInf;
         NumHits = nHit;
         CanCounter = counter;
+
+        AttackingQueue = new Queue<UnitManager>();
+        DefendingQueue = new Queue<UnitManager>();
+        
     }
 
     //If theres a special ability this function will be called
-    public virtual void unitAttack(GameObject attacker, GameObject defender) {}
+    public virtual void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending, int attackerX, int attackerZ, int defenderX, int defenderZ) {
+        
+        int queueSize = attacking.Count;
+        for (int i = 0; i < queueSize; i++) {
+            UnitManager atk = attacking.Dequeue();
+            UnitManager def = defending.Dequeue();
 
-    public virtual void InitiateQueues(UnitManager attacker, UnitManager defender) {
-        for (int i = 0; i < attacker.primaryWeapon.NumHits; i++) {
-            AttackingQueue.Enqueue(attacker);
-            DefendingQueue.Enqueue(defender);
+            int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
+
+            float multiplier = 1;
+
+            if (def.stats.Mounted) {
+                multiplier += atk.primaryWeapon.MultMounted - 1; 
+            }
+            if (def.stats.AirBorn) {
+                multiplier += atk.primaryWeapon.MultAirBorn - 1; 
+            }
+            if (def.stats.Armored) {
+                multiplier += atk.primaryWeapon.MultArmored - 1; 
+            }
+            if (def.stats.Whisper) {
+                multiplier += atk.primaryWeapon.MultWhisper - 1; 
+            }
+
+            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+
+            damage = (int)(damage * multiplier);
+
+            Debug.Log(atk.stats.UnitName + " Did" + damage + " damage to " + def.stats.UnitName);
+
+            def.currentHealth -= damage;
+
+            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+
+            if (def.currentHealth <= 0) {
+                Debug.Log(def.stats.UnitName + "Has died");
+                _currentMap.RemoveDeadUnit(def, defenderX, defenderZ);
+                break;
+            }
         }
 
-        if (attacker.primaryWeapon.Range > 3) {
-            if (defender.primaryWeapon.Range >= attacker.primaryWeapon.Range) {
-                
-            }
-        } else {
+    }
 
+    public virtual void InitiateQueues(UnitManager attacker, UnitManager defender, int attackerX, int attackerZ, int defenderX, int defenderZ) {
+        
+        for (int i = 0; i < attacker.primaryWeapon.NumHits ; i++) {
+            Debug.Log("hi");
+            AttackingQueue.Enqueue(attacker);
+            DefendingQueue.Enqueue(defender);
+            Debug.Log("hi");
+        }
+        
+        bool[,] counter = attackPath.CalculateAttack(defenderX, defenderZ, defender.primaryWeapon.Range, defender.primaryWeapon.Range1, defender.primaryWeapon.Range2, defender.primaryWeapon.Range3);
+
+        if (counter[attackerX, attackerZ]) {
+            for (int i = 0; i < defender.primaryWeapon.NumHits; i++) {
+                AttackingQueue.Enqueue(defender);
+                DefendingQueue.Enqueue(attacker);
+            }
+        }
+
+        if (attacker.stats.Speed >=  defender.stats.Speed + 4) {
+            for (int i = 0; i < attacker.primaryWeapon.NumHits; i++) {
+                AttackingQueue.Enqueue(attacker);
+                DefendingQueue.Enqueue(defender);
+            }
+        } else if (attacker.stats.Speed <=  defender.stats.Speed - 4) {
+            for (int i = 0; i < defender.primaryWeapon.NumHits; i++) {
+                AttackingQueue.Enqueue(defender);
+                DefendingQueue.Enqueue(attacker);
+            }
         }
     }
 
@@ -84,6 +150,6 @@ public class NormalWeapon : Weapon
 {
     public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter) {}
     
-    public override void unitAttack(GameObject attacker, GameObject defender) {}
+    
     public override void SpecialAbility() {}
 }

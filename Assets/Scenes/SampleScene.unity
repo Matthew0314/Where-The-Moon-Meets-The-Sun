@@ -31380,6 +31380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 508e008b3a78c4744b5680c9ab66568d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveCursor: {fileID: 154737561}
 --- !u!1001 &1059573967
 PrefabInstance:
   m_ObjectHideFlags: 0

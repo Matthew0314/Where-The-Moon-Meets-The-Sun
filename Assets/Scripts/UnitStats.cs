@@ -17,6 +17,7 @@ public abstract class UnitStats
     public int Speed {get; set;}                  //base speed, determines if unit attacks first
     public int Evasion {get; set;}                //base evasion, how often the unit dodges
     public int Luck {get; set;}                   //base luck, increases chance of critical
+    public int EnemyID {get; set;}   
 
     public bool AirBorn {get; set;}                //if unit is airborn, will be ablee to pass over impassble tiles and weak to bows/air magic
     public bool Mounted {get; set;}                //if unit is mounted
@@ -106,13 +107,18 @@ public class PlayerStats : UnitStats {
 
 public class EnemyStats : UnitStats {
 
-    public EnemyStats(string uName,string uDesc,string uClass,int LV, int HLT,int ATK,int MG,int DEF,int RES,int SPD,int EVA,int LCK,int MOV,bool air,bool mount,bool arm,bool whisp, int hBars) : base(uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
+    
+    bool IsBoss {get; set;}
+
+    public EnemyStats(int id, string uName,string uDesc,string uClass,int LV, int HLT,int ATK,int MG,int DEF,int RES,int SPD,int EVA,int LCK,int MOV,bool air,bool mount,bool arm,bool whisp, int hBars, bool boss) : base(uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
         UnitType = "Enemy";
         AirBorn = air;
         Mounted = mount;
         Armored = arm;
         Whisper = whisp;
         HealthBars = hBars;
+        EnemyID = id;
+        IsBoss = boss;
     }
 
     public override PlayerClass getClass() {

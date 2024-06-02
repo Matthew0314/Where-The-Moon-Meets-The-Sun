@@ -18,6 +18,7 @@ public class PlayerGridMovement : MonoBehaviour
     private int orgZ;
 
     public Transform moveCursor;
+    public Transform moveCursorCopy;
     [SerializeField] float speed = 20f;
     [SerializeField] LayerMask obstacleLayer;
     public static float cursorSen = .35f;
@@ -26,6 +27,7 @@ public class PlayerGridMovement : MonoBehaviour
     private bool oneAction;
     private bool inMenu;
     public bool isAttacking;
+    private IMaps _currentMap;
 
     private bool charSelected;
     public CollideWithPlayerUnit playerCollide;
@@ -38,6 +40,8 @@ public class PlayerGridMovement : MonoBehaviour
     private GameObject itemButton;
     private GameObject waitButton;
 
+    public bool[,] attackGrid;
+
 
 
 
@@ -49,6 +53,7 @@ public class PlayerGridMovement : MonoBehaviour
         playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
         attackPath = GameObject.Find("Player").GetComponent<PlayerAttack>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
 
         attackButton = GameObject.Find("Canvas/AttackButton");
         itemButton = GameObject.Find("Canvas/WaitButton");
@@ -60,6 +65,8 @@ public class PlayerGridMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+
         if(inMenu) {
             transform.position = Vector3.MoveTowards(transform.position, moveCursor.position, speed * Time.deltaTime);
         }
@@ -71,7 +78,7 @@ public class PlayerGridMovement : MonoBehaviour
             return;
         }
 
-        
+        // Debug.Log("Update working");
 
      
 
@@ -131,10 +138,12 @@ public class PlayerGridMovement : MonoBehaviour
             pathFinder.DestroyArea();
             currUnit = playerCollide.GetPlayerObject();
             attackRangeStat = playerCollide.GetPlayerAttack();
+
+            UnitManager temp = playerCollide.GetPlayer();
             
 
-            attackPath.CalculateAttack(x, z, attackRangeStat);
-            attackPath.HighlightAttack();
+            attackGrid = attackPath.CalculateAttack(x, z, temp.primaryWeapon.Range, temp.primaryWeapon.Range1, temp.primaryWeapon.Range2, temp.primaryWeapon.Range3);
+            attackPath.HighlightAttack(attackGrid);
             
             curX = x;
             curZ = z;
@@ -143,6 +152,8 @@ public class PlayerGridMovement : MonoBehaviour
             Debug.Log("Move Unit");
             inMenu = true;
             oneAction = false;
+
+            
         }
         
         
@@ -255,10 +266,140 @@ public class PlayerGridMovement : MonoBehaviour
             
     }
 
+    public void ResetAfterAction(UnitManager playerUn) {
+        attackPath.DestroyRange();
+        pathFinder.DestroyArea();
+        if (playerUn.currentHealth > 0) {
+            gridControl.MoveUnit(playerUn, orgX, orgZ, curX, curZ);
+        }
+        
+        isAttacking = false;
+        charSelected = false;
+        inMenu = false; 
+        playerCollide.removePlayer();
+    }
+
+    public IEnumerator CycleAttackList(List<GridTile> UnitsInRange) {
+        // bool isAttacking = false;
+        int currentIndex = 0;
+        UnitManager AttackingUnit = playerCollide.GetPlayer();
+        UnitManager DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
+        int attackerX = curX;
+        int attackerZ = curZ;
+        int defenderX = UnitsInRange[currentIndex].GetGridX();
+        int defenderZ = UnitsInRange[currentIndex].GetGridZ();
+
+        while(true) {
+
+            Vector3 currentPosition = moveCursor.transform.position;
+            moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
+
+            if (Input.GetKeyDown(KeyCode.Space)) {
+                DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
+                
+                isAttacking = true;
+                defenderX = UnitsInRange[currentIndex].GetGridX();
+                defenderZ = UnitsInRange[currentIndex].GetGridZ();
+                Debug.Log("Hello");
+                //Go to another IEnumerator to show attacking stats
+                break;
+            }
+
+            if (Input.GetKeyDown(KeyCode.B)) {
+                isAttacking = false;
+                moveCursor.position = new Vector3(gridControl.GetGridTile(curX, curZ).GetXPos(), gridControl.GetGridTile(curX, curZ).GetYPos(), gridControl.GetGridTile(curX, curZ).GetZPos());
+                activateFirstMenu();
+                Debug.Log("Hello");
+                inMenu = true;
+                break;
+            }
+
+            if (Mathf.Abs(Input.GetAxis("Horizontal")) >= .15) {
+                float rawHorizontalInput = Input.GetAxis("Horizontal");
+
+                // Determine the sign of the input
+                float horizontalSign = Mathf.Sign(rawHorizontalInput);
+
+                // Round down to -1 if negative, round up to 1 if positive
+                int horizontalInput = (int)Mathf.Ceil(horizontalSign);
+
+                // Move through the list based on the horizontal input
+                if (horizontalInput > 0)
+                {
+                    // Move up in the list
+                    currentIndex++;
+                
+                    if (currentIndex >= UnitsInRange.Count)
+                    {
+                        currentIndex = 0; // Wrap around to the start
+                        
+                    }
+                    
+                }
+                else if (horizontalInput < 0)
+                {
+                    // Move down in the list
+                    currentIndex--;
+                    if (currentIndex < 0)
+                    {
+                        currentIndex = UnitsInRange.Count - 1; // Wrap around to the end
+                    }
+                    
+                
+                }
+
+                Debug.Log("Index Changed");
+
+                currentPosition = moveCursor.transform.position;
+                moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+
+
+                yield return new WaitForSeconds(0.5f);
+            }
+            
+           
+            // Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+            // moveCursor.transform.position = Vector3.MoveTowards(moveCursor.transform.position, targetPosition, 30.0f * Time.deltaTime);
+
+            // Move the cursor towards the target position using interpolation
+            // moveGrid.moveCursor.position = Vector3.Lerp(moveGrid.moveCursor.position, targetPosition, 20.0f * Time.deltaTime);
+            
+            // currentPosition = moveGrid.moveCursor.transform.position;
+            // moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+            
+
+            yield return null;
+        }
+
+        Debug.Log("Broke Free");
+
+        if (isAttacking) {
+            //Start Attacking based on primary weapons
+            Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
+            Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
+            AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
+            AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, attackerX, attackerZ, defenderX, defenderZ);
+            Debug.Log(AttackingUnit.stats.UnitName);
+            moveCursor.position = new Vector3(gridControl.GetGridTile(attackerX, attackerZ).GetXPos(), gridControl.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, gridControl.GetGridTile(attackerX, attackerZ).GetZPos());
+            manageTurn.RemovePlayer(AttackingUnit.stats);
+            ResetAfterAction(AttackingUnit);
+            manageTurn.CheckPhase();
+            _currentMap.CheckClearCondition();
+        }
+
+        isAttacking = false;
+
+        yield return null;
+    }
+
+    
+
     
 
     public int getX() { return x;}
     public int getZ() { return z;}
+    public int GetCurX() { return curX;}
+    public int GetCurZ() { return curZ;}
     public bool isCharSelected() { return charSelected; }
     
 }

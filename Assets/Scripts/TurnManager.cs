@@ -61,13 +61,33 @@ public class TurnManager : MonoBehaviour
     public void RemovePlayer(UnitStats player)
     {
         currUnits.Remove(player);
+        
         // CheckPhase();
+    }
+
+    public void removeEnemy(UnitManager ene) {
+        Queue<UnitManager> temp = currEnemies;
+
+            int queueCou = temp.Count;
+
+            for (int i = 0; i < queueCou; i++) {
+                UnitManager eneTemp = temp.Dequeue();
+                if (eneTemp.stats.EnemyID == ene.stats.EnemyID) {
+                    
+                    continue;
+                }
+                temp.Enqueue(eneTemp);
+        }
+
+        currEnemies = temp;
     }
 
     private void AddPlayer()
     {
 
     }
+
+    
 
     // private void EnemyPhase() {
     //     int count = currEnemies.Count;
@@ -93,7 +113,7 @@ public class TurnManager : MonoBehaviour
 
         SetEnemyList();
 
-        turns++;
+        turns++; 
             
         Debug.Log("PLAYER PHASE");
         Debug.Log("Turn: " + turns);

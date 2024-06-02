@@ -13,6 +13,12 @@ public class CombatMenuManager : MonoBehaviour
     private GenerateGrid generateGrid;
     private UnitManager DefendingEnemy;
     private UnitManager AttackingUnit;
+    public Transform moveCursor;
+    private int attackerX;
+    private int attackerZ;
+    private int defenderX;
+    private int defenderZ;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +38,8 @@ public class CombatMenuManager : MonoBehaviour
         manageTurn.RemovePlayer(moveGrid.playerCollide.GetPlayer().stats);
         moveGrid.unitWait();
         manageTurn.CheckPhase();
+        _currentMap.CheckClearCondition();
+        
         
     }
 
@@ -39,14 +47,15 @@ public class CombatMenuManager : MonoBehaviour
 
         Debug.Log("Attack");
         moveGrid.isAttacking = true;
+        UnitsInRange = new List<GridTile>();
         
         for (int i = 0; i < generateGrid.GetWidth(); i++) {
             for (int j = 0; j < generateGrid.GetLength(); j++) {
-                if (playerAttack.canAttack[i,j]) {
+                if (moveGrid.attackGrid[i,j]) {
                     Debug.Log("Attack at " + i + " " + j);
                 }
                 
-                if (playerAttack.canAttack[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
+                if (moveGrid.attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
                     Debug.Log("Hit");
                     UnitsInRange.Add(generateGrid.GetGridTile(i,j));
                     Debug.Log("Hit");
@@ -61,7 +70,7 @@ public class CombatMenuManager : MonoBehaviour
 
         moveGrid.deactivateFirstMenu();
 
-        StartCoroutine(CycleAttackList());
+        StartCoroutine(moveGrid.CycleAttackList(UnitsInRange));
 
 
 
@@ -72,19 +81,24 @@ public class CombatMenuManager : MonoBehaviour
 
     }
 
-    public IEnumerator CycleAttackList() {
+    /*public IEnumerator CycleAttackList() {
         bool isAttacking = false;
         int currentIndex = 0;
         AttackingUnit = moveGrid.playerCollide.GetPlayer();
+        attackerX = moveGrid.GetCurX();
+        attackerZ = moveGrid.GetCurZ();
 
         while(true) {
 
             Vector3 currentPosition = moveGrid.moveCursor.transform.position;
-            moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+            moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
 
             if (Input.GetKeyDown(KeyCode.Space)) {
                 DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
+                
                 isAttacking = true;
+                defenderX = UnitsInRange[currentIndex].GetGridX();
+                defenderZ = UnitsInRange[currentIndex].GetGridZ();
                 Debug.Log("Hello");
                 //Go to another IEnumerator to show attacking stats
                 break;
@@ -132,18 +146,21 @@ public class CombatMenuManager : MonoBehaviour
                 Debug.Log("Index Changed");
 
                 currentPosition = moveGrid.moveCursor.transform.position;
-                moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+                moveGrid.moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
 
 
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.5f);
             }
             
            
             // Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+            // moveCursor.transform.position = Vector3.MoveTowards(moveCursor.transform.position, targetPosition, 30.0f * Time.deltaTime);
 
-            // // Move the cursor towards the target position using interpolation
-            // moveGrid.moveCursor.transform.position = Vector3.Lerp(moveGrid.moveCursor.transform.position, targetPosition, Time.deltaTime * 20000f);
-           
+            // Move the cursor towards the target position using interpolation
+            // moveGrid.moveCursor.position = Vector3.Lerp(moveGrid.moveCursor.position, targetPosition, 20.0f * Time.deltaTime);
+            
+            // currentPosition = moveGrid.moveCursor.transform.position;
+            // moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
             
 
             yield return null;
@@ -153,15 +170,63 @@ public class CombatMenuManager : MonoBehaviour
 
         if (isAttacking) {
             //Start Attacking based on primary weapons
+            Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
+            Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
+            AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
+            AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, attackerX, attackerZ, defenderX, defenderZ);
             Debug.Log(AttackingUnit.stats.UnitName);
+            moveGrid.moveCursor.position = new Vector3(generateGrid.GetGridTile(attackerX, attackerZ).GetXPos(), generateGrid.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, generateGrid.GetGridTile(attackerX, attackerZ).GetZPos());
+            manageTurn.RemovePlayer(AttackingUnit.stats);
+            moveGrid.ResetAfterAction(AttackingUnit);
+            manageTurn.CheckPhase();
+            _currentMap.CheckClearCondition();
         }
 
         moveGrid.isAttacking = false;
 
         yield return null;
-    }
+    }*/
 
-    // public
+    public void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending) {
+        int queueSize = attacking.Count;
+        for (int i = 0; i < queueSize; i++) {
+            UnitManager atk = attacking.Dequeue();
+            UnitManager def = defending.Dequeue();
+
+            int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
+
+            float multiplier = 1;
+
+            if (def.stats.Mounted) {
+                multiplier += atk.primaryWeapon.MultMounted - 1; 
+            }
+            if (def.stats.AirBorn) {
+                multiplier += atk.primaryWeapon.MultAirBorn - 1; 
+            }
+            if (def.stats.Armored) {
+                multiplier += atk.primaryWeapon.MultArmored - 1; 
+            }
+            if (def.stats.Whisper) {
+                multiplier += atk.primaryWeapon.MultWhisper - 1; 
+            }
+
+            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+
+            damage = (int)(damage * multiplier);
+
+            Debug.Log(atk.stats.UnitName + " Did" + damage + " damage to " + def.stats.UnitName);
+
+            def.currentHealth -= damage;
+
+            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+
+            if (def.currentHealth <= 0) {
+                Debug.Log(def.stats.UnitName + "Has died");
+                break;
+            }
+        }
+
+    }
 
 
 }

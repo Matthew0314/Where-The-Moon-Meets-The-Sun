@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
     private GenerateGrid grid;
-    public bool[,] canAttack;
+    private bool[,] canAttack;
     private bool[,] visited;
     private int[,] distances;
     private FindPath pathFinder;
@@ -37,7 +37,7 @@ public class PlayerAttack : MonoBehaviour
 
 
 
-    public void CalculateAttack(int startX, int startZ, int attackRange)
+    public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool canAttack1, bool canAttack2, bool canAttack3)
     {
         List<GridTile> cellList = new List<GridTile>();
         List<GridTile> processedList = new List<GridTile>();
@@ -107,9 +107,23 @@ public class PlayerAttack : MonoBehaviour
 
                         if (!visited[nextX, nextZ] && newDistance <= attackRange)
                         {   
-                            if (newDistance == attackRange) {
+                            // if (newDistance == attackRange) {
+                            //     canAttack[nextX, nextZ] = true;
+                            // } 
+
+                            if (attackRange > 3 && newDistance > 3) {
                                 canAttack[nextX, nextZ] = true;
-                            } 
+                            }
+
+                            if (canAttack1 && newDistance == 1) {
+                                canAttack[nextX, nextZ] = true;
+                            }
+                            if (canAttack2 && newDistance == 2) {
+                                canAttack[nextX, nextZ] = true;
+                            }
+                            if (canAttack3 && newDistance == 3) {
+                                canAttack[nextX, nextZ] = true;
+                            }
                             
                             distances[nextX, nextZ] = newDistance;
                             if (!processedList.Contains(grid.GetGridTile(nextX, nextZ)))
@@ -126,9 +140,11 @@ public class PlayerAttack : MonoBehaviour
 
 
         }
+
+        return canAttack;
     }
 
-    public void HighlightAttack()
+    public void HighlightAttack(bool[,] canAttack)
     {
         for (int i = 0; i < grid.GetWidth(); i++)
         {

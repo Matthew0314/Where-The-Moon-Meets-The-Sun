@@ -14,6 +14,7 @@ public interface IMaps
     
     void CheckClearCondition(); //After every action checks if clear condition has been met
     void CheckDefeatCondition();  //After every action checks if main characters have died
+    void RemoveDeadUnit(UnitManager unit, int x, int y);
 
     Queue<UnitManager> GetMapEnemies();
 }

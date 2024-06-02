@@ -10,7 +10,6 @@ public class PrologueMap : MonoBehaviour, IMaps
     private WeaponManager manageWeapons;
     private UnitStats stats;
     private PlayerClassManager classRos;
-    // private PlayerClass uClass;
     private GenerateGrid grid;
     private TurnManager manageTurn;   
     private string[] newUnits = { "YoungFelix", "YoungLilith" };
@@ -73,53 +72,58 @@ public class PrologueMap : MonoBehaviour, IMaps
         string[] data = enemyTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("EnemyStats");
 
-        for (int i = 29; i < data.Length - 1; i += 29)
+        for (int i = 31; i < data.Length - 1; i += 31)
         {
             //Reads in the data from the CSV file
-            string cName = data[i];
-            string cDesc = data[i + 1];
-            string cType = data[i + 2];
+           
+            int eID = int.Parse(data[i]);
+            string cName = data[i + 1];
+            string cDesc = data[i + 2];
+            string cType = data[i + 3];
             
-            int level = int.Parse(data[i + 3]);
-            int HP = int.Parse(data[i + 4]);
-            int ATK = int.Parse(data[i + 5]);  
-            int MAG = int.Parse(data[i + 6]);
-            int DEF = int.Parse(data[i + 7]);
-            int RES = int.Parse(data[i + 8]);
-            int SPD = int.Parse(data[i + 9]);   
-            int EVA = int.Parse(data[i + 10]);
-            int LUCK = int.Parse(data[i + 11]);
-            int MOVE = int.Parse(data[i + 12]);
+            int level = int.Parse(data[i + 4]);
+            int HP = int.Parse(data[i + 5]);
+            int ATK = int.Parse(data[i + 6]);  
+            int MAG = int.Parse(data[i + 7]);
+            int DEF = int.Parse(data[i + 8]);
+            int RES = int.Parse(data[i + 9]);
+            int SPD = int.Parse(data[i + 10]);   
+            int EVA = int.Parse(data[i + 11]);
+            int LUCK = int.Parse(data[i + 12]);
+            int MOVE = int.Parse(data[i + 13]);
             
-            bool air = bool.Parse(data[i + 13]);
-            bool mount = bool.Parse(data[i + 14]);
-            bool armored = bool.Parse(data[i + 15]);
-            bool whisp = bool.Parse(data[i + 16]);
-            int healthBars = int.Parse(data[i + 17]);
+            bool air = bool.Parse(data[i + 14]);
+            bool mount = bool.Parse(data[i + 15]);
+            bool armored = bool.Parse(data[i + 16]);
+            bool whisp = bool.Parse(data[i + 17]);
+            int healthBars = int.Parse(data[i + 18]);
 
-            string loadPrefab = data[i + 18];
-            int enemyX = int.Parse(data[i + 19]);
-            int enemyZ = int.Parse(data[i + 20]);
-            string AIenemy = data[i + 21];
+            string loadPrefab = data[i + 19];
+            int enemyX = int.Parse(data[i + 20]);
+            int enemyZ = int.Parse(data[i + 21]);
+            string AIenemy = data[i + 22];
 
-            string item1 = data[i + 22];
-            string item2 = data[i + 23];
-            string item3 = data[i + 24];
-            string item4 = data[i + 25];
-            string item5 = data[i + 26];
-            string item6 = data[i + 27];
+            string item1 = data[i + 23];
+            string item2 = data[i + 24];
+            string item3 = data[i + 25];
+            string item4 = data[i + 26];
+            string item5 = data[i + 27];
+            string item6 = data[i + 28];
+
+            bool boss = bool.Parse(data[i + 29]);
+       
             
             //Stores Necessary data in EnemyStats
-            UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
+            UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss);
             // eStats = new EnemyStats(cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
 
             for (int j = 0; j < 6; j++) {
-                if (data[i + 22 + j] == "NULL") {
+                if (data[i + 23 + j] == "NULL") {
                     Debug.Log("Null Weapon");
                     break;
                 }
 
-                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 22 + j]);
+                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 23 + j]);
                 eStats.AddWeapon(tempWeapon);
                 Debug.Log("Added " + tempWeapon.WeaponName);
             }
@@ -186,6 +190,9 @@ public class PrologueMap : MonoBehaviour, IMaps
     {
         //check to see if all enemies are removed from the list
         //implement later
+        if (mapEnemies.Count == 0) {
+            Debug.Log("VICTORY");
+        }
     }
 
     //Niether YoungFelix nor YoungLilith can die, check to see if alive
@@ -193,10 +200,41 @@ public class PrologueMap : MonoBehaviour, IMaps
     {
         //Check to see if felix and lilith have been removed after every action
         //Game over if they have been removed
+        // if (!mapUnits.Contains(UnitRosterManager.fullRoster["YoungFelix"] || !mapUnits.Contains(UnitRosterManager.fullRoster["YoungLilith"]))) {
+        //     Debug.Log("Defeat");
+        // }
     }
 
     public Queue<UnitManager> GetMapEnemies() {
         return mapEnemies;
+    }
+
+    public void RemoveDeadUnit(UnitManager unit, int x, int z) {
+
+        if (unit.stats.UnitType == "Enemy") {
+            Queue<UnitManager> temp = mapEnemies;
+
+            int queueCou = temp.Count;
+
+            for (int i = 0; i < queueCou; i++) {
+                UnitManager eneTemp = temp.Dequeue();
+                if (eneTemp.stats.EnemyID == unit.stats.EnemyID) {
+                    grid.GetGridTile(x, z).UnitOnTile = null;
+                    GameObject tempObj = eneTemp.gameObject;
+                    Destroy(tempObj);
+                    continue;
+                }
+                temp.Enqueue(eneTemp);
+            }
+            mapEnemies = temp;
+
+            manageTurn.removeEnemy(unit);
+        } else if (unit.stats.UnitType == "Player") {
+            GameObject tempObj = unit.gameObject;
+            grid.GetGridTile(x, z).UnitOnTile = null;
+            mapUnits.Remove(unit.stats);
+            Destroy(tempObj);
+        }
     }
 
 
