@@ -1393,7 +1393,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ecfd3641b332f64b89c5641d3193cc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 0
   UnitType: Enemy
   movement: 0
   attackRange: 0

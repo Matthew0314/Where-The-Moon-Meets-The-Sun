@@ -15,6 +15,7 @@ public class GridTile
     private float yPos;
     private float zPos;
     private int tileNum;
+    private UnitManager unitOnTile;
 
 
     //Constructor
@@ -43,5 +44,11 @@ public class GridTile
     public int GetGridZ() { return gridZ; }
     public bool GetTallObstacle() { return tallObstacle; }
     public int GetTileNum() { return tileNum; }
+    
+    public UnitManager UnitOnTile {
+        get { return unitOnTile; }
+        set { unitOnTile = value; }
+    }
+
 
 }

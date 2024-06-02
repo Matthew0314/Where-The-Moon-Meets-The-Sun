@@ -85,7 +85,8 @@ using UnityEngine;
 
 public class UnitManager : MonoBehaviour
 {
-    [SerializeField] protected int maxHealth;
+    protected int maxHealth;
+    protected int currentHealth;
     public UnitStats stats;
     public string UnitType;
     protected PlayerClassManager classList;
@@ -97,16 +98,20 @@ public class UnitManager : MonoBehaviour
     protected virtual void Start()
     {
         classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
-        InitializeUnitData();
+        // InitializeUnitData();
         
         Debug.Log("Start");
     }
 
-    protected virtual void InitializeUnitData() {}
+    public virtual void InitializeUnitData() {}
 
 
-    public virtual int getMove() {return 0;}
-    public virtual int getAttack() {return 0;}
+    public virtual int getMove() {return 10;}
+    public virtual int getAttack() {return 10;}
+    public virtual int getCurrentHealth() { return 0; }
+    public virtual int getMaxHealth() { return 0; }
+    public virtual void setCurrentHealth(int health) {}
+    public virtual string GetUnitType() { return UnitType; }
 
 }
 

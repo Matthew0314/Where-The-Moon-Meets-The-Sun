@@ -20,12 +20,12 @@ public class PlayerGridMovement : MonoBehaviour
     public Transform moveCursor;
     [SerializeField] float speed = 20f;
     [SerializeField] LayerMask obstacleLayer;
-    private static float cursorSen = .35f;
+    public static float cursorSen = .35f;
     private GenerateGrid gridControl;
     private FindPath pathFinder;
     private bool oneAction;
     private bool inMenu;
-    private bool isAttacking;
+    public bool isAttacking;
 
     private bool charSelected;
     public CollideWithPlayerUnit playerCollide;
@@ -64,6 +64,16 @@ public class PlayerGridMovement : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, moveCursor.position, speed * Time.deltaTime);
         }
         oneAction = true;
+        
+        
+
+        if (isAttacking) {
+            return;
+        }
+
+        
+
+     
 
         if (Input.GetKeyDown(KeyCode.Space) && !charSelected && playerCollide.collPlayer && oneAction && manageTurn.isActive(playerCollide.GetPlayer().stats)) {
             pathFinder.ResetArea();
@@ -208,14 +218,14 @@ public class PlayerGridMovement : MonoBehaviour
     }
 
 
-    private void activateFirstMenu() {
+    public void activateFirstMenu() {
         attackButton.SetActive(true);
         waitButton.SetActive(true);
         itemButton.SetActive(true);
         //  EventSystem.current.SetSelectedGameObject(attackButton.gameObject);
     }
 
-    private void deactivateFirstMenu() {
+    public void deactivateFirstMenu() {
         attackButton.SetActive(false);
         waitButton.SetActive(false);
         itemButton.SetActive(false);
@@ -226,17 +236,26 @@ public class PlayerGridMovement : MonoBehaviour
         
         attackPath.DestroyRange();
         
+        // gridControl.GetGridTile(curX, curZ).UnitOnTile = playerCollide.GetPlayer();
+        // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = null;
+
+        gridControl.MoveUnit(playerCollide.GetPlayer(), orgX, orgZ, curX, curZ);
+
         
         
 
         pathFinder.DestroyArea();
         charSelected = false;
-        inMenu = false;            
+        inMenu = false;       
+
+
            
 
         playerCollide.removePlayer();
             
     }
+
+    
 
     public int getX() { return x;}
     public int getZ() { return z;}

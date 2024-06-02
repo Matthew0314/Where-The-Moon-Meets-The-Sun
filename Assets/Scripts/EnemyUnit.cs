@@ -4,13 +4,24 @@ using UnityEngine;
 
 public class EnemyUnit : UnitManager
 {
-    protected override void InitializeUnitData()
+    public override void InitializeUnitData()
     {
+        // stats = UnitRosterManager.GetUnitStats(unitName);
+        maxHealth = stats.Health;
+        currentHealth = maxHealth;
+        primaryWeapon = stats.GetWeaponAt(0);
+        UnitType = "Enemy";
+        Debug.Log(stats.UnitName + " Has been initlialized");
         // Initialize Enemy-specific data here
     }
 
     public override int getMove() { return 0; }
     public override int getAttack() {  return 5; }
+
+    public override int getCurrentHealth() { return maxHealth; }
+    public override int getMaxHealth() { return currentHealth; }
+    public override void setCurrentHealth(int health) { currentHealth = health; }
+    public override string GetUnitType() { return UnitType; }
 
     // Additional Enemy-specific methods here
 }

@@ -111,11 +111,20 @@ public class GenerateGrid : MonoBehaviour
         return false;
     }
 
+    public void MoveUnit(UnitManager unitToMove,int orgX,int orgZ,int curX,int curZ) {
+        grid[orgX, orgZ].UnitOnTile = null;
+        grid[curX, curZ].UnitOnTile = unitToMove;
+        
+
+        Debug.Log(grid[curX, curZ].UnitOnTile.stats.UnitName + " has been removed from" + orgX + " " + orgZ + " and placed on " + curX + " " + curZ);
+    }
+
     //returns the width and length of the grid and size of each cell
     public int GetWidth() { return width; }
     public int GetLength() { return length; }
     public float GetCellSize() { return cellSize; }
     public GridTile GetGridTile(int x, int z) { return grid[x,z]; }
+    
 }
 
 

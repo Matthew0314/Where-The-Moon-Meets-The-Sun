@@ -73,7 +73,7 @@ public class PrologueMap : MonoBehaviour, IMaps
         string[] data = enemyTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("EnemyStats");
 
-        for (int i = 23; i < data.Length - 1; i += 23)
+        for (int i = 29; i < data.Length - 1; i += 29)
         {
             //Reads in the data from the CSV file
             string cName = data[i];
@@ -101,10 +101,29 @@ public class PrologueMap : MonoBehaviour, IMaps
             int enemyX = int.Parse(data[i + 19]);
             int enemyZ = int.Parse(data[i + 20]);
             string AIenemy = data[i + 21];
+
+            string item1 = data[i + 22];
+            string item2 = data[i + 23];
+            string item3 = data[i + 24];
+            string item4 = data[i + 25];
+            string item5 = data[i + 26];
+            string item6 = data[i + 27];
             
             //Stores Necessary data in EnemyStats
             UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
             // eStats = new EnemyStats(cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
+
+            for (int j = 0; j < 6; j++) {
+                if (data[i + 22 + j] == "NULL") {
+                    Debug.Log("Null Weapon");
+                    break;
+                }
+
+                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 22 + j]);
+                eStats.AddWeapon(tempWeapon);
+                Debug.Log("Added " + tempWeapon.WeaponName);
+            }
+
 
             Debug.Log("Init Enemy Stats");
             //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
@@ -120,8 +139,10 @@ public class PrologueMap : MonoBehaviour, IMaps
             //Stores the enemy stats in the EnemyUnit object and stores in a queue
             UnitManager enemy = newEnemy.GetComponent<UnitManager>();
             enemy.stats = eStats;
+            enemy.InitializeUnitData();
+            grid.GetGridTile(enemyX, enemyZ).UnitOnTile = enemy;
             mapEnemies.Enqueue(enemy);
-           
+                      
 
             
         }
@@ -150,6 +171,10 @@ public class PrologueMap : MonoBehaviour, IMaps
             stats = mapUnits[i];
             GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
             Instantiate(unitPrefab, new Vector3(grid.GetGridTile(startGridX[i], startGridZ[i]).GetXPos(), grid.GetGridTile(startGridX[i], startGridZ[i]).GetYPos() + 0.005f, grid.GetGridTile(startGridX[i], startGridZ[i]).GetZPos()), Quaternion.identity);
+            PlayerUnit UnitToGrid = unitPrefab.GetComponent<PlayerUnit>();
+            // UnitToGrid.InitializeUnitData();
+            grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = UnitToGrid;
+            // Debug.Log("Assigned to Tile")
             // Type typePUnit = Type.GetType("PlayerUnit");
             // UnitManager enemyUnit = unitPrefab.AddComponent(typePUnit) as UnitManager;
         }
