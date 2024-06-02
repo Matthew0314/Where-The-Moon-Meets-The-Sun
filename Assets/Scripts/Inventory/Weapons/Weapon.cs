@@ -27,6 +27,9 @@ public abstract class Weapon
     public int NumHits {get; set;}
     public bool CanCounter {get; set;}
 
+    public Queue<UnitManager> AttackingQueue {get; set;}
+    public Queue<UnitManager> DefendingQueue {get; set;}
+
     //Constructor
     public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) {
         WeaponName = name;
@@ -54,6 +57,21 @@ public abstract class Weapon
 
     //If theres a special ability this function will be called
     public virtual void unitAttack(GameObject attacker, GameObject defender) {}
+
+    public virtual void InitiateQueues(UnitManager attacker, UnitManager defender) {
+        for (int i = 0; i < attacker.primaryWeapon.NumHits; i++) {
+            AttackingQueue.Enqueue(attacker);
+            DefendingQueue.Enqueue(defender);
+        }
+
+        if (attacker.primaryWeapon.Range > 3) {
+            if (defender.primaryWeapon.Range >= attacker.primaryWeapon.Range) {
+                
+            }
+        } else {
+
+        }
+    }
 
     public abstract void SpecialAbility();
 
