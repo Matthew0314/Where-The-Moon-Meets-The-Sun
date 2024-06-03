@@ -65,7 +65,7 @@ public abstract class Weapon
     }
 
     //If theres a special ability this function will be called
-    public virtual void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending, int attackerX, int attackerZ, int defenderX, int defenderZ) {
+    public virtual void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending, UnitManager defender, int attackerX, int attackerZ, int defenderX, int defenderZ) {
         
         int queueSize = attacking.Count;
         for (int i = 0; i < queueSize; i++) {
@@ -100,8 +100,15 @@ public abstract class Weapon
             Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
 
             if (def.currentHealth <= 0) {
+
                 Debug.Log(def.stats.UnitName + "Has died");
-                _currentMap.RemoveDeadUnit(def, defenderX, defenderZ);
+                if (defender.stats.UnitName == def.stats.UnitName) {
+                    _currentMap.RemoveDeadUnit(def, defenderX, defenderZ);
+                } else {
+                    _currentMap.RemoveDeadUnit(def, attackerX, attackerZ);
+                }
+                
+                
                 break;
             }
         }

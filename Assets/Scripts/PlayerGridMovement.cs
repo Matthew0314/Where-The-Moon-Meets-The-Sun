@@ -378,7 +378,7 @@ public class PlayerGridMovement : MonoBehaviour
             Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
             Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
             AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
-            AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, attackerX, attackerZ, defenderX, defenderZ);
+            AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             Debug.Log(AttackingUnit.stats.UnitName);
             moveCursor.position = new Vector3(gridControl.GetGridTile(attackerX, attackerZ).GetXPos(), gridControl.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, gridControl.GetGridTile(attackerX, attackerZ).GetZPos());
             manageTurn.RemovePlayer(AttackingUnit.stats);
@@ -386,6 +386,7 @@ public class PlayerGridMovement : MonoBehaviour
             manageTurn.CheckPhase();
             _currentMap.CheckClearCondition();
         }
+        // Debug.Log(gridControl.GetGridTile(5, 4).UnitOnTile.stats.UnitName);
 
         isAttacking = false;
 
