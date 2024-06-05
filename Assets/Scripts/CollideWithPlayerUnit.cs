@@ -8,13 +8,16 @@ public class CollideWithPlayerUnit : MonoBehaviour
 {
     private PlayerUnit player;
     public UnitManager enemy;
+    private HoverUnitMenuManager hoverMenu;
     public bool collPlayer;
     public bool cantPlace;
+    private bool hoverMenuActivated = false;
     private GameObject currPlayer;
     private PlayerGridMovement movementVars;
 
     void Start () {
         movementVars = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        hoverMenu = GameObject.Find("Canvas").GetComponent<HoverUnitMenuManager>();
     }
 
     void OnTriggerEnter(Collider other)
@@ -38,6 +41,11 @@ public class CollideWithPlayerUnit : MonoBehaviour
             Debug.Log(enemy.getAttack());
         }
 
+        if ((other.gameObject.CompareTag("EnemyUnit") || other.gameObject.CompareTag("PlayerUnit")) && !movementVars.isAttacking) {
+            UnitManager temp = other.gameObject.GetComponent<UnitManager>();
+            hoverMenu.activateMenu(temp);
+        }
+
     }
 
     void OnTriggerExit(Collider other)
@@ -49,6 +57,12 @@ public class CollideWithPlayerUnit : MonoBehaviour
             collPlayer = false;
         }
         cantPlace = false;
+
+       
+        hoverMenu.deactivateMenu();
+        hoverMenuActivated = false;
+      
+        
        
     }
 

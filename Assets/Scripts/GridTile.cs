@@ -31,6 +31,7 @@ public class GridTile
         xPos = xPoss;
         yPos = yPoss;
         zPos = zPoss;
+        unitOnTile = null;
     }
 
     //Returns the values of all variables for this class

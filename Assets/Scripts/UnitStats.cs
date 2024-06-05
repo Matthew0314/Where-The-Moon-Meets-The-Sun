@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class UnitStats
 {
     public string UnitName {get; set;}
+    public string Name {get; set;}
     public string UnitDescription {get; set;}
     public string UnitClass {get; set;}
     public string UnitType {get; set;} //Enemy or Unit
@@ -28,11 +29,12 @@ public abstract class UnitStats
     public int Movement {get; set;} 
     public int HealthBars {get; set;}  
 
-    private List<Weapon> weapons;
+    public List<Weapon> weapons;
 
-    public UnitStats(string uName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
+    public UnitStats(string uName, string dName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
     {
         UnitName = uName;
+        Name = dName;
         UnitDescription = uDesc;
         UnitClass = uClass;
         Level = LV;
@@ -76,7 +78,7 @@ public class PlayerStats : UnitStats {
     private PlayerClass ClassStats;
 
 
-    public PlayerStats(string uName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass) : base(uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
+    public PlayerStats(string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass) : base(uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
 
         Experience = 0;
         HealthGR = HLTGR;
@@ -110,7 +112,7 @@ public class EnemyStats : UnitStats {
     
     bool IsBoss {get; set;}
 
-    public EnemyStats(int id, string uName,string uDesc,string uClass,int LV, int HLT,int ATK,int MG,int DEF,int RES,int SPD,int EVA,int LCK,int MOV,bool air,bool mount,bool arm,bool whisp, int hBars, bool boss) : base(uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
+    public EnemyStats(int id, string uName, string uDesc,string uClass,int LV, int HLT,int ATK,int MG,int DEF,int RES,int SPD,int EVA,int LCK,int MOV,bool air,bool mount,bool arm,bool whisp, int hBars, bool boss) : base(uName, uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
         UnitType = "Enemy";
         AirBorn = air;
         Mounted = mount;

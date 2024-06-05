@@ -27,35 +27,36 @@ public class UnitRosterManager : MonoBehaviour
         string[] data = statTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("PlayerStats");
         
-        for (int i = 28; i < data.Length - 1; i += 28)
+        for (int i = 29; i < data.Length - 1; i += 29)
         {
             string chrName = data[i];
-            string chrDesc = data[i + 1];
-            int lev = int.Parse(data[i + 2]);
-            int HPGR = int.Parse(data[i + 3]);
-            int ATKGR = int.Parse(data[i + 4]);
-            int MAGGR = int.Parse(data[i + 5]);
-            int DEFGR = int.Parse(data[i + 6]);
-            int RESGR = int.Parse(data[i + 7]);
-            int SPDGR = int.Parse(data[i + 8]);
-            int EVAGR = int.Parse(data[i + 9]);
-            int LCKGR = int.Parse(data[i + 10]);
-            int HP = int.Parse(data[i + 11]);
-            int ATK = int.Parse(data[i + 12]);
-            int MAG = int.Parse(data[i + 13]);
-            int DEF = int.Parse(data[i + 14]);
-            int RES = int.Parse(data[i + 15]);
-            int SPD = int.Parse(data[i + 16]);
-            int EVA = int.Parse(data[i + 17]);
-            int LCK = int.Parse(data[i + 18]);
-            int MOV = int.Parse(data[i + 19]);
-            string charClass = data[i + 20];
-            string item1 = data[i + 21];
-            string item2 = data[i + 22];
-            string item3 = data[i + 23];
-            string item4 = data[i + 24];
-            string item5 = data[i + 25];
-            string item6 = data[i + 26];
+            string dName = data[i + 1];
+            string chrDesc = data[i + 2];
+            int lev = int.Parse(data[i + 3]);
+            int HPGR = int.Parse(data[i + 4]);
+            int ATKGR = int.Parse(data[i + 5]);
+            int MAGGR = int.Parse(data[i + 6]);
+            int DEFGR = int.Parse(data[i + 7]);
+            int RESGR = int.Parse(data[i + 8]);
+            int SPDGR = int.Parse(data[i + 9]);
+            int EVAGR = int.Parse(data[i + 10]);
+            int LCKGR = int.Parse(data[i + 11]);
+            int HP = int.Parse(data[i + 12]);
+            int ATK = int.Parse(data[i + 13]);
+            int MAG = int.Parse(data[i + 14]);
+            int DEF = int.Parse(data[i + 15]);
+            int RES = int.Parse(data[i + 16]);
+            int SPD = int.Parse(data[i + 17]);
+            int EVA = int.Parse(data[i + 18]);
+            int LCK = int.Parse(data[i + 19]);
+            int MOV = int.Parse(data[i + 20]);
+            string charClass = data[i + 21];
+            string item1 = data[i + 22];
+            string item2 = data[i + 23];
+            string item3 = data[i + 24];
+            string item4 = data[i + 25];
+            string item5 = data[i + 26];
+            string item6 = data[i + 27];
 
             Debug.Log(chrName);
             Debug.Log(chrDesc);
@@ -63,19 +64,19 @@ public class UnitRosterManager : MonoBehaviour
             Debug.Log("MOV: " + MOV);
 
             
-            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
+            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
             // stats = new UnitStats(chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
            
             Debug.Log("Name: " + stats.UnitName);
             Debug.Log("Player Class: " + stats.UnitClass);
 
             for (int j = 0; j < 6; j++) {
-                if (data[i + 21 + j] == "NULL") {
+                if (data[i + 22 + j] == "NULL") {
                     Debug.Log("Null Weapon");
                     break;
                 }
 
-                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 21 + j]);
+                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 22 + j]);
                 stats.AddWeapon(tempWeapon);
                 Debug.Log("Added " + tempWeapon.WeaponName);
             }

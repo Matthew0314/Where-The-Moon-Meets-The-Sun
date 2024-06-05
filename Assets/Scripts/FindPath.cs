@@ -82,7 +82,7 @@ public class FindPath : MonoBehaviour
     }
 
 
-    private void CalculateMovement(int startX, int startZ, int charMovement)
+    private void CalculateMovement(int startX, int startZ, int charMovement, UnitManager unit)
     {
         //Creates two lists
         //cellList is used to keep track to cells that need to be processed
@@ -141,7 +141,9 @@ public class FindPath : MonoBehaviour
                         //If implementing flier class later on change this to check that case
                         int currCost = gridTraverse.GetGridTile(nextX, nextZ).GetMovementCost();
 
-                        if (currCost == int.MaxValue)
+                        // Debug.Log(gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.currentHealth );
+
+                        if (currCost == int.MaxValue || ((gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile != null && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats != null ) && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats.UnitType != unit.stats.UnitType))
                         {
                             //Since its an edge cell it will be added tp movable cells and used to calculate attack area
                             if (!movableCells.Contains(gridTraverse.GetGridTile(currX, currZ)))
@@ -176,9 +178,9 @@ public class FindPath : MonoBehaviour
     }
       
     
-    public void CalcAttack(int startX, int startZ, int charAttack, int charMovement)
+    public void CalcAttack(int startX, int startZ, int charAttack, int charMovement, UnitManager unit)
     {
-        CalculateMovement(startX, startZ, charMovement);
+        CalculateMovement(startX, startZ, charMovement, unit);
 
         List<GridTile> attackCellList = new List<GridTile>(movableCells);
         List<GridTile> processedCells = new List<GridTile>(movableCells);

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
+using System.Linq;
 using UnityEngine;
 
 public class PrologueMap : MonoBehaviour, IMaps
@@ -19,7 +20,6 @@ public class PrologueMap : MonoBehaviour, IMaps
     private int length = 10;
     private int width = 15;
     private List<UnitStats> mapUnits;
-    // private EnemyStats eStats;
     [SerializeField] TextAsset enemyTextData;
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
   
@@ -115,26 +115,22 @@ public class PrologueMap : MonoBehaviour, IMaps
             
             //Stores Necessary data in EnemyStats
             UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss);
-            // eStats = new EnemyStats(cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars);
 
             for (int j = 0; j < 6; j++) {
-                if (data[i + 23 + j] == "NULL") {
-                    Debug.Log("Null Weapon");
+                if (data[i + 23 + j] == "NULL") {              
                     break;
                 }
 
                 Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 23 + j]);
                 eStats.AddWeapon(tempWeapon);
-                Debug.Log("Added " + tempWeapon.WeaponName);
             }
 
 
-            Debug.Log("Init Enemy Stats");
+           
             //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
             GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
             GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos() + 0.005f, grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
-            // Type typeUnit = Type.GetType("EnemyUnit");
-            // UnitManager enemyUnit = newEnemy.AddComponent(typeUnit) as UnitManager;
+           
 
             //Ataches an AI script interface depending on the characterististics of the nemy specified in the CSV file
             Type type = Type.GetType(AIenemy);
@@ -188,8 +184,6 @@ public class PrologueMap : MonoBehaviour, IMaps
     //The clear condition for the prologue is routing all the enemies 
     public void CheckClearCondition()
     {
-        //check to see if all enemies are removed from the list
-        //implement later
         if (mapEnemies.Count == 0) {
             Debug.Log("VICTORY");
         }
@@ -198,11 +192,9 @@ public class PrologueMap : MonoBehaviour, IMaps
     //Niether YoungFelix nor YoungLilith can die, check to see if alive
     public void CheckDefeatCondition()
     {
-        //Check to see if felix and lilith have been removed after every action
-        //Game over if they have been removed
-        // if (!mapUnits.Contains(UnitRosterManager.fullRoster["YoungFelix"] || !mapUnits.Contains(UnitRosterManager.fullRoster["YoungLilith"]))) {
-        //     Debug.Log("Defeat");
-        // }
+        if (!mapUnits.Any(unit => unit.UnitName == "YoungFelix") || !mapUnits.Any(unit => unit.UnitName == "YoungLilith")) {
+            Debug.Log("DEFEAT");
+        }
     }
 
     public Queue<UnitManager> GetMapEnemies() {

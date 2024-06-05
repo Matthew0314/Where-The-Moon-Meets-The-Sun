@@ -116,9 +116,12 @@ public abstract class Weapon
     }
 
     public virtual void InitiateQueues(UnitManager attacker, UnitManager defender, int attackerX, int attackerZ, int defenderX, int defenderZ) {
+
+        AttackingQueue = new Queue<UnitManager>();
+        DefendingQueue = new Queue<UnitManager>();
         
         for (int i = 0; i < attacker.primaryWeapon.NumHits ; i++) {
-            Debug.Log("hi");
+            Debug.Log("hi" + attacker.stats.Name);
             AttackingQueue.Enqueue(attacker);
             DefendingQueue.Enqueue(defender);
             Debug.Log("hi");
@@ -147,6 +150,7 @@ public abstract class Weapon
     }
 
     public abstract void SpecialAbility();
+
 
 
     // public virtual Queue

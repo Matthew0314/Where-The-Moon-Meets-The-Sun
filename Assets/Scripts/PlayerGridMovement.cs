@@ -42,6 +42,10 @@ public class PlayerGridMovement : MonoBehaviour
 
     public bool[,] attackGrid;
 
+    private ExpectedBattleMenu expectedMenu;
+    private HoverUnitMenuManager hoverMenu;
+    private CombatMenuManager combatMenu;
+
 
 
 
@@ -54,6 +58,9 @@ public class PlayerGridMovement : MonoBehaviour
         attackPath = GameObject.Find("Player").GetComponent<PlayerAttack>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        expectedMenu = GameObject.Find("Canvas").GetComponent<ExpectedBattleMenu>();
+        hoverMenu = GameObject.Find("Canvas").GetComponent<HoverUnitMenuManager>();
+        combatMenu = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
 
         attackButton = GameObject.Find("Canvas/AttackButton");
         itemButton = GameObject.Find("Canvas/WaitButton");
@@ -88,7 +95,7 @@ public class PlayerGridMovement : MonoBehaviour
             Debug.Log("Hello");
             attackRangeStat = playerCollide.GetPlayerAttack();
             Debug.Log("No");
-            pathFinder.CalcAttack(x, z, attackRangeStat , playerCollide.GetPlayerMove());
+            pathFinder.CalcAttack(x, z, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
             Debug.Log("No");
             pathFinder.PrintArea();
             Debug.Log("No");
@@ -102,7 +109,7 @@ public class PlayerGridMovement : MonoBehaviour
             deactivateFirstMenu();
             attackPath.DestroyRange();
             MoveUnit(orgX, orgZ);
-            pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove());
+            pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
             pathFinder.PrintArea();
             charSelected = true;
             inMenu = false;
@@ -289,10 +296,20 @@ public class PlayerGridMovement : MonoBehaviour
         int defenderX = UnitsInRange[currentIndex].GetGridX();
         int defenderZ = UnitsInRange[currentIndex].GetGridZ();
 
+        Weapon orgPrimWeapon = AttackingUnit.primaryWeapon;
+        List<Weapon> playerWeapons = AttackingUnit.stats.weapons;
+        int weaponIndex = 0;
+        bool recalc = false;
+
+        hoverMenu.deactivateMenu();
+        CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
+
         while(true) {
 
             Vector3 currentPosition = moveCursor.transform.position;
             moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
+
+            
 
             if (Input.GetKeyDown(KeyCode.Space)) {
                 DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
@@ -307,7 +324,9 @@ public class PlayerGridMovement : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.B)) {
                 isAttacking = false;
+                expectedMenu.DeactivateMenu();
                 moveCursor.position = new Vector3(gridControl.GetGridTile(curX, curZ).GetXPos(), gridControl.GetGridTile(curX, curZ).GetYPos(), gridControl.GetGridTile(curX, curZ).GetZPos());
+                AttackingUnit.primaryWeapon = orgPrimWeapon;
                 activateFirstMenu();
                 Debug.Log("Hello");
                 inMenu = true;
@@ -334,6 +353,9 @@ public class PlayerGridMovement : MonoBehaviour
                         currentIndex = 0; // Wrap around to the start
                         
                     }
+
+                    
+
                     
                 }
                 else if (horizontalInput < 0)
@@ -344,18 +366,26 @@ public class PlayerGridMovement : MonoBehaviour
                     {
                         currentIndex = UnitsInRange.Count - 1; // Wrap around to the end
                     }
+
                     
-                
                 }
 
                 Debug.Log("Index Changed");
 
+                
+
                 currentPosition = moveCursor.transform.position;
                 moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+
+                defenderX = UnitsInRange[currentIndex].GetGridX();
+                defenderZ = UnitsInRange[currentIndex].GetGridZ();
+                CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
 
 
                 yield return new WaitForSeconds(0.5f);
             }
+
+           
             
            
             // Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
@@ -377,6 +407,7 @@ public class PlayerGridMovement : MonoBehaviour
             //Start Attacking based on primary weapons
             Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
             Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
+            expectedMenu.DeactivateMenu();
             AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             Debug.Log(AttackingUnit.stats.UnitName);
@@ -385,12 +416,74 @@ public class PlayerGridMovement : MonoBehaviour
             ResetAfterAction(AttackingUnit);
             manageTurn.CheckPhase();
             _currentMap.CheckClearCondition();
+            _currentMap.CheckDefeatCondition();
+            
+
         }
         // Debug.Log(gridControl.GetGridTile(5, 4).UnitOnTile.stats.UnitName);
 
         isAttacking = false;
 
         yield return null;
+    }
+
+
+    void CalculateExpectedAttack(UnitManager player, UnitManager enemy, int attackerX, int attackerZ, int defenderX, int defenderZ) {
+        player.primaryWeapon.InitiateQueues(player, enemy, attackerX, attackerZ, defenderX, defenderZ);
+        Queue<UnitManager> AttackingQueue = player.primaryWeapon.AttackingQueue;
+        Queue<UnitManager> DefendingQueue = player.primaryWeapon.DefendingQueue;
+
+        int coun = AttackingQueue.Count;
+        
+        int AttackerExpectHealth = player.currentHealth;
+      
+        int DefendExpectHealth = enemy.currentHealth;
+
+        int PDamage = 0;
+        int EDamage = 0;
+
+        int numPHits = 0;
+        int numEHits = 0;
+
+        for (int i = 0; i < coun; i++) {
+            UnitManager atk = AttackingQueue.Dequeue();
+            UnitManager def = DefendingQueue.Dequeue();
+
+            int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
+
+            float multiplier = 1;
+
+            if (def.stats.Mounted) {
+                multiplier += atk.primaryWeapon.MultMounted - 1; 
+            }
+            if (def.stats.AirBorn) {
+                multiplier += atk.primaryWeapon.MultAirBorn - 1; 
+            }
+            if (def.stats.Armored) {
+                multiplier += atk.primaryWeapon.MultArmored - 1; 
+            }
+            if (def.stats.Whisper) {
+                multiplier += atk.primaryWeapon.MultWhisper - 1; 
+            }
+
+
+            damage = (int)(damage * multiplier);
+
+            if (atk.stats.UnitType == "Player") {
+                DefendExpectHealth -= damage;
+                PDamage = damage;
+                numPHits++;
+            } else {
+                AttackerExpectHealth -= damage;
+                EDamage = damage;
+                numEHits++;
+            }
+            
+        }
+
+        expectedMenu.SetUpMenu(player, enemy, AttackerExpectHealth, DefendExpectHealth, PDamage, EDamage, numPHits, numEHits);
+
+        
     }
 
     
