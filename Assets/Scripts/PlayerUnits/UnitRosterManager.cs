@@ -10,7 +10,7 @@ public class UnitRosterManager : MonoBehaviour
     private UnitStats stats;
     [SerializeField] TextAsset statTextData;
     private static Dictionary<string, UnitStats> fullRoster = new Dictionary<string, UnitStats>();
-    public static Dictionary<string, UnitStats> playableRoster = new Dictionary<string, UnitStats>();
+    // public static Dictionary<string, UnitStats> playableRoster = new Dictionary<string, UnitStats>();
     public static Dictionary<string, UnitStats> MapRoster = new Dictionary<string, UnitStats>();
     public static List<UnitStats> playableList = new List<UnitStats>();
     private List<UnitStats> mapList = new List<UnitStats>();
@@ -76,7 +76,7 @@ public class UnitRosterManager : MonoBehaviour
                     break;
                 }
 
-                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 22 + j]);
+                Weapon tempWeapon = WeaponManager.MakeWeapon(data[i + 22 + j]);
                 stats.AddWeapon(tempWeapon);
                 Debug.Log("Added " + tempWeapon.WeaponName);
             }
@@ -110,7 +110,7 @@ public class UnitRosterManager : MonoBehaviour
     {
         if (fullRoster.ContainsKey(Name))
         {
-            playableRoster.Add(Name, fullRoster[Name]);
+            // playableRoster.Add(Name, fullRoster[Name]);
             playableList.Add(fullRoster[Name]);
         }
     }

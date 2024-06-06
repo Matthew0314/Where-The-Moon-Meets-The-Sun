@@ -18,8 +18,8 @@ public class EnemyUnit : UnitManager
     public override int getMove() { return 0; }
     public override int getAttack() {  return 5; }
 
-    public override int getCurrentHealth() { return maxHealth; }
-    public override int getMaxHealth() { return currentHealth; }
+    public override int getCurrentHealth() { return currentHealth; }
+    public override int getMaxHealth() { return maxHealth; }
     public override void setCurrentHealth(int health) { currentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 

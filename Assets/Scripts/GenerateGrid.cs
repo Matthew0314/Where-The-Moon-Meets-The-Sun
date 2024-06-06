@@ -114,6 +114,9 @@ public class GenerateGrid : MonoBehaviour
     public void MoveUnit(UnitManager unitToMove,int orgX,int orgZ,int curX,int curZ) {
         grid[orgX, orgZ].UnitOnTile = null;
         grid[curX, curZ].UnitOnTile = unitToMove;
+
+        unitToMove.XPos = curX;
+        unitToMove.ZPos = curZ;
         
 
         Debug.Log(grid[curX, curZ].UnitOnTile.stats.UnitName + " has been removed from" + orgX + " " + orgZ + " and placed on " + curX + " " + curZ);

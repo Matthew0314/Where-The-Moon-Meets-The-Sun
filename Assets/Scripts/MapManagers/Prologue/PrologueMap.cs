@@ -20,6 +20,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     private int length = 10;
     private int width = 15;
     private List<UnitStats> mapUnits;
+    private List<UnitManager> mapGameUnits = new List<UnitManager>();
     [SerializeField] TextAsset enemyTextData;
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
   
@@ -121,7 +122,7 @@ public class PrologueMap : MonoBehaviour, IMaps
                     break;
                 }
 
-                Weapon tempWeapon = WeaponManager.GetWeaponData(data[i + 23 + j]);
+                Weapon tempWeapon = WeaponManager.MakeWeapon(data[i + 23 + j]);
                 eStats.AddWeapon(tempWeapon);
             }
 
@@ -138,8 +139,12 @@ public class PrologueMap : MonoBehaviour, IMaps
             
             //Stores the enemy stats in the EnemyUnit object and stores in a queue
             UnitManager enemy = newEnemy.GetComponent<UnitManager>();
+            
             enemy.stats = eStats;
+
             enemy.InitializeUnitData();
+            enemy.XPos = enemyX;
+            enemy.ZPos = enemyZ;
             grid.GetGridTile(enemyX, enemyZ).UnitOnTile = enemy;
             mapEnemies.Enqueue(enemy);
                       
@@ -172,6 +177,9 @@ public class PrologueMap : MonoBehaviour, IMaps
             GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
             Instantiate(unitPrefab, new Vector3(grid.GetGridTile(startGridX[i], startGridZ[i]).GetXPos(), grid.GetGridTile(startGridX[i], startGridZ[i]).GetYPos() + 0.005f, grid.GetGridTile(startGridX[i], startGridZ[i]).GetZPos()), Quaternion.identity);
             PlayerUnit UnitToGrid = unitPrefab.GetComponent<PlayerUnit>();
+            UnitToGrid.XPos = startGridX[i];
+            UnitToGrid.ZPos = startGridZ[i];
+            // mapUnits.Add(UnitToGrid);
             // UnitToGrid.InitializeUnitData();
             grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = UnitToGrid;
             // Debug.Log("Assigned to Tile")
@@ -201,6 +209,14 @@ public class PrologueMap : MonoBehaviour, IMaps
         return mapEnemies;
     }
 
+    public List<UnitStats> GetMapUnitStats() {
+        return mapUnits;
+    }
+
+    public List<UnitManager> GetMapUnits() {
+        return mapGameUnits;
+    }
+
     public void RemoveDeadUnit(UnitManager unit, int x, int z) {
 
         if (unit.stats.UnitType == "Enemy") {
@@ -220,7 +236,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             }
             mapEnemies = temp;
 
-            manageTurn.removeEnemy(unit);
+            manageTurn.RemoveEnemy(unit);
         } else if (unit.stats.UnitType == "Player") {
             GameObject tempObj = unit.gameObject;
             grid.GetGridTile(x, z).UnitOnTile = null;

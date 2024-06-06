@@ -33,7 +33,7 @@ public class PlayerGridMovement : MonoBehaviour
     public CollideWithPlayerUnit playerCollide;
     private GameObject currUnit;
     private int attackRangeStat;
-    private PlayerAttack attackPath;
+
     private TurnManager manageTurn;   
 
     private GameObject attackButton;
@@ -42,9 +42,10 @@ public class PlayerGridMovement : MonoBehaviour
 
     public bool[,] attackGrid;
 
-    private ExpectedBattleMenu expectedMenu;
-    private HoverUnitMenuManager hoverMenu;
+    // private ExpectedBattleMenu expectedMenu;
+
     private CombatMenuManager combatMenu;
+    
 
 
 
@@ -55,11 +56,9 @@ public class PlayerGridMovement : MonoBehaviour
         gridControl = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
         playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
-        attackPath = GameObject.Find("Player").GetComponent<PlayerAttack>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
-        expectedMenu = GameObject.Find("Canvas").GetComponent<ExpectedBattleMenu>();
-        hoverMenu = GameObject.Find("Canvas").GetComponent<HoverUnitMenuManager>();
+        // expectedMenu = GameObject.Find("Canvas").GetComponent<ExpectedBattleMenu>();
         combatMenu = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
 
         attackButton = GameObject.Find("Canvas/AttackButton");
@@ -85,20 +84,20 @@ public class PlayerGridMovement : MonoBehaviour
             return;
         }
 
-        // Debug.Log("Update working");
 
      
 
-        if (Input.GetKeyDown(KeyCode.Space) && !charSelected && playerCollide.collPlayer && oneAction && manageTurn.isActive(playerCollide.GetPlayer().stats)) {
+        if (Input.GetKeyDown(KeyCode.Space) && !charSelected && playerCollide.collPlayer && oneAction && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
             pathFinder.ResetArea();
             currUnit = playerCollide.GetPlayerObject();
-            Debug.Log("Hello");
+
             attackRangeStat = playerCollide.GetPlayerAttack();
-            Debug.Log("No");
-            pathFinder.CalcAttack(x, z, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-            Debug.Log("No");
+       
+            // pathFinder.CalcAttack(x, z, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+            pathFinder.calculateMovement(x, z, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+       
             pathFinder.PrintArea();
-            Debug.Log("No");
+ 
             
             orgX = x;
             orgZ = z;
@@ -107,24 +106,16 @@ public class PlayerGridMovement : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.B) && oneAction && inMenu) {
             deactivateFirstMenu();
-            attackPath.DestroyRange();
+            pathFinder.DestroyRange();
             MoveUnit(orgX, orgZ);
-            pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+            // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+            pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
             pathFinder.PrintArea();
             charSelected = true;
             inMenu = false;
             oneAction = false;
         }
-        // if (Input.GetKeyDown(KeyCode.B) && oneAction && isAttacking)
-        // {
-        //     attackPath.DestroyRange();
-        //     pathFinder.CalcAttack(x, z, attackRangeStat , playerCollide.GetPlayerMove());
-        //     pathFinder.PrintArea();
-        //     charSelected = true;
-        //     isAttacking = false;
-        //     oneAction = false;
-        //     playerCollide.removePlayer();
-        // }
+       
         if (Input.GetKeyDown(KeyCode.B) && oneAction )
         {
             pathFinder.DestroyArea();
@@ -149,14 +140,14 @@ public class PlayerGridMovement : MonoBehaviour
             UnitManager temp = playerCollide.GetPlayer();
             
 
-            attackGrid = attackPath.CalculateAttack(x, z, temp.primaryWeapon.Range, temp.primaryWeapon.Range1, temp.primaryWeapon.Range2, temp.primaryWeapon.Range3);
-            attackPath.HighlightAttack(attackGrid);
+            attackGrid = pathFinder.CalculateAttack(x, z, temp.primaryWeapon.Range, temp.primaryWeapon.Range1, temp.primaryWeapon.Range2, temp.primaryWeapon.Range3);
+            pathFinder.HighlightAttack(attackGrid);
             
             curX = x;
             curZ = z;
             MoveUnit(curX, curZ);
  
-            Debug.Log("Move Unit");
+ 
             inMenu = true;
             oneAction = false;
 
@@ -165,11 +156,8 @@ public class PlayerGridMovement : MonoBehaviour
         
         
 
-        if (Input.GetKeyDown(KeyCode.G)) {
-            UnitManager temp = playerCollide.GetPlayer();
-            Debug.Log("Hello player Mov: " + temp.getMove());
-        }
-        if (!inMenu && !manageTurn.isEnemyTurn()) {
+        
+        if (!inMenu && !manageTurn.IsEnemyTurn()) {
             cursorMovement();
         }
         
@@ -252,14 +240,16 @@ public class PlayerGridMovement : MonoBehaviour
     public void unitWait() {
         deactivateFirstMenu();
         
-        attackPath.DestroyRange();
+        pathFinder.DestroyRange();
         
         // gridControl.GetGridTile(curX, curZ).UnitOnTile = playerCollide.GetPlayer();
         // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = null;
 
         gridControl.MoveUnit(playerCollide.GetPlayer(), orgX, orgZ, curX, curZ);
 
-        
+        UnitManager temp = playerCollide.GetPlayer();
+        temp.XPos = curX;
+        temp.ZPos = curZ;
         
 
         pathFinder.DestroyArea();
@@ -274,7 +264,7 @@ public class PlayerGridMovement : MonoBehaviour
     }
 
     public void ResetAfterAction(UnitManager playerUn) {
-        attackPath.DestroyRange();
+        pathFinder.DestroyRange();
         pathFinder.DestroyArea();
         if (playerUn.currentHealth > 0) {
             gridControl.MoveUnit(playerUn, orgX, orgZ, curX, curZ);
@@ -298,11 +288,29 @@ public class PlayerGridMovement : MonoBehaviour
 
         Weapon orgPrimWeapon = AttackingUnit.primaryWeapon;
         List<Weapon> playerWeapons = AttackingUnit.stats.weapons;
-        int weaponIndex = 0;
-        bool recalc = false;
+    
+        
 
-        hoverMenu.deactivateMenu();
+        combatMenu.DeactivateHoverMenu();
         CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
+
+        Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+            float fspeed = 40f; // Speed of movement
+            moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+
+            // // Move the enemy towards the target position
+            while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+            {
+                // Calculate the step based on speed and deltaTime
+                float step = fspeed * Time.deltaTime;
+
+                // Move the enemy towards the target position gradually
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
+
+                yield return null;
+            }
+
+            transform.position = targetPosition; 
 
         while(true) {
 
@@ -324,7 +332,7 @@ public class PlayerGridMovement : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.B)) {
                 isAttacking = false;
-                expectedMenu.DeactivateMenu();
+                combatMenu.DeactivateExpectedMenu();
                 moveCursor.position = new Vector3(gridControl.GetGridTile(curX, curZ).GetXPos(), gridControl.GetGridTile(curX, curZ).GetYPos(), gridControl.GetGridTile(curX, curZ).GetZPos());
                 AttackingUnit.primaryWeapon = orgPrimWeapon;
                 activateFirstMenu();
@@ -372,17 +380,35 @@ public class PlayerGridMovement : MonoBehaviour
 
                 Debug.Log("Index Changed");
 
-                
-
-                currentPosition = moveCursor.transform.position;
-                moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
-
                 defenderX = UnitsInRange[currentIndex].GetGridX();
                 defenderZ = UnitsInRange[currentIndex].GetGridZ();
                 CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
 
+                
+                targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+                
+                moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
 
-                yield return new WaitForSeconds(0.5f);
+                // // Move the enemy towards the target position
+                while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+                {
+                    // Calculate the step based on speed and deltaTime
+                    float step = fspeed * Time.deltaTime;
+
+                    // Move the enemy towards the target position gradually
+                    transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
+
+                    yield return null;
+                }
+
+                transform.position = targetPosition; 
+                // currentPosition = moveCursor.transform.position;
+                // moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+
+                
+
+
+                yield return new WaitForSeconds(0.25f);
             }
 
            
@@ -407,11 +433,14 @@ public class PlayerGridMovement : MonoBehaviour
             //Start Attacking based on primary weapons
             Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
             Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
-            expectedMenu.DeactivateMenu();
+            combatMenu.DeactivateExpectedMenu();
             AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             Debug.Log(AttackingUnit.stats.UnitName);
             moveCursor.position = new Vector3(gridControl.GetGridTile(attackerX, attackerZ).GetXPos(), gridControl.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, gridControl.GetGridTile(attackerX, attackerZ).GetZPos());
+            UnitManager temp = playerCollide.GetPlayer();
+            temp.XPos = curX;
+            temp.ZPos = curZ;
             manageTurn.RemovePlayer(AttackingUnit.stats);
             ResetAfterAction(AttackingUnit);
             manageTurn.CheckPhase();
@@ -481,7 +510,7 @@ public class PlayerGridMovement : MonoBehaviour
             
         }
 
-        expectedMenu.SetUpMenu(player, enemy, AttackerExpectHealth, DefendExpectHealth, PDamage, EDamage, numPHits, numEHits);
+        combatMenu.SetUpExpectedMenu(player, enemy, AttackerExpectHealth, DefendExpectHealth, PDamage, EDamage, numPHits, numEHits);
 
         
     }

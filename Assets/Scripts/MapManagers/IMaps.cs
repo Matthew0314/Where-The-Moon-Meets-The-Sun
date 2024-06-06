@@ -17,4 +17,5 @@ public interface IMaps
     void RemoveDeadUnit(UnitManager unit, int x, int y);
 
     Queue<UnitManager> GetMapEnemies();
+    List<UnitStats> GetMapUnitStats();
 }

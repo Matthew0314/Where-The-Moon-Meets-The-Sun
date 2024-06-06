@@ -26,17 +26,19 @@ public abstract class Weapon
     public float MultInfantry {get; set;}
     public int NumHits {get; set;}
     public bool CanCounter {get; set;}
+    public string WeaponClass {get;}
 
     public Queue<UnitManager> AttackingQueue {get; set;}
     public Queue<UnitManager> DefendingQueue {get; set;}
     public int AttackerCurrentHealth {get; set;}
     public int DefenderCurrentHealth {get; set;}
 
-    private PlayerAttack attackPath = GameObject.Find("Player").GetComponent<PlayerAttack>();
+   
     private IMaps _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+    private FindPath pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
 
     //Constructor
-    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) {
+    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, string weapClass) {
         WeaponName = name;
         WeaponDescription = desc;
         WeaponType = Wtype;
@@ -58,6 +60,7 @@ public abstract class Weapon
         MultInfantry = MInf;
         NumHits = nHit;
         CanCounter = counter;
+        WeaponClass = weapClass;
 
         AttackingQueue = new Queue<UnitManager>();
         DefendingQueue = new Queue<UnitManager>();
@@ -103,7 +106,7 @@ public abstract class Weapon
 
                 Debug.Log(def.stats.UnitName + "Has died");
                 if (defender.stats.UnitName == def.stats.UnitName) {
-                    _currentMap.RemoveDeadUnit(def, defenderX, defenderZ);
+                    _currentMap.RemoveDeadUnit(atk, defenderX, defenderZ);
                 } else {
                     _currentMap.RemoveDeadUnit(def, attackerX, attackerZ);
                 }
@@ -127,7 +130,7 @@ public abstract class Weapon
             Debug.Log("hi");
         }
         
-        bool[,] counter = attackPath.CalculateAttack(defenderX, defenderZ, defender.primaryWeapon.Range, defender.primaryWeapon.Range1, defender.primaryWeapon.Range2, defender.primaryWeapon.Range3);
+        bool[,] counter = pathFinder.CalculateAttack(defenderX, defenderZ, defender.primaryWeapon.Range, defender.primaryWeapon.Range1, defender.primaryWeapon.Range2, defender.primaryWeapon.Range3);
 
         if (counter[attackerX, attackerZ]) {
             for (int i = 0; i < defender.primaryWeapon.NumHits; i++) {
@@ -159,7 +162,7 @@ public abstract class Weapon
 //Class for all weapons without a special ability
 public class NormalWeapon : Weapon
 {
-    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter) {}
+    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, weapClass) {}
     
     
     public override void SpecialAbility() {}

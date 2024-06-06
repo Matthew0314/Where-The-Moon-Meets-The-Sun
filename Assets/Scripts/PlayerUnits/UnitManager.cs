@@ -94,6 +94,8 @@ public class UnitManager : MonoBehaviour
     public int attackRange;
     [SerializeField] protected string unitName;
     public Weapon primaryWeapon;
+    public int XPos {get; set;}
+    public int ZPos {get; set;}
 
     protected virtual void Start()
     {

@@ -51,10 +51,18 @@ public class WeaponManager : MonoBehaviour
         Type weaponType = Type.GetType(weaponClass);
 
         //Returns the new child object
-        return (Weapon)Activator.CreateInstance(weaponType, name, description, type, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter);
+        return (Weapon)Activator.CreateInstance(weaponType, name, description, type, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter, weaponClass);
     }
 
     public static Weapon GetWeaponData(string WeaponName) {
         return Weapons[WeaponName];
+    }
+
+    public static Weapon MakeWeapon(string WeaponName) {
+        Weapon temp = GetWeaponData(WeaponName);
+
+        Type weaponType = Type.GetType(temp.WeaponClass);
+
+        return (Weapon)Activator.CreateInstance(weaponType, temp.WeaponName, temp.WeaponDescription, temp.WeaponType, temp.WeaponRank, temp.Attack, temp.HitRate, temp.CritRate, temp.Weight, temp.MaxUses, temp.Range1, temp.Range2, temp.Range3, temp.Range, temp.MultMounted, temp.MultAirBorn, temp.MultArmored, temp.MultWhisper, temp.MultInfantry, temp.NumHits, temp.CanCounter, temp.WeaponClass);
     }
 }

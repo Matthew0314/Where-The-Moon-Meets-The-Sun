@@ -14,29 +14,26 @@ public class TurnManager : MonoBehaviour
     private int turns = 0;
     private bool playerTurn;
     private bool enemyTurn; //possibly add another one for ally later on
+    private PlayerGridMovement moveGrid;
+    private GenerateGrid grid;
 
 
-    // Start is called before the first frame update
     void Start()
     {
         playerTurn = true; enemyTurn = false; turns++;
         playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
-        // SetLists(); //This needs to removed later, should be called when player clicks start
+        moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // CheckPhase();
-    }
-
+    //Resets Player List after every player turn
     public void SetLists()
     {
         currUnits = new List<UnitStats>();
 
 
-        List<UnitStats> temp = playerList.getMapUnits();
+        List<UnitStats> temp = _currentMap.GetMapUnitStats();
  
         for (int i = 0; i < temp.Count; i++)
         {
@@ -44,6 +41,7 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    //Resets Enemy List after every enemy turn
     public void SetEnemyList() {
         currEnemies = new Queue<UnitManager>();
 
@@ -65,7 +63,8 @@ public class TurnManager : MonoBehaviour
         // CheckPhase();
     }
 
-    public void removeEnemy(UnitManager ene) {
+    //Removes Enemy from the queue if they have been killed during the player phase
+    public void RemoveEnemy(UnitManager ene) {
         Queue<UnitManager> temp = currEnemies;
 
             int queueCou = temp.Count;
@@ -82,36 +81,72 @@ public class TurnManager : MonoBehaviour
         currEnemies = temp;
     }
 
-    private void AddPlayer()
-    {
-
-    }
-
-    
-
-    // private void EnemyPhase() {
-    //     int count = currEnemies.Count;
-    //     for (int i = 0; i < count; i++)
-    //     {
-    //         EnemyUnit temp = currEnemies.Dequeue();
-    //         GameObject tempGameObj = temp.gameObject;
-    //         IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
-    //         AIenemy.enemyAttack(temp.gameObject);
-    //     }
-
-    // }
-
+    //Executes all enemy actions who are in the queue based on the AI script that is attached to them
     private IEnumerator EnemyPhase() {
+        Transform objectTrans;
+        Vector3 targetPosition;
+        float speed;
+        float step;
         int count = currEnemies.Count;
         for (int i = 0; i < count; i++)
         {
             UnitManager temp = currEnemies.Dequeue();
             GameObject tempGameObj = temp.gameObject;
+
+            objectTrans = moveGrid.transform;
+
+            // Vector3 targetPosition = new Vector3(grid.GetGridTile(4, 3).GetXPos(), grid.GetGridTile(4, 3).GetYPos(), grid.GetGridTile(4, 3).GetZPos());
+            // objTransform.position = Vector3.MoveTowards(objTransform.position, targetPosition, 20f * Time.deltaTime);
+       
+
+      
+
+            targetPosition = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
+            speed = 40f; // Speed of movement
+            moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
+
+            // // Move the enemy towards the target position
+            while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)
+            {
+                // Calculate the step based on speed and deltaTime
+                step = speed * Time.deltaTime;
+
+                // Move the enemy towards the target position gradually
+                objectTrans.position = Vector3.MoveTowards(objectTrans.position, targetPosition, step);
+
+                yield return null; // Wait for the next frame
+            }
+
+            objectTrans.position = targetPosition; // Ensure exact position when reached
+
+            // Debug.Log("Enemy reached the target position.");
             IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
             yield return StartCoroutine(AIenemy.enemyAttack(temp.gameObject));
         }
 
         SetEnemyList();
+
+        objectTrans = moveGrid.transform;
+
+        targetPosition = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
+        speed = 40f;
+        
+        moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
+
+        // // Move the enemy towards the target position
+        while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)
+        {
+            // Calculate the step based on speed and deltaTime
+            step = speed * Time.deltaTime;
+
+            // Move the enemy towards the target position gradually
+            objectTrans.position = Vector3.MoveTowards(objectTrans.position, targetPosition, step);
+
+            yield return null; // Wait for the next frame
+        }
+
+        objectTrans.position = targetPosition; // Ensure exact position when reached
+
 
         turns++; 
             
@@ -124,6 +159,7 @@ public class TurnManager : MonoBehaviour
 
     }
 
+    //After every action the player makes it checks to see if there are still units, if not then it starts the enemy phase
     public void CheckPhase()
     {
         if (playerTurn)
@@ -144,10 +180,10 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    public bool isPlayerTurn() { return playerTurn; }
-    public bool isEnemyTurn() { return enemyTurn; }
+    public bool IsPlayerTurn() { return playerTurn; }
+    public bool IsEnemyTurn() { return enemyTurn; }
 
-    public bool isActive(UnitStats player) { 
+    public bool IsActive(UnitStats player) { 
         return currUnits.Contains(player); 
     }
     
