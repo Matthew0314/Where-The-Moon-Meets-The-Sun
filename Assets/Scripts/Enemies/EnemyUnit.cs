@@ -1,9 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyUnit : UnitManager
 {
+
+    private Image healthBar;
+   
+
+    protected override void Start() {
+        
+        Transform childImage = transform.Find("EnemyCircle/Canvas/UnitBar");
+        healthBar = childImage.GetComponent<Image>();
+
+    }
+
+    protected void Update() {
+       
+            healthBar.fillAmount = (float)currentHealth / (float)getMaxHealth(); 
+        
+    }
+
     public override void InitializeUnitData()
     {
         // stats = UnitRosterManager.GetUnitStats(unitName);
@@ -19,7 +37,7 @@ public class EnemyUnit : UnitManager
     public override int getAttack() {  return 5; }
 
     public override int getCurrentHealth() { return currentHealth; }
-    public override int getMaxHealth() { return maxHealth; }
+    public override int getMaxHealth() { return stats.Health; }
     public override void setCurrentHealth(int health) { currentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 

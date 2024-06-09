@@ -67711,7 +67711,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1057675870}
         m_TargetAssemblyTypeName: CombatMenuManager, Assembly-CSharp
-        m_MethodName: playerWait
+        m_MethodName: PlayerWait
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

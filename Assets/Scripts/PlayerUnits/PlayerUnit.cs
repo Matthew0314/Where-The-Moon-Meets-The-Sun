@@ -1,14 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerUnit : UnitManager
 {
+    private Image healthBar;
+
     protected override void Start() {
         classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
         InitializeUnitData();
-        Debug.Log("Start Override");
+        Transform childImage = transform.Find("PlayerCircle/Canvas/UnitBar");
+        healthBar = childImage.GetComponent<Image>();
+
     }
+
+    protected void Update() {
+        healthBar.fillAmount = (float)currentHealth / (float)stats.Health; 
+    }
+
+
+
     public override void InitializeUnitData()
     {
         
@@ -24,8 +36,8 @@ public class PlayerUnit : UnitManager
     public override int getMove() { Debug.Log("Return"); return stats.getClass().Movement + stats.Movement; }
     public override int getAttack() { return primaryWeapon.Range; }
 
-    public override int getCurrentHealth() { return maxHealth; }
-    public override int getMaxHealth() { return currentHealth; }
+    public override int getCurrentHealth() { return currentHealth; }
+    public override int getMaxHealth() { return stats.Health; }
     public override void setCurrentHealth(int health) { currentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 

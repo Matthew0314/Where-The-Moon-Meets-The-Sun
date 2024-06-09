@@ -9,8 +9,6 @@ public class CombatMenuManager : MonoBehaviour
     private IMaps _currentMap;
     private TurnManager manageTurn;    
     private PlayerGridMovement moveGrid;
-  
-
     private GenerateGrid generateGrid;
     // private UnitManager DefendingEnemy;
     // private UnitManager AttackingUnit;
@@ -19,6 +17,12 @@ public class CombatMenuManager : MonoBehaviour
     // private int attackerZ;
     // private int defenderX;
     // private int defenderZ;
+
+    //Action Menu
+    private GameObject attackButton;
+    private GameObject itemButton;
+    private GameObject waitButton;
+
 
     //hover menu
     private GameObject enemyBar;
@@ -62,9 +66,14 @@ public class CombatMenuManager : MonoBehaviour
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
         moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
-
-     
         generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
+
+        //Action Menu
+        attackButton = GameObject.Find("Canvas/AttackButton");
+        itemButton = GameObject.Find("Canvas/WaitButton");
+        waitButton = GameObject.Find("Canvas/ItemButton");
+
+        DeactivateActionMenu();
 
         //Hover Menu
         enemyBar = GameObject.Find("Canvas/HoverUnitMenu/EnemyBar");
@@ -104,10 +113,20 @@ public class CombatMenuManager : MonoBehaviour
         DeactivateExpectedMenu();
     }
 
- 
+    public void ActivateActionMenu() {
+        attackButton.SetActive(true);
+        waitButton.SetActive(true);
+        itemButton.SetActive(true);
+    }
+
+    public void DeactivateActionMenu() {
+        attackButton.SetActive(false);
+        waitButton.SetActive(false);
+        itemButton.SetActive(false);
+    }
 
 
-    public void playerWait() {
+    public void PlayerWait() {
         
         manageTurn.RemovePlayer(moveGrid.playerCollide.GetPlayer().stats);
         moveGrid.unitWait();
@@ -123,16 +142,13 @@ public class CombatMenuManager : MonoBehaviour
         moveGrid.isAttacking = true;
         List<GridTile> UnitsInRange = new List<GridTile>();
         
+        
         for (int i = 0; i < generateGrid.GetWidth(); i++) {
             for (int j = 0; j < generateGrid.GetLength(); j++) {
-                if (moveGrid.attackGrid[i,j]) {
-                    Debug.Log("Attack at " + i + " " + j);
-                }
-                
                 if (moveGrid.attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                    Debug.Log("Hit");
+                    
                     UnitsInRange.Add(generateGrid.GetGridTile(i,j));
-                    Debug.Log("Hit");
+                    
                 }
             }
         }
@@ -142,52 +158,9 @@ public class CombatMenuManager : MonoBehaviour
             return;
         }
 
-        moveGrid.deactivateFirstMenu();
+        DeactivateActionMenu();
 
         StartCoroutine(moveGrid.CycleAttackList(UnitsInRange));
-
-    }
-
-   
-
-    public void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending) {
-        int queueSize = attacking.Count;
-        for (int i = 0; i < queueSize; i++) {
-            UnitManager atk = attacking.Dequeue();
-            UnitManager def = defending.Dequeue();
-
-            int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
-
-            float multiplier = 1;
-
-            if (def.stats.Mounted) {
-                multiplier += atk.primaryWeapon.MultMounted - 1; 
-            }
-            if (def.stats.AirBorn) {
-                multiplier += atk.primaryWeapon.MultAirBorn - 1; 
-            }
-            if (def.stats.Armored) {
-                multiplier += atk.primaryWeapon.MultArmored - 1; 
-            }
-            if (def.stats.Whisper) {
-                multiplier += atk.primaryWeapon.MultWhisper - 1; 
-            }
-
-            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
-
-            damage = (int)(damage * multiplier);
-
-            Debug.Log(atk.stats.UnitName + " Did" + damage + " damage to " + def.stats.UnitName);
-
-            def.currentHealth -= damage;
-
-            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
-
-            if (def.currentHealth <= 0) {
-                Debug.Log(def.stats.UnitName + "Has died");
-                break;
-            }
-        }
 
     }
 
@@ -459,3 +432,45 @@ public void SetUpExpectedMenu(UnitManager player, UnitManager enemy, int expecte
 
         yield return null;
     }*/
+
+
+    // public void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending) {
+    //     int queueSize = attacking.Count;
+    //     for (int i = 0; i < queueSize; i++) {
+    //         UnitManager atk = attacking.Dequeue();
+    //         UnitManager def = defending.Dequeue();
+
+    //         int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
+
+    //         float multiplier = 1;
+
+    //         if (def.stats.Mounted) {
+    //             multiplier += atk.primaryWeapon.MultMounted - 1; 
+    //         }
+    //         if (def.stats.AirBorn) {
+    //             multiplier += atk.primaryWeapon.MultAirBorn - 1; 
+    //         }
+    //         if (def.stats.Armored) {
+    //             multiplier += atk.primaryWeapon.MultArmored - 1; 
+    //         }
+    //         if (def.stats.Whisper) {
+    //             multiplier += atk.primaryWeapon.MultWhisper - 1; 
+    //         }
+
+    //         Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+
+    //         damage = (int)(damage * multiplier);
+
+    //         Debug.Log(atk.stats.UnitName + " Did" + damage + " damage to " + def.stats.UnitName);
+
+    //         def.currentHealth -= damage;
+
+    //         Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+
+    //         if (def.currentHealth <= 0) {
+    //             Debug.Log(def.stats.UnitName + "Has died");
+    //             break;
+    //         }
+    //     }
+
+    // }

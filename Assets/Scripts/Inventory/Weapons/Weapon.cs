@@ -32,6 +32,8 @@ public abstract class Weapon
     public Queue<UnitManager> DefendingQueue {get; set;}
     public int AttackerCurrentHealth {get; set;}
     public int DefenderCurrentHealth {get; set;}
+    bool miss;
+    bool critical;
 
    
     private IMaps _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
@@ -104,10 +106,13 @@ public abstract class Weapon
 
             if (def.currentHealth <= 0) {
 
-                Debug.Log(def.stats.UnitName + "Has died");
+                
                 if (defender.stats.UnitName == def.stats.UnitName) {
-                    _currentMap.RemoveDeadUnit(atk, defenderX, defenderZ);
+                    Debug.Log(def.stats.UnitName + "Has died");
+                    _currentMap.RemoveDeadUnit(def, defenderX, defenderZ);
+                    
                 } else {
+                    
                     _currentMap.RemoveDeadUnit(def, attackerX, attackerZ);
                 }
                 
@@ -115,6 +120,47 @@ public abstract class Weapon
                 break;
             }
         }
+
+    }
+
+    public virtual int UnitAttack(UnitManager atk, UnitManager def, bool ignoreRates) {
+        int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
+
+        float multiplier = 1;
+
+        if (def.stats.Mounted) {
+            multiplier += atk.primaryWeapon.MultMounted - 1; 
+        }
+        if (def.stats.AirBorn) {
+            multiplier += atk.primaryWeapon.MultAirBorn - 1; 
+        }
+        if (def.stats.Armored) {
+            multiplier += atk.primaryWeapon.MultArmored - 1; 
+        }
+        if (def.stats.Whisper) {
+            multiplier += atk.primaryWeapon.MultWhisper - 1; 
+        }
+
+        damage = (int)(damage * multiplier);
+
+        critical = false;
+        miss = false;
+
+        if (!ignoreRates) {
+            int hit = atk.primaryWeapon.HitRate + (atk.stats.Luck * 4) - def.stats.Evasion;
+            int crit =  atk.primaryWeapon.CritRate + (int)(atk.stats.Luck / 2);
+
+            int rand = Random.Range(0, 101);
+            if (hit <= rand) {
+                miss = true;
+                return 0;
+            } else if (crit >= rand) {
+                critical = true;
+                return damage * 3;
+            }
+        }
+
+        return damage;
 
     }
 

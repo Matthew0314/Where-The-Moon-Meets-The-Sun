@@ -18,6 +18,7 @@ public class FindPath : MonoBehaviour
     [SerializeField] GameObject movementAreaTile;
     public GameObject moveTile;
     public GameObject attackTile;
+    public GameObject enemyTile;
     private GridTile currTile;
     private bool[,] visited;
     private int[,] distances;
@@ -287,8 +288,8 @@ public void calculateMovement(int startX, int startZ, int charMovement, UnitMana
         //creates arrays that store the distance number and which cells have been visited
         moveDistances = new int[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         moveVisited = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
-        canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
-        canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+        // canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+        // canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
 
         canMove[startX, startZ] = true;
 
