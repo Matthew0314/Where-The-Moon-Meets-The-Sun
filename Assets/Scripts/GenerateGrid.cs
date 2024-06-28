@@ -7,6 +7,7 @@ public class GenerateGrid : MonoBehaviour
 {
     private GridTile[,] grid;
     private PlayerGridMovement playerCursor;
+    private FindPath pathFinder;
     private float cellSize = 4;
     private int length;
     private int width;
@@ -23,6 +24,7 @@ public class GenerateGrid : MonoBehaviour
     private void Start()
     {
         playerCursor = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
         obstacleLayer = LayerMask.GetMask("ImpassableTile");
         tallObstacleLayer = LayerMask.GetMask("TallObstacle");
         doubleLayer = LayerMask.GetMask("SlowLayer(2)");
@@ -117,6 +119,11 @@ public class GenerateGrid : MonoBehaviour
 
         unitToMove.XPos = curX;
         unitToMove.ZPos = curZ;
+
+        if (unitToMove.UnitType == "Enemy" && playerCursor.enemyRangeActive) {
+            pathFinder.DestroyEnemyRange();
+            pathFinder.EnemyRange();
+        }
         
 
         Debug.Log(grid[curX, curZ].UnitOnTile.stats.UnitName + " has been removed from" + orgX + " " + orgZ + " and placed on " + curX + " " + curZ);

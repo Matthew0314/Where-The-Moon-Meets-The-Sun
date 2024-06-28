@@ -11,6 +11,8 @@ public class PrologueMap : MonoBehaviour, IMaps
     private WeaponManager manageWeapons;
     private UnitStats stats;
     private PlayerClassManager classRos;
+    private PlayerGridMovement playerCursor;
+    private FindPath pathFinder;
     private GenerateGrid grid;
     private TurnManager manageTurn;   
     private string[] newUnits = { "YoungFelix", "YoungLilith" };
@@ -33,6 +35,8 @@ public class PrologueMap : MonoBehaviour, IMaps
         classRos = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
         manageWeapons = GameObject.Find("GridManager").GetComponent<WeaponManager>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
+        playerCursor = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
 
         //Reads in data for weapons, all units in the game, and all player classes
         //THESE WILL NEVER BE CALLED AGAIN AFTER THE PROLOGUE MAP
@@ -237,6 +241,10 @@ public class PrologueMap : MonoBehaviour, IMaps
             mapEnemies = temp;
 
             manageTurn.RemoveEnemy(unit);
+            if (playerCursor.enemyRangeActive) {
+                pathFinder.DestroyEnemyRange();
+                pathFinder.EnemyRange();
+            }
         } else if (unit.stats.UnitType == "Player") {
             GameObject tempObj = unit.gameObject;
             grid.GetGridTile(x, z).UnitOnTile = null;
