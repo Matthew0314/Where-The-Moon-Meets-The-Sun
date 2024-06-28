@@ -27,6 +27,7 @@ public class PlayerGridMovement : MonoBehaviour
     private bool oneAction;
     private bool inMenu;
     public bool isAttacking;
+    public bool enemyRangeActive = false;
     private IMaps _currentMap;
 
     private bool charSelected;
@@ -83,7 +84,17 @@ public class PlayerGridMovement : MonoBehaviour
 
         oneAction = true;
 
-
+        if (Input.GetKeyDown(KeyCode.X) && !enemyRangeActive && !inMenu && oneAction && !manageTurn.IsEnemyTurn()) {
+            pathFinder.EnemyRange();
+            enemyRangeActive = true;
+            oneAction = false;
+        }
+        if (Input.GetKeyDown(KeyCode.X) && enemyRangeActive && !inMenu && oneAction && !manageTurn.IsEnemyTurn()) {
+            pathFinder.DestroyEnemyRange();
+            enemyRangeActive = false;
+            oneAction = false;
+        }
+     
      
         if (Input.GetKeyDown(KeyCode.Space) && !charSelected && playerCollide.collPlayer && oneAction && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
             pathFinder.ResetArea();

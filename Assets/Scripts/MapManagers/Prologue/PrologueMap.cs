@@ -15,10 +15,10 @@ public class PrologueMap : MonoBehaviour, IMaps
     private TurnManager manageTurn;   
     private string[] newUnits = { "YoungFelix", "YoungLilith" };
     private int unitNum = 2;
-    private int[] startGridX = { 2, 3 };
-    private int[] startGridZ = { 1, 2 };
-    private int length = 10;
-    private int width = 15;
+    private int[] startGridX = { 9, 10 };
+    private int[] startGridZ = { 2, 1 };
+    private int length = 16;
+    private int width = 24;
     private List<UnitStats> mapUnits;
     private List<UnitManager> mapGameUnits = new List<UnitManager>();
     [SerializeField] TextAsset enemyTextData;

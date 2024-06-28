@@ -1,0 +1,9 @@
+Possible light colors:
+#FFBFA7
+#B79191
+#2C3E50
+#917F72
+#464668
+
+
+

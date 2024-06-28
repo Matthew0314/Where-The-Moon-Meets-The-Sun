@@ -33,8 +33,8 @@ public class EnemyUnit : UnitManager
         // Initialize Enemy-specific data here
     }
 
-    public override int getMove() { return 0; }
-    public override int getAttack() {  return 5; }
+    public override int getMove() { return stats.Movement; }
+    public override int getAttack() {  return primaryWeapon.Range; }
 
     public override int getCurrentHealth() { return currentHealth; }
     public override int getMaxHealth() { return stats.Health; }

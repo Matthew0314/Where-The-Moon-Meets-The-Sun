@@ -101,9 +101,9 @@ public class TurnManager : MonoBehaviour
 
       
 
-            targetPosition = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
+            targetPosition = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos() + 0.30f, grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
             speed = 40f; // Speed of movement
-            moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
+            moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos() + 0.30f, grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
 
             // // Move the enemy towards the target position
             while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)
@@ -128,10 +128,10 @@ public class TurnManager : MonoBehaviour
 
         objectTrans = moveGrid.transform;
 
-        targetPosition = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
+        targetPosition = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos() + 0.30f, grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
         speed = 40f;
         
-        moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
+        moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos() + 0.30f, grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
 
         // // Move the enemy towards the target position
         while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)

@@ -13,6 +13,7 @@ public class FindPath : MonoBehaviour
     private GenerateGrid gridTraverse;
     private PlayerGridMovement movementVars;
     private CollideWithPlayerUnit playerCollide;
+    private IMaps _currentMap;
     private GameObject currUnit;
     private GridTile gridCell;
     [SerializeField] GameObject movementAreaTile;
@@ -26,6 +27,7 @@ public class FindPath : MonoBehaviour
     private int[,] attackDistances;
     private bool[,] moveVisited;
     private bool[,] attackVisited;
+    private bool[,] enemyRange;
 
     int sX;
     int sZ;
@@ -33,6 +35,7 @@ public class FindPath : MonoBehaviour
 
     List<GameObject> movementTiles;
     List<GameObject> attackTiles;
+    List<GameObject> enemyTiles;
     List<GridTile> movableCells;
 
 
@@ -42,10 +45,12 @@ public class FindPath : MonoBehaviour
         playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
         gridTraverse = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         movementVars = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
         canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         movementTiles = new List<GameObject>();
         attackTiles = new List<GameObject>();
+        enemyTiles = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -290,7 +295,7 @@ public void calculateMovement(int startX, int startZ, int charMovement, UnitMana
         moveVisited = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         // canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         // canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
-
+        Debug.Log(startX + " " + startZ);
         canMove[startX, startZ] = true;
 
         //Initilizes all distances with the max interger
@@ -512,6 +517,64 @@ public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool can
     }
 
 
+
+    public void EnemyRange() {
+        bool [,] moveTemp = canMove;
+        bool [,] attackTemp = canAttack;
+        enemyRange = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+        canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+        canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+
+        Queue<UnitManager> currEnemies = new Queue<UnitManager>();
+
+        Queue<UnitManager> temp = _currentMap.GetMapEnemies();
+
+        foreach(UnitManager element in temp) {
+            currEnemies.Enqueue(element);
+        }
+
+        int queueCount = currEnemies.Count;
+
+
+
+        for (int k = 0; k < queueCount; k++) {
+            UnitManager tempEne = currEnemies.Dequeue();
+            calculateMovement(tempEne.XPos, tempEne.ZPos, tempEne.getMove(), tempEne);
+
+            for (int i = 0; i < gridTraverse.GetWidth(); i++)
+            {
+                for (int j = 0; j < gridTraverse.GetLength(); j++)
+                {
+                    if (gridTraverse.IsValid(i, j) && (canAttack[i, j] || canMove[i,j]) && !enemyRange[i,j])
+                    {
+                        enemyRange[i,j] = true;
+                        GameObject areaTile;
+                        areaTile = Instantiate(enemyTile, new Vector3(gridTraverse.GetGridTile(i, j).GetXPos(), gridTraverse.GetGridTile(i, j).GetYPos() + 0.003f, gridTraverse.GetGridTile(i, j).GetZPos()), Quaternion.identity);
+                        enemyTiles.Add(areaTile);
+                    }
+                }
+            }
+        }
+        canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+        canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()]; 
+
+        canMove = moveTemp;
+        canAttack = attackTemp;
+
+        
+    }
+
+    public void DestroyEnemyRange()
+    {
+        foreach(GameObject areaT in enemyTiles)
+        {
+            Destroy(areaT);
+        }
+    }
+
+
+
+   
 
 
 

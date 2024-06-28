@@ -60,27 +60,27 @@ public class GenerateGrid : MonoBehaviour
                 {
                     grid[x, z] = new GridTile(x, z, false, false, int.MaxValue, 1, tileNum, xPosition, yPosition, zPosition);
 
-                    Instantiate(impassableTilePrefab, WorldPos, Quaternion.identity);
+                    // Instantiate(impassableTilePrefab, WorldPos, Quaternion.identity);
                 }
                 //If the layer is a tall obstacle, initlize it so that units can't attack nor move through it
                 else if (Physics.CheckBox(WorldPos, Vector3.one / 2 * cellSize, Quaternion.identity, tallObstacleLayer)) {
                     grid[x, z] = new GridTile(x, z, false, true, int.MaxValue, int.MaxValue, tileNum, xPosition, yPosition, zPosition);
 
-                    Instantiate(impassableTilePrefab, WorldPos, Quaternion.identity);
+                    // Instantiate(impassableTilePrefab, WorldPos, Quaternion.identity);
                 }
                 //If the layer is a slow layer, initlize movement to 2
                 else if(Physics.CheckBox(WorldPos, Vector3.one / 2 * cellSize, Quaternion.identity, doubleLayer))
                 {
                     grid[x, z] = new GridTile(x, z, true, false, 2, 1, tileNum, xPosition, yPosition, zPosition);
 
-                    Instantiate(tilePrefab, WorldPos, Quaternion.identity);
+                    // Instantiate(tilePrefab, WorldPos, Quaternion.identity);
                 }
                 //If it is a normal movement tile, initlize movement and attack to 1
                 else
                 {
                     grid[x, z] = new GridTile(x, z, true, false, 1, 1, tileNum, xPosition, yPosition, zPosition);
 
-                    Instantiate(tilePrefab, WorldPos, Quaternion.identity);
+                    // Instantiate(tilePrefab, WorldPos, Quaternion.identity);
                 }
 
                 tileNum++;
@@ -96,8 +96,8 @@ public class GenerateGrid : MonoBehaviour
     {
         int x = playerCursor.getX();
         int z = playerCursor.getZ();
-        playerCursor.transform.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.01f, grid[x, z].GetZPos());
-        playerCursor.moveCursor.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.01f, grid[x, z].GetZPos());
+        playerCursor.transform.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.15f, grid[x, z].GetZPos());
+        playerCursor.moveCursor.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.30f, grid[x, z].GetZPos());
         playerCursor.moveCursor.parent = null;
     }
 
