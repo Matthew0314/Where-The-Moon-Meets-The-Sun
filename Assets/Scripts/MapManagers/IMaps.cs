@@ -18,4 +18,7 @@ public interface IMaps
 
     Queue<UnitManager> GetMapEnemies();
     List<UnitStats> GetMapUnitStats();
+
+    int GetLength();
+    int GetWidth();
 }

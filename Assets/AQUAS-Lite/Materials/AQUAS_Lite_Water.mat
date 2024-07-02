@@ -102,7 +102,7 @@ Material:
     - _MediumTilingDistance: 100
     - _Metallic: 0
     - _Mode: 0
-    - _NormalStrength: 0.25
+    - _NormalStrength: 1.277
     - _NormalTiling: 0.1
     - _OcclusionStrength: 1
     - _Parallax: 0.02

@@ -43,8 +43,6 @@ public class PlayerGridMovement : MonoBehaviour
 
     public bool[,] attackGrid;
 
-    // private ExpectedBattleMenu expectedMenu;
-
     private CombatMenuManager combatMenu;
     
 
@@ -53,7 +51,7 @@ public class PlayerGridMovement : MonoBehaviour
 
     void Start()
     {
-        //creates an object reference
+        
         gridControl = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
         playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
@@ -64,12 +62,10 @@ public class PlayerGridMovement : MonoBehaviour
 
         attackButton = GameObject.Find("Canvas/AttackButton");
         itemButton = GameObject.Find("Canvas/WaitButton");
-        waitButton = GameObject.Find("Canvas/ItemButton");
-
-        
+        waitButton = GameObject.Find("Canvas/ItemButton");  
     }
 
-    // Update is called once per frame
+
     void Update()
     {
 
@@ -84,6 +80,24 @@ public class PlayerGridMovement : MonoBehaviour
 
         oneAction = true;
 
+        if (Input.GetKeyDown(KeyCode.P)) {
+            Debug.Log("Checking shortest Path from " + x + " " + z + " To 12 8");
+            List<PathTile> debugList = pathFinder.FindShortestPath(x,z,12,8);
+            int debugCount = debugList.Count;
+            Debug.Log("Path Containes " + debugCount + " Tiles");
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space) && oneAction && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && !pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {
+            pathFinder.SpecificEnemyRange(gridControl.GetGridTile(x,z).UnitOnTile);
+            oneAction = false;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space) && oneAction && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {
+            pathFinder.UnSelectEnemies(gridControl.GetGridTile(x,z).UnitOnTile);
+            oneAction = false;
+        }
+
+        //Toggles enemy ranges for all enemies
         if (Input.GetKeyDown(KeyCode.X) && !enemyRangeActive && !inMenu && oneAction && !manageTurn.IsEnemyTurn()) {
             pathFinder.EnemyRange();
             enemyRangeActive = true;
@@ -131,12 +145,12 @@ public class PlayerGridMovement : MonoBehaviour
             curX = x;
             curZ = z;
             MoveUnit(curX, curZ);
+
+            
  
  
             inMenu = true;
             oneAction = false;
-
-            
         }
 
         if (Input.GetKeyDown(KeyCode.B) && oneAction && inMenu) {
@@ -151,6 +165,8 @@ public class PlayerGridMovement : MonoBehaviour
             charSelected = true;
             inMenu = false;
             oneAction = false;
+
+          
         }
        
         if (Input.GetKeyDown(KeyCode.B) && oneAction )
@@ -161,10 +177,7 @@ public class PlayerGridMovement : MonoBehaviour
             
             if (orgX != x || orgZ != z) {
                 playerCollide.removePlayer();
-            }
-            
-          
-            
+            }  
         }
         
         
@@ -238,18 +251,7 @@ public class PlayerGridMovement : MonoBehaviour
     }
 
 
-    public void ActivateFirstMenu() {
-        attackButton.SetActive(true);
-        waitButton.SetActive(true);
-        itemButton.SetActive(true);
-        //  EventSystem.current.SetSelectedGameObject(attackButton.gameObject);
-    }
-
-    public void DeactivateFirstMenu() {
-        attackButton.SetActive(false);
-        waitButton.SetActive(false);
-        itemButton.SetActive(false);
-    }
+    
     
     public void unitWait() {
         combatMenu.DeactivateActionMenu();
@@ -274,6 +276,11 @@ public class PlayerGridMovement : MonoBehaviour
            
 
         playerCollide.removePlayer();
+
+        if (enemyRangeActive) {
+                pathFinder.DestroyEnemyRange();
+                pathFinder.EnemyRange();
+            }
             
     }
 

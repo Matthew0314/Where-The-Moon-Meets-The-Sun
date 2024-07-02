@@ -245,6 +245,9 @@ public class PrologueMap : MonoBehaviour, IMaps
                 pathFinder.DestroyEnemyRange();
                 pathFinder.EnemyRange();
             }
+            if (pathFinder.selectedEnemies.Contains(unit)) {
+                pathFinder.UnSelectEnemies(unit);
+            }
         } else if (unit.stats.UnitType == "Player") {
             GameObject tempObj = unit.gameObject;
             grid.GetGridTile(x, z).UnitOnTile = null;
@@ -252,6 +255,12 @@ public class PrologueMap : MonoBehaviour, IMaps
             Destroy(tempObj);
         }
     }
+
+    public int GetLength() {
+        return length;
+    }
+
+    public int GetWidth() { return width; }
 
 
 

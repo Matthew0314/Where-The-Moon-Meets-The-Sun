@@ -30,10 +30,9 @@ public class PlayerUnit : UnitManager
         primaryWeapon = stats.GetWeaponAt(0);
         Debug.Log(stats.UnitName + " Has been initlialized");
 
-        // Additional Player-specific initialization logic here
     }
 
-    public override int getMove() { Debug.Log("Return"); return stats.getClass().Movement + stats.Movement; }
+    public override int getMove() { return stats.getClass().Movement + stats.Movement; }
     public override int getAttack() { return primaryWeapon.Range; }
 
     public override int getCurrentHealth() { return currentHealth; }
@@ -41,5 +40,4 @@ public class PlayerUnit : UnitManager
     public override void setCurrentHealth(int health) { currentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 
-    // Additional Player-specific methods here
 }
