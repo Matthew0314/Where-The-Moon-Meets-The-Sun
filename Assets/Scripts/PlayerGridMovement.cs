@@ -517,13 +517,17 @@ public class PlayerGridMovement : MonoBehaviour
 
         Debug.Log("Broke Free");
 
+
+
         if (isAttacking) {
             //Start Attacking based on primary weapons
+            yield return StartCoroutine(ExecuteAttack(AttackingUnit, DefendingEnemy));
+
             Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
             Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
             combatMenu.DeactivateExpectedMenu();
-            AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
-            AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
+            // AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
+            // AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             Debug.Log(AttackingUnit.stats.UnitName);
             moveCursor.position = new Vector3(gridControl.GetGridTile(attackerX, attackerZ).GetXPos(), gridControl.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, gridControl.GetGridTile(attackerX, attackerZ).GetZPos());
             UnitManager temp = playerCollide.GetPlayer();
@@ -543,6 +547,33 @@ public class PlayerGridMovement : MonoBehaviour
 
         yield return null;
     }
+
+    public IEnumerator ExecuteAttack(UnitManager attackingUnit, UnitManager defendingUnit) {
+        attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, attackingUnit.XPos, attackingUnit.ZPos, defendingUnit.XPos, defendingUnit.ZPos);
+        Queue<UnitManager> AttackingQueue = attackingUnit.primaryWeapon.AttackingQueue;
+        Queue<UnitManager> DefendingQueue = attackingUnit.primaryWeapon.DefendingQueue;
+
+        int coun = AttackingQueue.Count;
+        Debug.Log(" COUNT " + coun);
+
+        for (int i = 0; i < coun; i++) {
+            UnitManager atk = AttackingQueue.Dequeue();
+            UnitManager def = DefendingQueue.Dequeue();
+            int damage = atk.primaryWeapon.UnitAttack(atk, def, false);
+            def.currentHealth -= damage;
+            Debug.Log(atk.stats.UnitName + " hits " + def.stats.UnitName + " for " +  damage);
+            if (def.currentHealth <= 0) {
+                Debug.Log("Removing " + def.stats.UnitName);
+                _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
+                Debug.Log("Removing " + def.stats.UnitName);
+                break;
+            }
+        }
+        Debug.Log("End Execute Attack");
+        yield return null;
+
+
+    } 
 
     //Calculates the expected attack and prints it out to the menu
     void CalculateExpectedAttack(UnitManager player, UnitManager enemy, int attackerX, int attackerZ, int defenderX, int defenderZ) {
@@ -602,6 +633,8 @@ public class PlayerGridMovement : MonoBehaviour
 
         
     }
+
+    
 
     
 

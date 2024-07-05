@@ -153,9 +153,11 @@ public abstract class Weapon
             int rand = Random.Range(0, 101);
             if (hit <= rand) {
                 miss = true;
+                Debug.Log("miss" + miss);
                 return 0;
             } else if (crit >= rand) {
                 critical = true;
+                Debug.Log("critical" + critical);
                 return damage * 3;
             }
         }
@@ -163,6 +165,8 @@ public abstract class Weapon
         return damage;
 
     }
+
+   
 
     public virtual void InitiateQueues(UnitManager attacker, UnitManager defender, int attackerX, int attackerZ, int defenderX, int defenderZ) {
 

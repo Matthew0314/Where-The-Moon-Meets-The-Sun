@@ -227,20 +227,28 @@ public class PrologueMap : MonoBehaviour, IMaps
             Queue<UnitManager> temp = mapEnemies;
 
             int queueCou = temp.Count;
-
+            
             for (int i = 0; i < queueCou; i++) {
                 UnitManager eneTemp = temp.Dequeue();
                 if (eneTemp.stats.EnemyID == unit.stats.EnemyID) {
                     grid.GetGridTile(x, z).UnitOnTile = null;
                     GameObject tempObj = eneTemp.gameObject;
-                    Destroy(tempObj);
+                    if (!manageTurn.IsEnemyTurn()) {
+                        Destroy(tempObj);
+                    }
                     continue;
                 }
                 temp.Enqueue(eneTemp);
             }
             mapEnemies = temp;
 
-            manageTurn.RemoveEnemy(unit);
+            Debug.Log("AHHHHHHHHHHHHHHHHHHHHHH " + mapEnemies.Count + " " + queueCou);
+
+            // if (!manageTurn.IsEnemyTurn()) {
+                manageTurn.RemoveEnemy(unit);
+            // }
+            Debug.Log("AHHHHHHHHHHHHHHHHHHHHHH " + mapEnemies.Count + " " + queueCou);
+            
             if (playerCursor.enemyRangeActive) {
                 pathFinder.DestroyEnemyRange();
                 pathFinder.EnemyRange();
@@ -248,6 +256,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             if (pathFinder.selectedEnemies.Contains(unit)) {
                 pathFinder.UnSelectEnemies(unit);
             }
+            return;
         } else if (unit.stats.UnitType == "Player") {
             GameObject tempObj = unit.gameObject;
             grid.GetGridTile(x, z).UnitOnTile = null;

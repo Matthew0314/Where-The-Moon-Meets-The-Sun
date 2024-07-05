@@ -88,9 +88,18 @@ public class TurnManager : MonoBehaviour
         float speed;
         float step;
         int count = currEnemies.Count;
+
+      
+        Queue<UnitManager> tempQueue = new Queue<UnitManager>();
+
+        foreach(UnitManager element in currEnemies) {
+            tempQueue.Enqueue(element);
+    
+        }
+
         for (int i = 0; i < count; i++)
         {
-            UnitManager temp = currEnemies.Dequeue();
+            UnitManager temp = tempQueue.Dequeue();
             GameObject tempGameObj = temp.gameObject;
 
             objectTrans = moveGrid.transform;
@@ -121,7 +130,13 @@ public class TurnManager : MonoBehaviour
 
             // Debug.Log("Enemy reached the target position.");
             IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
+            Debug.Log("AI START");
             yield return StartCoroutine(AIenemy.enemyAttack(temp.gameObject));
+            Debug.Log("AI END");
+            if (temp.getCurrentHealth() <= 0) {
+                Destroy(tempGameObj);
+            }
+            yield return new WaitForSeconds(1);
         }
 
         SetEnemyList();
