@@ -7,13 +7,9 @@ for good. However, fallen units can be utilized to provide stat boosts and other
 The game offers a compelling blend of tactical decision-making and strategic planning, while also immersing the player in a 
 complex and emotional story.
 
-What Has Been Implemented:
-- Developed grid generation that stores movement and position data for each tile
-- Designed algorithms that dictacts where a unit can move and attack on the grid based on their stats
-- Impleemnted a database that stores character and class statistics which can be easily called and manipulated during gameplay
-- Enabling player units to traverse the grid
-- Developing a turn system that will only allow a unit to act once per turn
-
-What Is Being Worked On Right Now:
-- Integrating capabilities for units to execute attacks and utilize items.
-- Designing enemy AI, allowing them to choose which actions to take against the player
+- Designed algorithms that dictates where units can move and attack based on their stats.
+- Implemented a database that stores character and class statistics.
+- Integrated capabilities for units to execute attacks.
+- Developed a user interface allowing players to see the expected outcome of each action.
+- Designed unique enemy AI, allowing each opposing unit to determine the best action to take against the player.
+- Developed a tutorial level designed to teach the player the mechanics of the game.
