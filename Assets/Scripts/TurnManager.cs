@@ -49,9 +49,12 @@ public class TurnManager : MonoBehaviour
 
         foreach(UnitManager element in temp) {
             currEnemies.Enqueue(element);
-            // Debug.Log(currEnemies.Peek().stats.UnitName);
         }
 
+    }
+
+    public void AddEnemy(UnitManager enemyAdd) {
+        currEnemies.Enqueue(enemyAdd);
     }
 
     //After unit completes an action this is called
@@ -79,16 +82,17 @@ public class TurnManager : MonoBehaviour
         }
 
         currEnemies = temp;
+
+        
     }
 
     //Executes all enemy actions who are in the queue based on the AI script that is attached to them
     private IEnumerator EnemyPhase() {
-        Transform objectTrans;
-        Vector3 targetPosition;
-        float speed;
-        float step;
-        int count = currEnemies.Count;
 
+        yield return StartCoroutine(_currentMap.CheckEvents());
+        
+        int count = currEnemies.Count;
+ 
       
         Queue<UnitManager> tempQueue = new Queue<UnitManager>();
 
@@ -102,66 +106,24 @@ public class TurnManager : MonoBehaviour
             UnitManager temp = tempQueue.Dequeue();
             GameObject tempGameObj = temp.gameObject;
 
-            objectTrans = moveGrid.transform;
-
-            // Vector3 targetPosition = new Vector3(grid.GetGridTile(4, 3).GetXPos(), grid.GetGridTile(4, 3).GetYPos(), grid.GetGridTile(4, 3).GetZPos());
-            // objTransform.position = Vector3.MoveTowards(objTransform.position, targetPosition, 20f * Time.deltaTime);
-       
-
-      
-
-            targetPosition = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos() + 0.30f, grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
-            speed = 40f; // Speed of movement
-            moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(temp.XPos, temp.ZPos).GetXPos(), grid.GetGridTile(temp.XPos, temp.ZPos).GetYPos() + 0.30f, grid.GetGridTile(temp.XPos, temp.ZPos).GetZPos());
-
-            // // Move the enemy towards the target position
-            while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)
-            {
-                // Calculate the step based on speed and deltaTime
-                step = speed * Time.deltaTime;
-
-                // Move the enemy towards the target position gradually
-                objectTrans.position = Vector3.MoveTowards(objectTrans.position, targetPosition, step);
-
-                yield return null; // Wait for the next frame
-            }
-
-            objectTrans.position = targetPosition; // Ensure exact position when reached
-
-            // Debug.Log("Enemy reached the target position.");
             IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
-            Debug.Log("AI START");
+  
             yield return StartCoroutine(AIenemy.enemyAttack(temp.gameObject));
-            Debug.Log("AI END");
+
             if (temp.getCurrentHealth() <= 0) {
                 Destroy(tempGameObj);
+                yield return new WaitForSeconds(1f);
             }
-            yield return new WaitForSeconds(1);
+
         }
+
+        yield return new WaitForSeconds(2f);
 
         SetEnemyList();
+        playerTurn = true;
+        yield return StartCoroutine(_currentMap.CheckEvents());
 
-        objectTrans = moveGrid.transform;
-
-        targetPosition = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos() + 0.30f, grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
-        speed = 40f;
-        
-        moveGrid.moveCursor.position = new Vector3(grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetXPos(), grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetYPos() + 0.30f, grid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).GetZPos());
-
-        // // Move the enemy towards the target position
-        while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)
-        {
-            // Calculate the step based on speed and deltaTime
-            step = speed * Time.deltaTime;
-
-            // Move the enemy towards the target position gradually
-            objectTrans.position = Vector3.MoveTowards(objectTrans.position, targetPosition, step);
-
-            yield return null; // Wait for the next frame
-        }
-
-        objectTrans.position = targetPosition; // Ensure exact position when reached
-
+        yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ()));
 
         turns++; 
             
@@ -170,6 +132,8 @@ public class TurnManager : MonoBehaviour
 
         playerTurn = true;
         enemyTurn = false;
+
+       
 
 
     }
@@ -200,6 +164,10 @@ public class TurnManager : MonoBehaviour
 
     public bool IsActive(UnitStats player) { 
         return currUnits.Contains(player); 
+    }
+
+    public int GetTurns() {
+        return turns;
     }
     
 }

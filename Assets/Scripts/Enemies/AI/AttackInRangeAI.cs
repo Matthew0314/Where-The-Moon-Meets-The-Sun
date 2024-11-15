@@ -2,17 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct UnitsToAttack {
-    public UnitManager unit;
-    public Weapon weaponUsed;
-    public int score;
 
-    public UnitsToAttack(UnitManager unitToAdd, Weapon weapon, int sco) {
-        unit = unitToAdd;
-        weaponUsed = weapon;
-        score = sco;
-    }
-}
 
 
 
@@ -31,9 +21,15 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
     }
 
     public IEnumerator enemyAttack(GameObject enemy) {
+
+
+
+
         List<Weapon> weaponList = enemy.GetComponent<UnitManager>().stats.weapons;
         UnitManager enemyUnit = enemy.GetComponent<UnitManager>();
         List<UnitsToAttack> unitAttackList = new List<UnitsToAttack>();
+
+        yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos));
 
         for (int k = 0; k < weaponList.Count; k++) {
             findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.getMove(), enemyUnit);
@@ -100,7 +96,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
         //     }
         // }
         if (!noUnits) {
-            unitAttackList.Sort((unit1, unit2) => unit2.score.CompareTo(unit1.score));
+            unitAttackList.Sort((unit1, unit2) => unit1.score.CompareTo(unit2.score));
 
             
             for (int k = 0; k < unitAttackList.Count; k++) {
@@ -179,7 +175,12 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
 
         Debug.Log("Howdy");
         // yield return new WaitForSeconds(2);
-        yield return null;
+        // yield return null;
+        if (enemyUnit.getCurrentHealth() > 0) {
+            yield return new WaitForSeconds(1f);
+        } else {
+            yield return null;
+        }
 
     }
 }

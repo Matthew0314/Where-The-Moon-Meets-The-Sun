@@ -25,6 +25,8 @@ public class PrologueMap : MonoBehaviour, IMaps
     private List<UnitManager> mapGameUnits = new List<UnitManager>();
     [SerializeField] TextAsset enemyTextData;
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
+
+    bool calledReinforcements = false;
   
     // Start is called before the first frame update
     void Start()
@@ -77,7 +79,7 @@ public class PrologueMap : MonoBehaviour, IMaps
         string[] data = enemyTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("EnemyStats");
 
-        for (int i = 31; i < data.Length - 1; i += 31)
+        for (int i = 31; i < 186; i += 31)
         {
             //Reads in the data from the CSV file
            
@@ -130,7 +132,7 @@ public class PrologueMap : MonoBehaviour, IMaps
                 eStats.AddWeapon(tempWeapon);
             }
 
-
+          
            
             //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
             GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
@@ -186,6 +188,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             // mapUnits.Add(UnitToGrid);
             // UnitToGrid.InitializeUnitData();
             grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = UnitToGrid;
+            mapGameUnits.Add(unitPrefab.GetComponent<UnitManager>());
             // Debug.Log("Assigned to Tile")
             // Type typePUnit = Type.GetType("PlayerUnit");
             // UnitManager enemyUnit = unitPrefab.AddComponent(typePUnit) as UnitManager;
@@ -207,6 +210,118 @@ public class PrologueMap : MonoBehaviour, IMaps
         if (!mapUnits.Any(unit => unit.UnitName == "YoungFelix") || !mapUnits.Any(unit => unit.UnitName == "YoungLilith")) {
             Debug.Log("DEFEAT");
         }
+    }
+
+    public IEnumerator CheckEvents() {
+        bool callNewEnemies = false;
+
+        if (!calledReinforcements && manageTurn.IsEnemyTurn()) {
+            for (int i = 11; i <= 16; i++) {
+                for (int j = 7; j <= 15; j++) {
+                    if (grid.GetGridTile(i,j).UnitOnTile != null && grid.GetGridTile(i,j).UnitOnTile.UnitType == "Player") {
+                        callNewEnemies = true;
+                    }
+                }
+            }
+        }
+        if (!calledReinforcements && callNewEnemies && manageTurn.IsEnemyTurn()) {
+            
+
+            string[] data = enemyTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            Type unitType = Type.GetType("EnemyStats");
+            for (int i = 31; i < data.Length - 1; i += 31) {
+
+                int eID = int.Parse(data[i]);
+                if (eID < 6) {
+                    continue;
+                }
+                string cName = data[i + 1];
+                string cDesc = data[i + 2];
+                string cType = data[i + 3];
+                
+                int level = int.Parse(data[i + 4]);
+                int HP = int.Parse(data[i + 5]);
+                int ATK = int.Parse(data[i + 6]);  
+                int MAG = int.Parse(data[i + 7]);
+                int DEF = int.Parse(data[i + 8]);
+                int RES = int.Parse(data[i + 9]);
+                int SPD = int.Parse(data[i + 10]);   
+                int EVA = int.Parse(data[i + 11]);
+                int LUCK = int.Parse(data[i + 12]);
+                int MOVE = int.Parse(data[i + 13]);
+                
+                bool air = bool.Parse(data[i + 14]);
+                bool mount = bool.Parse(data[i + 15]);
+                bool armored = bool.Parse(data[i + 16]);
+                bool whisp = bool.Parse(data[i + 17]);
+                int healthBars = int.Parse(data[i + 18]);
+
+                string loadPrefab = data[i + 19];
+                int enemyX = int.Parse(data[i + 20]);
+                int enemyZ = int.Parse(data[i + 21]);
+                string AIenemy = data[i + 22];
+
+                string item1 = data[i + 23];
+                string item2 = data[i + 24];
+                string item3 = data[i + 25];
+                string item4 = data[i + 26];
+                string item5 = data[i + 27];
+                string item6 = data[i + 28];
+
+                bool boss = bool.Parse(data[i + 29]);
+        
+                
+                //Stores Necessary data in EnemyStats
+                UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss);
+
+                for (int j = 0; j < 6; j++) {
+                    if (data[i + 23 + j] == "NULL") {              
+                        break;
+                    }
+
+                    Weapon tempWeapon = WeaponManager.MakeWeapon(data[i + 23 + j]);
+                    eStats.AddWeapon(tempWeapon);
+                }
+
+                yield return StartCoroutine(playerCursor.MoveCursor(enemyX,enemyZ));
+
+               
+            
+                //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
+                GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
+                GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos() + 0.005f, grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
+            
+
+                //Ataches an AI script interface depending on the characterististics of the nemy specified in the CSV file
+                Type type = Type.GetType(AIenemy);
+                IEnemyAI enemyAI = newEnemy.AddComponent(type) as IEnemyAI;
+                
+                //Stores the enemy stats in the EnemyUnit object and stores in a queue
+                UnitManager enemy = newEnemy.GetComponent<UnitManager>();
+                
+                enemy.stats = eStats;
+
+                enemy.InitializeUnitData();
+                enemy.XPos = enemyX;
+                enemy.ZPos = enemyZ;
+                grid.GetGridTile(enemyX, enemyZ).UnitOnTile = enemy;
+                mapEnemies.Enqueue(enemy);
+                manageTurn.AddEnemy(enemy);
+
+                if (playerCursor.enemyRangeActive) {
+                    pathFinder.DestroyEnemyRange();
+                    pathFinder.EnemyRange();
+                }
+
+                yield return new WaitForSeconds(1f);
+
+                
+            }
+
+            calledReinforcements = true;
+        }
+
+        yield return null;
     }
 
     public Queue<UnitManager> GetMapEnemies() {
@@ -248,6 +363,7 @@ public class PrologueMap : MonoBehaviour, IMaps
                 manageTurn.RemoveEnemy(unit);
             // }
             Debug.Log("AHHHHHHHHHHHHHHHHHHHHHH " + mapEnemies.Count + " " + queueCou);
+
             
             if (playerCursor.enemyRangeActive) {
                 pathFinder.DestroyEnemyRange();
@@ -262,6 +378,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             grid.GetGridTile(x, z).UnitOnTile = null;
             mapUnits.Remove(unit.stats);
             Destroy(tempObj);
+            mapGameUnits.Remove(unit);
         }
     }
 

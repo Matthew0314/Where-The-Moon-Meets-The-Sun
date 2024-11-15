@@ -262,10 +262,15 @@ public class PlayerGridMovement : MonoBehaviour
         // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = null;
 
         gridControl.MoveUnit(playerCollide.GetPlayer(), orgX, orgZ, curX, curZ);
+        Debug.Log("Moved Player from " + orgX + " " + orgZ + " to " + curX + " " + curZ);
 
         UnitManager temp = playerCollide.GetPlayer();
         temp.XPos = curX;
         temp.ZPos = curZ;
+
+        // List<UnitManager> tempUnits = _currentMap.GetMapUnits();
+
+        // UnitManager tempUnit = tempUnits.Find()
         
 
         pathFinder.DestroyArea();
@@ -280,7 +285,7 @@ public class PlayerGridMovement : MonoBehaviour
         if (enemyRangeActive) {
                 pathFinder.DestroyEnemyRange();
                 pathFinder.EnemyRange();
-            }
+        }
             
     }
 
@@ -553,6 +558,19 @@ public class PlayerGridMovement : MonoBehaviour
         Queue<UnitManager> AttackingQueue = attackingUnit.primaryWeapon.AttackingQueue;
         Queue<UnitManager> DefendingQueue = attackingUnit.primaryWeapon.DefendingQueue;
 
+        UnitManager playerUnit = null;
+        EnemyUnit enemyUnit = null;
+
+        if (attackingUnit.stats.UnitType == "Player") {
+            playerUnit = attackingUnit;
+            enemyUnit = (EnemyUnit)defendingUnit;
+        }
+
+        if (defendingUnit.stats.UnitType == "Player") {
+            playerUnit = defendingUnit;
+            enemyUnit = (EnemyUnit)attackingUnit;
+        }
+
         int coun = AttackingQueue.Count;
         Debug.Log(" COUNT " + coun);
 
@@ -570,6 +588,27 @@ public class PlayerGridMovement : MonoBehaviour
             }
         }
         Debug.Log("End Execute Attack");
+
+        if (playerUnit != null && playerUnit.currentHealth > 0) {
+            int expObtained = 0;
+
+            expObtained = 30 + ((enemyUnit.stats.Level - playerUnit.stats.Level) * 5);
+
+            // if (enemyUnit.stats.IsBoss) {
+
+            // }
+
+            if (enemyUnit.currentHealth > 0) {
+                expObtained /= 2;
+            }
+
+            Debug.Log("AHHHHHH GAINED " + expObtained + " EXP");
+
+            playerUnit.ExperienceGain(expObtained);
+            
+        }
+
+
         yield return null;
 
 
@@ -634,7 +673,27 @@ public class PlayerGridMovement : MonoBehaviour
         
     }
 
-    
+    public IEnumerator MoveCursor(int moveCurX, int moveCurZ) {
+        Vector3 targetPosition = new Vector3(gridControl.GetGridTile(moveCurX, moveCurZ).GetXPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetYPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetZPos());
+        
+        moveCursor.position = new Vector3(gridControl.GetGridTile(moveCurX, moveCurZ).GetXPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetYPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetZPos());
+
+        float fspeed = 40f;
+
+        // // Move the enemy towards the target position
+        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+        {
+            // Calculate the step based on speed and deltaTime
+            float step = fspeed * Time.deltaTime;
+
+            // Move the enemy towards the target position gradually
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
+
+            yield return null;
+        }
+
+        transform.position = targetPosition; 
+    }
 
     
 

@@ -14,10 +14,13 @@ public interface IMaps
     
     void CheckClearCondition(); //After every action checks if clear condition has been met
     void CheckDefeatCondition();  //After every action checks if main characters have died
+
+    IEnumerator CheckEvents();
     void RemoveDeadUnit(UnitManager unit, int x, int y);
 
     Queue<UnitManager> GetMapEnemies();
     List<UnitStats> GetMapUnitStats();
+    List<UnitManager> GetMapUnits();
 
     int GetLength();
     int GetWidth();

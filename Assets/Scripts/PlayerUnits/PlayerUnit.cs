@@ -8,7 +8,7 @@ public class PlayerUnit : UnitManager
     private Image healthBar;
 
     protected override void Start() {
-        classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
+        // classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
         InitializeUnitData();
         Transform childImage = transform.Find("PlayerCircle/Canvas/UnitBar");
         healthBar = childImage.GetComponent<Image>();

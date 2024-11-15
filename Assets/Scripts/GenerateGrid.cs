@@ -117,6 +117,7 @@ public class GenerateGrid : MonoBehaviour
         grid[orgX, orgZ].UnitOnTile = null;
         grid[curX, curZ].UnitOnTile = unitToMove;
 
+        Debug.Log("AHHHHHHHHHHHHHHHHH" + curX + " " + curZ);
         unitToMove.XPos = curX;
         unitToMove.ZPos = curZ;
 

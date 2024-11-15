@@ -40,7 +40,8 @@ public class PassiveAI : MonoBehaviour, IEnemyAI
 
         // Debug.Log("Enemy reached the target position.");
 
-        yield return new WaitForSeconds(1.5f);
+        // yield return new WaitForSeconds(1.5f);
+        yield return null;
 
        
 

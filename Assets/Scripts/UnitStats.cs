@@ -29,6 +29,8 @@ public abstract class UnitStats
     public int Movement {get; set;} 
     public int HealthBars {get; set;}  
 
+    public int Experience {get; set;}
+
     public List<Weapon> weapons;
 
     public UnitStats(string uName, string dName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
@@ -73,7 +75,7 @@ public class PlayerStats : UnitStats {
     private int EvasionGR {get; set;}               //base evasion, how often the unit dodges
     private int LuckGR {get; set;}               //base luck, increases chance of critical
 
-    public int Experience {get; set;}
+    // public int Experience {get; set;}
 
     private PlayerClass ClassStats;
 
