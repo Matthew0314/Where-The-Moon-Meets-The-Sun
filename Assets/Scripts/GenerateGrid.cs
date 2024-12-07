@@ -11,8 +11,8 @@ public class GenerateGrid : MonoBehaviour
     private float cellSize = 4;
     private int length;
     private int width;
-    [SerializeField] GameObject tilePrefab;               //Will be deleted, final game wont have visible tiles
-    [SerializeField] GameObject impassableTilePrefab;       //Same with this one
+    // [SerializeField] GameObject tilePrefab;               //Will be deleted, final game wont have visible tiles
+    // [SerializeField] GameObject impassableTilePrefab;       //Same with this one
     private LayerMask obstacleLayer;                    //Can't pass if grounded unit but can 
     private LayerMask tallObstacleLayer;
     private LayerMask doubleLayer;
@@ -113,11 +113,12 @@ public class GenerateGrid : MonoBehaviour
         return false;
     }
 
+
+    //Moves units to another tile
     public void MoveUnit(UnitManager unitToMove,int orgX,int orgZ,int curX,int curZ) {
         grid[orgX, orgZ].UnitOnTile = null;
         grid[curX, curZ].UnitOnTile = unitToMove;
 
-        Debug.Log("AHHHHHHHHHHHHHHHHH" + curX + " " + curZ);
         unitToMove.XPos = curX;
         unitToMove.ZPos = curZ;
 
@@ -125,9 +126,6 @@ public class GenerateGrid : MonoBehaviour
             pathFinder.DestroyEnemyRange();
             pathFinder.EnemyRange();
         }
-        
-
-        Debug.Log(grid[curX, curZ].UnitOnTile.stats.UnitName + " has been removed from" + orgX + " " + orgZ + " and placed on " + curX + " " + curZ);
     }
 
     //returns the width and length of the grid and size of each cell

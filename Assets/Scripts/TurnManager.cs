@@ -62,8 +62,6 @@ public class TurnManager : MonoBehaviour
     public void RemovePlayer(UnitStats player)
     {
         currUnits.Remove(player);
-        
-        // CheckPhase();
     }
 
     //Removes Enemy from the queue if they have been killed during the player phase
@@ -162,6 +160,7 @@ public class TurnManager : MonoBehaviour
     public bool IsPlayerTurn() { return playerTurn; }
     public bool IsEnemyTurn() { return enemyTurn; }
 
+    //Checks if a player hasn't been moved yet
     public bool IsActive(UnitStats player) { 
         return currUnits.Contains(player); 
     }

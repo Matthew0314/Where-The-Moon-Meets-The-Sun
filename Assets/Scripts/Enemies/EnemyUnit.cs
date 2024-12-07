@@ -12,6 +12,7 @@ public class EnemyUnit : UnitManager
     protected override void Start() {
         
         Transform childImage = transform.Find("EnemyCircle/Canvas/UnitBar");
+        unitCircle = transform.Find("EnemyCircle").gameObject;
         healthBar = childImage.GetComponent<Image>();
 
     }

@@ -15,11 +15,13 @@ public class UnitManager : MonoBehaviour
     public Weapon primaryWeapon;
     public int XPos {get; set;}
     public int ZPos {get; set;}
+    public GameObject unitCircle;
 
     protected virtual void Start()
     {
         // classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
         // InitializeUnitData();
+        
         
         // Debug.Log("Start");
     }

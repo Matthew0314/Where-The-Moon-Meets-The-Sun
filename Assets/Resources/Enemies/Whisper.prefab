@@ -532,6 +532,7 @@ MonoBehaviour:
   movement: 0
   attackRange: 0
   unitName: Whisper
+  unitCircle: {fileID: 0}
 --- !u!1 &71946459301746127
 GameObject:
   m_ObjectHideFlags: 0

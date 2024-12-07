@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Cinemachine;
 
 
 //Purpose of this class is to provide movement capabilities for the cursors on the grid
@@ -44,6 +45,10 @@ public class PlayerGridMovement : MonoBehaviour
     public bool[,] attackGrid;
 
     private CombatMenuManager combatMenu;
+
+    public CinemachineVirtualCamera mainCam;
+    public CinemachineVirtualCamera combatCam;
+    private GameObject playerCurs;
     
 
 
@@ -51,6 +56,7 @@ public class PlayerGridMovement : MonoBehaviour
 
     void Start()
     {
+        playerCurs = GameObject.Find("Player");
         
         gridControl = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
@@ -554,6 +560,28 @@ public class PlayerGridMovement : MonoBehaviour
     }
 
     public IEnumerator ExecuteAttack(UnitManager attackingUnit, UnitManager defendingUnit) {
+        GameObject atkObj = attackingUnit.gameObject;
+        GameObject defObj = defendingUnit.gameObject;
+        Quaternion originalAtkRotation = atkObj.transform.rotation;
+        Quaternion originalDefRotation = defObj.transform.rotation;
+        atkObj.transform.LookAt(defObj.transform);
+        defObj.transform.LookAt(atkObj.transform);
+        SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
+        // CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
+        // while (brain.ActiveVirtualCamera != combatCam)
+        // {
+        //     yield return null; // Wait until next frame
+        // }
+
+        GameObject atkCircle = attackingUnit.unitCircle;
+        GameObject defCircle = defendingUnit.unitCircle;
+        atkCircle.SetActive(false);
+        defCircle.SetActive(false);
+        pathFinder.DestroyRange();
+        pathFinder.DestroyArea();
+        // moveCursor.gameObject.SetActive(false);
+        playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = false;
+        yield return new WaitForSeconds(3f);
         attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, attackingUnit.XPos, attackingUnit.ZPos, defendingUnit.XPos, defendingUnit.ZPos);
         Queue<UnitManager> AttackingQueue = attackingUnit.primaryWeapon.AttackingQueue;
         Queue<UnitManager> DefendingQueue = attackingUnit.primaryWeapon.DefendingQueue;
@@ -572,22 +600,23 @@ public class PlayerGridMovement : MonoBehaviour
         }
 
         int coun = AttackingQueue.Count;
-        Debug.Log(" COUNT " + coun);
+        // Debug.Log(" COUNT " + coun);
 
         for (int i = 0; i < coun; i++) {
             UnitManager atk = AttackingQueue.Dequeue();
             UnitManager def = DefendingQueue.Dequeue();
             int damage = atk.primaryWeapon.UnitAttack(atk, def, false);
             def.currentHealth -= damage;
-            Debug.Log(atk.stats.UnitName + " hits " + def.stats.UnitName + " for " +  damage);
+            // Debug.Log(atk.stats.UnitName + " hits " + def.stats.UnitName + " for " +  damage);
             if (def.currentHealth <= 0) {
-                Debug.Log("Removing " + def.stats.UnitName);
+                // Debug.Log("Removing " + def.stats.UnitName);
                 _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
-                Debug.Log("Removing " + def.stats.UnitName);
+                // Debug.Log("Removing " + def.stats.UnitName);
                 break;
             }
+            yield return new WaitForSeconds(1f);
         }
-        Debug.Log("End Execute Attack");
+        // Debug.Log("End Execute Attack");
 
         if (playerUnit != null && playerUnit.currentHealth > 0) {
             int expObtained = 0;
@@ -607,6 +636,14 @@ public class PlayerGridMovement : MonoBehaviour
             playerUnit.ExperienceGain(expObtained);
             
         }
+        atkCircle.SetActive(true);
+        defCircle.SetActive(true);
+        playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = true;
+        atkObj.transform.rotation = originalAtkRotation;
+        defObj.transform.rotation = originalDefRotation;
+        // moveCursor.gameObject.SetActive(true);
+        SwitchToMainCamera();
+        yield return new WaitForSeconds(3f);
 
 
         yield return null;
@@ -616,6 +653,7 @@ public class PlayerGridMovement : MonoBehaviour
 
     //Calculates the expected attack and prints it out to the menu
     void CalculateExpectedAttack(UnitManager player, UnitManager enemy, int attackerX, int attackerZ, int defenderX, int defenderZ) {
+        
         player.primaryWeapon.InitiateQueues(player, enemy, attackerX, attackerZ, defenderX, defenderZ);
         Queue<UnitManager> AttackingQueue = player.primaryWeapon.AttackingQueue;
         Queue<UnitManager> DefendingQueue = player.primaryWeapon.DefendingQueue;
@@ -694,6 +732,228 @@ public class PlayerGridMovement : MonoBehaviour
 
         transform.position = targetPosition; 
     }
+
+/*public void SwitchToCombatCamera(Transform attacker, Transform defender)
+{
+    CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
+    brain.enabled = false; // Disable Cinemachine Brain temporarily
+
+    // Temporarily remove LookAt target to prevent Cinemachine from overriding rotation
+    Transform previousLookAt = combatCam.LookAt;
+    combatCam.LookAt = null;
+
+    // Ensure that the attacker is on the left side, and the defender is on the right side
+    Transform leftCharacter = attacker.position.x < defender.position.x ? attacker : defender;
+    Transform rightCharacter = leftCharacter == attacker ? defender : attacker;
+
+    // Get the midpoint between the two characters
+    Transform midpoint = GetMidpoint(leftCharacter, rightCharacter);
+    combatCam.LookAt = midpoint; // Re-enable LookAt after rotation
+
+    // // Position the camera slightly above the midpoint
+    // float yOffset = 2f; // Adjust the y-offset for camera height
+    // Vector3 cameraPosition = new Vector3(
+    //     (leftCharacter.position.x + rightCharacter.position.x) / 2, // Midpoint of X
+    //     (leftCharacter.position.y + rightCharacter.position.y) / 2 + yOffset, // Midpoint of Y + offset
+    //     (leftCharacter.position.z + rightCharacter.position.z) / 2 - 10f // Keep the same Z position for now
+    // );
+
+    // // Move the camera to the new position
+    // combatCam.transform.position = cameraPosition;
+
+    // Calculate the direction to rotate the camera horizontally
+    Vector3 directionToFace = rightCharacter.position - leftCharacter.position;
+
+    // Calculate the angle between the two characters in degrees
+    float angle = Mathf.Atan2(directionToFace.y, directionToFace.x) * Mathf.Rad2Deg;
+
+    angle = (angle + 360f) % 360f;
+
+
+
+    Debug.Log("Calculated Angle: " + angle);
+
+    // Set the camera rotation to only affect the Y-axis (horizontal rotation)
+    // Quaternion targetRotation = Quaternion.Euler(0f, angle, 0f);
+
+    // Explicitly set the camera's global rotation to include the correct Y rotation
+    // combatCam.transform.rotation = targetRotation;
+
+    
+
+    // Position the camera slightly above the midpoint
+    float yOffset = 5f; // Adjust the y-offset for camera height
+    Vector3 cameraPositionMid = new Vector3(
+        (leftCharacter.position.x + rightCharacter.position.x) / 2, // Midpoint of X
+        (leftCharacter.position.y + rightCharacter.position.y) / 2 + yOffset, // Midpoint of Y + Offset
+        (leftCharacter.position.z + rightCharacter.position.z) / 2 // Midpoint of Z
+    );
+
+    // Determine the rotation of the camera around the Y-axis
+    float angleInRadians = combatCam.transform.eulerAngles.y * Mathf.Deg2Rad;
+
+    // Calculate the X and Z offsets based on the angle
+    float offsetDistance = 10f; // Distance from the midpoint
+    float xOffset = Mathf.Sin(angleInRadians) * offsetDistance;
+    float zOffset = Mathf.Cos(angleInRadians) * offsetDistance;
+
+    // Adjust the camera's position using the offsets
+    Vector3 cameraPosition = new Vector3(
+        cameraPositionMid.x + xOffset,
+        cameraPositionMid.y, // Keep the same Y position
+        cameraPositionMid.z - zOffset
+    );
+
+    Debug.Log(xOffset + " " + zOffset + " AHHHHHHHHHHHHHHHHHHHHH");
+
+    // Move the camera to the new position
+    combatCam.transform.position = cameraPosition;
+
+    Vector3 newRotation = combatCam.transform.eulerAngles;
+    newRotation.y = angle;
+    combatCam.transform.eulerAngles = newRotation;
+
+
+    // Optionally, use a smoothing function to smooth the camera's rotation
+    // combatCam.transform.rotation = Quaternion.Slerp(combatCam.transform.rotation, targetRotation, Time.deltaTime * 5f);
+
+    // Adjust the camera's field of view based on the distance between characters
+    float distance = Vector3.Distance(leftCharacter.position, rightCharacter.position);
+    combatCam.m_Lens.FieldOfView = Mathf.Clamp(distance * 2, 40f, 60f);
+
+    combatCam.Priority = 1000; // Activate combat camera (higher priority)
+    
+    // Re-enable CinemachineBrain
+    brain.enabled = true;
+}
+*/
+public void SwitchToCombatCamera(Transform attacker, Transform defender)
+{
+    // Disable Cinemachine Brain temporarily to prevent override
+    CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
+    brain.enabled = false;
+
+    // Temporarily remove LookAt target to prevent Cinemachine from overriding rotation
+    Transform previousLookAt = combatCam.LookAt;
+    combatCam.LookAt = null;
+
+    // Ensure that the attacker is on the left side and the defender is on the right side
+    Transform leftCharacter = attacker.position.x < defender.position.x ? attacker : defender;
+    Transform rightCharacter = leftCharacter == attacker ? defender : attacker;
+
+    // Get the midpoint between the two characters
+    Transform midpoint = GetMidpoint(leftCharacter, rightCharacter);
+    // combatCam.LookAt = midpoint;
+    // combatCam.Follow = midpoint;
+
+    // Calculate the direction from left character to right character
+    Vector3 directionToFace = rightCharacter.position - leftCharacter.position;
+
+    // Calculate the angle between the two characters (in 2D plane, using X and Z axis)
+    float angle = Mathf.Atan2(directionToFace.z, directionToFace.x) * Mathf.Rad2Deg;
+
+    // Normalize the angle to the range [0, 360] degrees
+    
+
+    Debug.Log("Angle " + angle);
+
+    if (angle == 0f || Mathf.Abs(angle) == 180f || Mathf.Abs(angle) == 270f || Mathf.Abs(angle) == 90) {
+        if (angle == 0f) {
+            if (rightCharacter == attacker) {
+                angle = 180;
+            }
+        }
+        angle = (angle + 360f) % 360f;
+    } else if (angle > 0) {
+        if (leftCharacter == attacker) {
+            angle = (angle - 90f + 360f) % 360f;
+        } else {
+            angle = (angle + 90f + 360f) % 360f;
+        }
+        
+    } else {
+       if (rightCharacter == attacker) {
+            angle = (angle - 90f + 360f) % 360f;
+        } else {
+            angle = (angle + 90f + 360f) % 360f;
+        }
+    }
+
+
+
+    
+    // else if (angle > 0f && angle < 180f)
+    // {
+    //     angle = (angle - 90f + 360f) % 360f; // Shift by +90 for 0–180 range
+    // }
+    // else
+    // {
+    //     angle = (angle + 90f) % 360f; // Shift by -90 for 180–360 range
+    // }
+
+
+
+    float characterDistance = Vector3.Distance(leftCharacter.position, rightCharacter.position);
+
+    // Scale the offset distance based on character distance
+    // For example, offset is proportional to distance (adjust multiplier as needed)
+    float baseOffsetDistance = 7f; // Default offset distance
+    float offsetDistance = baseOffsetDistance + (characterDistance * 0.5f);
+    float angleInRadians = angle * Mathf.Deg2Rad;
+    // float xOffset = 10f;
+
+    // Calculate the X and Z offsets based on the angle
+    float xOffset = Mathf.Sin(angleInRadians) * offsetDistance;
+    float zOffset = Mathf.Cos(angleInRadians) * offsetDistance;
+
+    // float totalDistance = Mathf.Sqrt(xOffset * xOffset + zOffset * zOffset); // Calculate diagonal distance
+    // xOffset = (xOffset / totalDistance) * offsetDistance; // Scale the xOffset
+    // zOffset = (zOffset / totalDistance) * offsetDistance; // Scale the zOffset
+
+
+    // Debug.Log("Angle " + angle + " xOffset " + xOffset + " zOffset ");
+
+    // Set the camera's position 10 units away from the midpoint, adjusting X and Z based on angle
+    Vector3 cameraPosition = new Vector3(midpoint.position.x - xOffset, midpoint.position.y, midpoint.position.z - zOffset); // 5f is the y-offset
+
+    Debug.Log("Angle " + angle + " xOffset " + xOffset +  " zOffset " + zOffset + " midpoint " + midpoint.transform.position + " Camera poisiton " + cameraPosition);
+
+    // Move the camera to the new position
+    combatCam.transform.position = cameraPosition;
+
+    // Optionally, use the angle to set the rotation (only affecting Y-axis)
+    Vector3 newRotation = combatCam.transform.eulerAngles;
+    newRotation.y = angle;
+    combatCam.transform.eulerAngles = newRotation;
+
+    // Adjust the camera's field of view based on the distance between characters
+    float distance = Vector3.Distance(leftCharacter.position, rightCharacter.position);
+    combatCam.m_Lens.FieldOfView = Mathf.Clamp(distance * 2, 40f, 60f);
+
+    combatCam.Priority = 1000; // Activate combat camera (higher priority)
+
+    // Re-enable CinemachineBrain
+    brain.enabled = true;
+}
+
+
+private Transform GetMidpoint(Transform left, Transform right)
+{
+    Vector3 midpoint = (left.position + right.position) / 2;
+    midpoint.y += 5f;
+    GameObject midpointObject = new GameObject("Midpoint");
+    midpointObject.transform.position = midpoint;
+    return midpointObject.transform;
+}
+
+public void SwitchToMainCamera()
+{
+    combatCam.Priority = 10; // Deactivate the combat camera and return to the main camera
+}
+
+
+
+    
 
     
 

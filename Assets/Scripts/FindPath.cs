@@ -134,7 +134,7 @@ public class FindPath : MonoBehaviour
   
 //----------------------------------------------------------------------------------------------------------------------
 
-public void calculateMovement(int startX, int startZ, int charMovement, UnitManager unit)
+    public void calculateMovement(int startX, int startZ, int charMovement, UnitManager unit)
     {
         //Creates two lists
         //cellList is used to keep track to cells that need to be processed
@@ -232,7 +232,7 @@ public void calculateMovement(int startX, int startZ, int charMovement, UnitMana
     }
 
 
-public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool canAttack1, bool canAttack2, bool canAttack3)
+    public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool canAttack1, bool canAttack2, bool canAttack3)
     {
         List<GridTile> cellList = new List<GridTile>();
         List<GridTile> processedList = new List<GridTile>();
@@ -375,7 +375,7 @@ public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool can
     }
 
 
-
+    // Initializes enemy range tiles for the player to see
     public void EnemyRange() {
         bool [,] moveTemp = canMove;
         bool [,] attackTemp = canAttack;
@@ -422,6 +422,7 @@ public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool can
         
     }
 
+    //Destroys all enemy range tiles
     public void DestroyEnemyRange()
     {
         foreach(GameObject areaT in enemyTiles)
@@ -430,6 +431,7 @@ public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool can
         }
     }
 
+    //Initializes a specific enemy range for the player to see
     public void SpecificEnemyRange(UnitManager enemy) {
         bool [,] moveTemp = canMove;
         bool [,] attackTemp = canAttack;
@@ -468,6 +470,7 @@ public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool can
         
     }
 
+    // Unselect an enemy in the case that they die or have moved
     public void UnSelectEnemies(UnitManager enemy) {
 
         foreach(GameObject areaT in specEnemyTiles)
@@ -516,7 +519,7 @@ public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool can
 
 
 
-   
+   // Next four methods are used to find the shortest path from one tile to another
     private void InitPathGrid() {
         pathTiles = new PathTile[_currentMap.GetWidth(), _currentMap.GetLength()];
         
@@ -527,6 +530,7 @@ public bool[,] CalculateAttack(int startX, int startZ, int attackRange, bool can
         }
     }
 
+    
     public List<PathTile> FindShortestPath(int startX, int startZ, int endX, int endZ) {
         PathTile startTile = pathTiles[startX, startZ];
         PathTile endTile = pathTiles[endX, endZ];

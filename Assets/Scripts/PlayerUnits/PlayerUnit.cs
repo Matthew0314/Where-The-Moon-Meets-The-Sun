@@ -12,6 +12,7 @@ public class PlayerUnit : UnitManager
         InitializeUnitData();
         Transform childImage = transform.Find("PlayerCircle/Canvas/UnitBar");
         healthBar = childImage.GetComponent<Image>();
+        unitCircle = transform.Find("PlayerCircle").gameObject;
 
     }
 
