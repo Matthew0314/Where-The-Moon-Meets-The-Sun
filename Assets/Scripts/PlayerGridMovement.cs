@@ -636,11 +636,35 @@ public class PlayerGridMovement : MonoBehaviour
             playerUnit.ExperienceGain(expObtained);
             
         }
+        Vector3 forward = atkObj.transform.forward; // The forward direction of the attacker
+        Vector3 right = atkObj.transform.right;     // The right direction of the attacker
+
+        // Offset position: slightly behind and to the right of the attacker
+        Vector3 offsetPosition = atkObj.transform.position - forward * -10f + right * 2f;
+        offsetPosition.y = 4f;
+
+        combatCam.transform.position = offsetPosition;
+
+        // Calculate the target rotation by adding 180 degrees to the object's Y rotation
+        Vector3 currentRotation = atkObj.transform.eulerAngles;
+        Quaternion targetRotation = Quaternion.Euler(0f, currentRotation.y + 180f, 0f);
+
+        // Apply the calculated rotation to the camera
+        combatCam.transform.rotation = targetRotation;
+
+        // Set LookAt target to maintain focus on the object
+        combatCam.LookAt = atkObj.transform;
+        yield return new WaitForSeconds(3f);
         atkCircle.SetActive(true);
-        defCircle.SetActive(true);
+        // defCircle.SetActive(true);
+
+        if (defObj != null) {
+            defCircle.SetActive(true);
+            defObj.transform.rotation = originalDefRotation;
+        }
         playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = true;
         atkObj.transform.rotation = originalAtkRotation;
-        defObj.transform.rotation = originalDefRotation;
+        
         // moveCursor.gameObject.SetActive(true);
         SwitchToMainCamera();
         yield return new WaitForSeconds(3f);

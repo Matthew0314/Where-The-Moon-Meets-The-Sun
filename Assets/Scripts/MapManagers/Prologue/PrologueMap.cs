@@ -136,7 +136,7 @@ public class PrologueMap : MonoBehaviour, IMaps
            
             //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
             GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
-            GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos() + 0.005f, grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
+            GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos(), grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
            
 
             //Ataches an AI script interface depending on the characterististics of the nemy specified in the CSV file
