@@ -400,6 +400,14 @@ public class ExecuteAction : MonoBehaviour
         Quaternion originalDefRotation = defObj.transform.rotation;
         atkObj.transform.LookAt(defObj.transform);
         defObj.transform.LookAt(atkObj.transform);
+        bool playerOnLeft;
+        combatMenuManager.DeactivateExpectedMenu();
+        if (attackingUnit.UnitType == "Player") {
+            playerOnLeft = true;
+        } else {
+            playerOnLeft = false;
+        }
+        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.currentHealth, defendingUnit.currentHealth, 10, 10, 10, 10));
         SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
         // CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
         // while (brain.ActiveVirtualCamera != combatCam)
@@ -413,6 +421,9 @@ public class ExecuteAction : MonoBehaviour
         defCircle.SetActive(false);
         findPath.DestroyRange();
         findPath.DestroyArea();
+        
+        
+        
         // moveCursor.gameObject.SetActive(false);
         playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = false;
         yield return new WaitForSeconds(3f);
@@ -442,12 +453,24 @@ public class ExecuteAction : MonoBehaviour
             int damage = atk.primaryWeapon.UnitAttack(atk, def, false);
             def.currentHealth -= damage;
             // Debug.Log(atk.stats.UnitName + " hits " + def.stats.UnitName + " for " +  damage);
+            
+            if (atk.UnitType == "Player") {
+                yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, atk.currentHealth, def.currentHealth, 10, 10, 10, 10));
+                yield return new WaitForSeconds(1f);
+            } else {
+                yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, def.currentHealth, atk.currentHealth, 10, 10, 10, 10));
+                yield return new WaitForSeconds(1f);
+            }
+                
+            
+
             if (def.currentHealth <= 0) {
                 // Debug.Log("Removing " + def.stats.UnitName);
                 _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
                 // Debug.Log("Removing " + def.stats.UnitName);
                 break;
             }
+            
             yield return new WaitForSeconds(1f);
         }
         // Debug.Log("End Execute Attack");

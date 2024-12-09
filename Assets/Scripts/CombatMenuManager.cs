@@ -57,6 +57,9 @@ public class CombatMenuManager : MonoBehaviour
     private TextMeshProUGUI EnemyCrit;
     private TextMeshProUGUI EnemyCurrHealth;
 
+    private Image EHealthSwapped;
+    private Image PHealthSwapped;
+
     //Experience Menu
 
     private GameObject experienceMenu;
@@ -147,6 +150,12 @@ public class CombatMenuManager : MonoBehaviour
         EnemyHit = GameObject.Find("EnemyHit").GetComponent<TextMeshProUGUI>();
         EnemyCrit = GameObject.Find("EnemyCrit").GetComponent<TextMeshProUGUI>();
         EnemyCurrHealth = GameObject.Find("EnemyCurrentHealth").GetComponent<TextMeshProUGUI>();
+
+        PHealthSwapped = GameObject.Find("Canvas/ExpectedBattleMenu/PHealthBarSwapped").GetComponent<Image>();
+        EHealthSwapped = GameObject.Find("Canvas/ExpectedBattleMenu/EHealthBarSwapped").GetComponent<Image>();
+
+        PHealthSwapped.gameObject.SetActive(false);
+        EHealthSwapped.gameObject.SetActive(false);
 
         DeactivateExpectedMenu();
 
@@ -276,6 +285,8 @@ public class CombatMenuManager : MonoBehaviour
 //-------------------------------------Expected Menu--------------------------------------------------//
 
 public void SetUpExpectedMenu(UnitManager player, UnitManager enemy, int expectedPlayerHP, int expectedEnemyHP, int PDamage, int EDamage, int numPHits, int numEHits) {
+        PHealthSwapped.gameObject.SetActive(false);
+        EHealthSwapped.gameObject.SetActive(false);
         int playerHit = player.primaryWeapon.HitRate + (player.stats.Luck * 4) - enemy.stats.Evasion;
         int enemyHit = enemy.primaryWeapon.HitRate + (enemy.stats.Luck * 4) - player.stats.Evasion;
         int playerCrit = player.primaryWeapon.CritRate + (int)(player.stats.Luck / 2);
@@ -628,26 +639,134 @@ public void SetUpExpectedMenu(UnitManager player, UnitManager enemy, int expecte
     }
 
 
+//---------------------------------------Battle Menu----------------------------------//
 
 
+    public IEnumerator BattleMenu(UnitManager player, UnitManager enemy, bool playerOnLeft, int expectedPlayerHP, int expectedEnemyHP, int PDamage, int EDamage, int numPHits, int numEHits) {
 
+        Image pBar;
+        Image eBar;
+        Image pLostBar;
+        Image eLostBar;
 
+        if (playerOnLeft) {
+            pBar = PHealth;
+            eBar = EHealth;
+            pLostBar = PHealthLost;
+            eLostBar = EHealthLost;
+        } else {
+            pBar = PHealthSwapped;
+            eBar = EHealthSwapped;
+            pLostBar = PHealthLost;
+            eLostBar = EHealthLost;
+        }
 
+        if (expectedPlayerHP < 0) { expectedPlayerHP = 0; }
+        if (expectedEnemyHP < 0) { expectedEnemyHP = 0; }
 
+        // PHealthSwapped.gameObject.SetActive(false);
+        // EHealthSwapped.gameObject.SetActive(false);
 
+        UnitManager leftUnit = playerOnLeft ? player : enemy;
+        UnitManager rightUnit = playerOnLeft ? enemy : player;
 
+        int leftHit = leftUnit.primaryWeapon.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
+        int rightHit = rightUnit.primaryWeapon.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
+        int leftCrit = leftUnit.primaryWeapon.CritRate + (int)(leftUnit.stats.Luck / 2);
+        int rightCrit = rightUnit.primaryWeapon.CritRate + (int)(rightUnit.stats.Luck / 2);
 
+        // Clamp hit and crit rates
+        leftHit = Mathf.Clamp(leftHit, 0, 100);
+        leftCrit = Mathf.Clamp(leftCrit, 0, 100);
+        rightHit = Mathf.Clamp(rightHit, 0, 100);
+        rightCrit = Mathf.Clamp(rightCrit, 0, 100);
 
+        // Left Unit (Player or Enemy based on position)
+        PlayerName.text = leftUnit.stats.Name;
+        PlayerWeapon.text = leftUnit.primaryWeapon.WeaponName;
+        if (numPHits > 1) {
+            PlayerDamage.text = $"{PDamage} x {numPHits}";
+            PlayerHit.text = $"{leftHit}%";
+            PlayerCrit.text = $"{leftCrit}%";
+        } else if (numPHits == 0) {
+            PlayerDamage.text = "-";
+            PlayerHit.text = "-";
+            PlayerCrit.text = "-";
+        } else {
+            PlayerDamage.text = $"{PDamage}";
+            PlayerHit.text = $"{leftHit}%";
+            PlayerCrit.text = $"{leftCrit}%";
+        }
+        PlayerCurrHealth.text = $"{leftUnit.currentHealth}";
 
+        float leftLostFill = (float)expectedPlayerHP / leftUnit.stats.Health;
+        float leftCurrFill = (float)leftUnit.currentHealth / leftUnit.stats.Health;
+        pBar.fillAmount = leftLostFill;
+        pLostBar.fillAmount = leftCurrFill;
 
+        Destroy(HPplayer);
+        float leftXPos = (290.0f * (1.0f - leftLostFill)) - 217.0f + 960f;
+        HPplayer = Instantiate(HPIndicator, new Vector3(leftXPos, 540f, 0f), Quaternion.identity, Menu.transform);
+        GameObject leftChild = HPplayer.transform.GetChild(0).gameObject;
+        TextMeshProUGUI leftText = leftChild.GetComponent<TextMeshProUGUI>();
+        leftText.text = $"{expectedPlayerHP}";
 
+        // Right Unit (Enemy or Player based on position)
+        EnemyName.text = rightUnit.stats.Name;
+        EnemyWeapon.text = rightUnit.primaryWeapon.WeaponName;
+        if (numEHits > 1) {
+            EnemyDamage.text = $"{EDamage} x {numEHits}";
+            EnemyHit.text = $"{rightHit}%";
+            EnemyCrit.text = $"{rightCrit}%";
+        } else if (numEHits == 0) {
+            EnemyDamage.text = "-";
+            EnemyHit.text = "-";
+            EnemyCrit.text = "-";
+        } else {
+            EnemyDamage.text = $"{EDamage}";
+            EnemyHit.text = $"{rightHit}%";
+            EnemyCrit.text = $"{rightCrit}%";
+        }
+        EnemyCurrHealth.text = $"{rightUnit.currentHealth}";
 
+        float rightLostFill = (float)expectedEnemyHP / rightUnit.stats.Health;
+        float rightCurrFill = (float)rightUnit.currentHealth / rightUnit.stats.Health;
+        eBar.fillAmount = rightLostFill;
+        eLostBar.fillAmount = rightCurrFill;
 
+        Destroy(HPenemy);
+        float rightXPos = (291.0f * rightLostFill) + 140.0f + 960f;
+        HPenemy = Instantiate(HPIndicator, new Vector3(rightXPos, 540f, 0f), Quaternion.identity, Menu.transform);
+        GameObject rightChild = HPenemy.transform.GetChild(0).gameObject;
+        TextMeshProUGUI rightText = rightChild.GetComponent<TextMeshProUGUI>();
+        rightText.text = $"{expectedEnemyHP}";
 
+        Menu.SetActive(true);
 
-
+        yield return null;
+        // yield return new WaitForSeconds(1f);
+    }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
