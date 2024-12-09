@@ -27,6 +27,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
 
     bool calledReinforcements = false;
+    private ExecuteAction executeAction;
   
     // Start is called before the first frame update
     void Start()
@@ -39,6 +40,7 @@ public class PrologueMap : MonoBehaviour, IMaps
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
         playerCursor = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
+        executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
 
         //Reads in data for weapons, all units in the game, and all player classes
         //THESE WILL NEVER BE CALLED AGAIN AFTER THE PROLOGUE MAP

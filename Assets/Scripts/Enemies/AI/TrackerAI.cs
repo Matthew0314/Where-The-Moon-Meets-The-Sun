@@ -10,6 +10,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
     private GenerateGrid generateGrid;
     private PlayerGridMovement playerGridMovement;
     private IMaps _currentMap;
+    private ExecuteAction executeAction;
     
 
     void Start() {
@@ -17,6 +18,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
         generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
 
     }
 
@@ -229,7 +231,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                 generateGrid.MoveUnit(enemyUnit, enemyUnit.XPos, enemyUnit.ZPos, moveX, moveZ);
                 Debug.Log("AHHHHHHHHH " + enemyUnit.stats.UnitName + " Attacks " + UnitToAtk.unit.stats.UnitName);
                 Debug.Log("AHHHHHHHHHH player primary weapon " + UnitToAtk.unit.primaryWeapon.WeaponName);
-                yield return StartCoroutine(playerGridMovement.ExecuteAttack(enemyUnit, UnitToAtk.unit));
+                yield return StartCoroutine(executeAction.ExecuteAttack(enemyUnit, UnitToAtk.unit));
                 Debug.Log("AHHHHHHHHHH End Co Routine");
             
             

@@ -24,13 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2440823376142049304}
-  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 6.0251, y: 4.5673, z: 5.1669}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8279445130971793764}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &9145109210984658202
 BoxCollider:
@@ -40,18 +40,10 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2440823376142049304}
   m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
   m_IsTrigger: 1
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  serializedVersion: 2
+  m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2897049714009317900
 GameObject:
@@ -66,6 +58,7 @@ GameObject:
   - component: {fileID: 5174954334114935419}
   - component: {fileID: 6993156630900109453}
   - component: {fileID: 5036287923982177731}
+  - component: {fileID: 2669398195232852613}
   - component: {fileID: 8355274912481710888}
   - component: {fileID: 1532914837488977516}
   m_Layer: 0
@@ -82,7 +75,6 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2897049714009317900}
-  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 2.01, z: 0}
   m_LocalScale: {x: 0.4, y: 1, z: 0.4}
@@ -90,6 +82,7 @@ Transform:
   m_Children:
   - {fileID: 6541348066652974283}
   m_Father: {fileID: 0}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8884743000585765768
 MeshFilter:
@@ -155,11 +148,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   x: 2
   z: 2
-  speed: 20
   moveCursor: {fileID: 6541348066652974283}
+  moveCursorCopy: {fileID: 0}
+  speed: 20
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
+  inMenu: 0
+  isAttacking: 0
+  enemyRangeActive: 0
+  charSelected: 0
+  playerCollide: {fileID: 0}
+  mainCam: {fileID: 0}
+  combatCam: {fileID: 0}
 --- !u!114 &5036287923982177731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,10 +174,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   charSelected: 0
-  movement: 3
-  attackRangeStat: 0
   movementAreaTile: {fileID: 0}
+  moveTile: {fileID: 0}
   attackTile: {fileID: 0}
+  enemyTile: {fileID: 0}
+  specificEnemyTile: {fileID: 0}
+  selectedEnemies: []
+--- !u!114 &2669398195232852613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2897049714009317900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd58b46361e0ce8478dbc505363719db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCam: {fileID: 0}
+  combatCam: {fileID: 0}
 --- !u!64 &8355274912481710888
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -185,17 +202,9 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2897049714009317900}
   m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
+  serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
@@ -207,16 +216,8 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2897049714009317900}
   m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
   m_IsTrigger: 1
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 10, y: 2.220446e-16, z: 10}
+  serializedVersion: 2
+  m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 0, z: 0}

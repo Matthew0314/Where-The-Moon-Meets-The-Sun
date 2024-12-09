@@ -10,6 +10,7 @@ public class CombatMenuManager : MonoBehaviour
     private TurnManager manageTurn;    
     private PlayerGridMovement moveGrid;
     private GenerateGrid generateGrid;
+    private ExecuteAction executeAction;
     // private UnitManager DefendingEnemy;
     // private UnitManager AttackingUnit;
     // public Transform moveCursor;
@@ -56,9 +57,45 @@ public class CombatMenuManager : MonoBehaviour
     private TextMeshProUGUI EnemyCrit;
     private TextMeshProUGUI EnemyCurrHealth;
 
+    //Experience Menu
+
+    private GameObject experienceMenu;
+    private Image expBar;
+    private TextMeshProUGUI expUnitName;
+    private TextMeshProUGUI expNext;
+
+    private TextMeshProUGUI expGained;
+
+
     [SerializeField] GameObject HPIndicator;
     GameObject HPplayer;
     GameObject HPenemy;
+
+
+
+
+    //Level Up Menu
+
+    private GameObject levelUpMenu;
+    private TextMeshProUGUI lvName;
+    private TextMeshProUGUI lvClass;
+    private TextMeshProUGUI lvLevel;
+    private TextMeshProUGUI lvHP;
+    private TextMeshProUGUI lvStr;
+    private TextMeshProUGUI lvMag;
+    private TextMeshProUGUI lvSpd;
+    private TextMeshProUGUI lvDef;
+    private TextMeshProUGUI lvRes;
+    private TextMeshProUGUI lvEva;
+    private TextMeshProUGUI lvLck;
+    private TextMeshProUGUI lvHPGR;
+    private TextMeshProUGUI lvStrGR;
+    private TextMeshProUGUI lvMagGR;
+    private TextMeshProUGUI lvSpdGR;
+    private TextMeshProUGUI lvDefGR;
+    private TextMeshProUGUI lvResGR;
+    private TextMeshProUGUI lvEvaGR;
+    private TextMeshProUGUI lvLckGR;
 
     // Start is called before the first frame update
     void Start()
@@ -67,6 +104,7 @@ public class CombatMenuManager : MonoBehaviour
         moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
         generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
+        executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
 
         //Action Menu
         attackButton = GameObject.Find("Canvas/AttackButton");
@@ -111,6 +149,43 @@ public class CombatMenuManager : MonoBehaviour
         EnemyCurrHealth = GameObject.Find("EnemyCurrentHealth").GetComponent<TextMeshProUGUI>();
 
         DeactivateExpectedMenu();
+
+
+        experienceMenu = GameObject.Find("Canvas/ExperienceMenu");
+        expBar = GameObject.Find("Canvas/ExperienceMenu/ExpBar").GetComponent<Image>();
+        expUnitName = GameObject.Find("Canvas/ExperienceMenu/UnitName").GetComponent<TextMeshProUGUI>();
+        expNext = GameObject.Find("Canvas/ExperienceMenu/ExpNext").GetComponent<TextMeshProUGUI>();
+        expGained = GameObject.Find("Canvas/ExperienceMenu/ExpGained").GetComponent<TextMeshProUGUI>();
+
+        DeactivateExperienceMenu();
+
+        levelUpMenu = GameObject.Find("Canvas/LevelUpMenu");
+        lvName = GameObject.Find("Canvas/LevelUpMenu/LvName").GetComponent<TextMeshProUGUI>();
+        lvClass = GameObject.Find("Canvas/LevelUpMenu/LvClass").GetComponent<TextMeshProUGUI>();
+        lvLevel = GameObject.Find("Canvas/LevelUpMenu/LvLevel").GetComponent<TextMeshProUGUI>();
+
+        lvHP = GameObject.Find("Canvas/LevelUpMenu/LvHP").GetComponent<TextMeshProUGUI>();
+        lvStr = GameObject.Find("Canvas/LevelUpMenu/LvStr").GetComponent<TextMeshProUGUI>();
+        lvMag = GameObject.Find("Canvas/LevelUpMenu/LvMag").GetComponent<TextMeshProUGUI>();
+        lvSpd = GameObject.Find("Canvas/LevelUpMenu/LvSpd").GetComponent<TextMeshProUGUI>();
+        lvDef = GameObject.Find("Canvas/LevelUpMenu/LvDef").GetComponent<TextMeshProUGUI>();
+        lvRes = GameObject.Find("Canvas/LevelUpMenu/LvRes").GetComponent<TextMeshProUGUI>();
+        lvEva = GameObject.Find("Canvas/LevelUpMenu/LvEva").GetComponent<TextMeshProUGUI>();
+        lvLck = GameObject.Find("Canvas/LevelUpMenu/LvLck").GetComponent<TextMeshProUGUI>();
+
+        lvHPGR = GameObject.Find("Canvas/LevelUpMenu/LvHPGR").GetComponent<TextMeshProUGUI>();
+        lvStrGR = GameObject.Find("Canvas/LevelUpMenu/LvStrGR").GetComponent<TextMeshProUGUI>();
+        lvMagGR = GameObject.Find("Canvas/LevelUpMenu/LvMagGR").GetComponent<TextMeshProUGUI>();
+        lvSpdGR = GameObject.Find("Canvas/LevelUpMenu/LvSpdGR").GetComponent<TextMeshProUGUI>();
+        lvDefGR = GameObject.Find("Canvas/LevelUpMenu/LvDefGR").GetComponent<TextMeshProUGUI>();
+        lvResGR = GameObject.Find("Canvas/LevelUpMenu/LvResGR").GetComponent<TextMeshProUGUI>();
+        lvEvaGR = GameObject.Find("Canvas/LevelUpMenu/LvEvaGR").GetComponent<TextMeshProUGUI>();
+        lvLckGR = GameObject.Find("Canvas/LevelUpMenu/LvLckGR").GetComponent<TextMeshProUGUI>();
+
+        DeactivateLevelUpMenu();
+
+
+
     }
 
     public void ActivateActionMenu() {
@@ -129,7 +204,7 @@ public class CombatMenuManager : MonoBehaviour
     public void PlayerWait() {
         
         manageTurn.RemovePlayer(moveGrid.playerCollide.GetPlayer().stats);
-        moveGrid.unitWait();
+        executeAction.unitWait();
         manageTurn.CheckPhase();
         _currentMap.CheckClearCondition();
         
@@ -145,7 +220,7 @@ public class CombatMenuManager : MonoBehaviour
         
         for (int i = 0; i < generateGrid.GetWidth(); i++) {
             for (int j = 0; j < generateGrid.GetLength(); j++) {
-                if (moveGrid.attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
+                if (executeAction.attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
                     
                     UnitsInRange.Add(generateGrid.GetGridTile(i,j));
                     
@@ -160,7 +235,7 @@ public class CombatMenuManager : MonoBehaviour
 
         DeactivateActionMenu();
 
-        StartCoroutine(moveGrid.CycleAttackList(UnitsInRange));
+        StartCoroutine(executeAction.CycleAttackList(UnitsInRange));
 
     }
 
@@ -309,6 +384,267 @@ public void SetUpExpectedMenu(UnitManager player, UnitManager enemy, int expecte
     public void DeactivateExpectedMenu() {
         Menu.SetActive(false);
     }
+
+//------------------------------------------------Experience Menu-------------------------------------------------------------
+
+    public void DeactivateExperienceMenu() {
+        experienceMenu.SetActive(false);
+    }
+
+    // public void ActivateExperienceMenu() {
+    //     experienceMenu.SetActive(true);
+    // }
+
+    public IEnumerator GainExperienceMenu(UnitManager unit, int gainExp)
+    {
+        experienceMenu.SetActive(true);
+        expUnitName.text = unit.stats.Name;
+
+        int currentExp = unit.stats.Experience; // Starting experience
+        int remainingExp = gainExp;             // Experience to be added
+        int expThreshold = 100;                 // Max experience for a level
+        int initialExpNext = expThreshold - currentExp; // Initial experience needed to level up
+
+        expGained.text = "+" + remainingExp.ToString();
+        expNext.text = initialExpNext.ToString();
+
+        while (remainingExp > 0)
+        {
+            // Calculate how much experience can be added in this cycle
+            int expToAdd = Mathf.Min(expThreshold - currentExp, remainingExp);
+            float startFill = (float)currentExp / expThreshold;
+            float targetFill = (float)(currentExp + expToAdd) / expThreshold;
+
+            float duration = (targetFill - startFill) * 1.5f;
+            float elapsed = 0f;
+
+            expBar.fillAmount = startFill;
+
+            // Animate the bar fill
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+
+                // Update bar fill
+                expBar.fillAmount = Mathf.Lerp(startFill, targetFill, t);
+
+                // Dynamically update expGained and expNext
+                int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(remainingExp, remainingExp - expToAdd, t));
+                int interpolatedNext = Mathf.RoundToInt(Mathf.Lerp(initialExpNext, initialExpNext - expToAdd, t));
+
+                expGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : interpolatedGain.ToString();
+                expNext.text = interpolatedNext.ToString();
+
+                yield return null; // Wait for the next frame
+            }
+
+            // Finalize this cycle
+            expBar.fillAmount = targetFill;
+            currentExp += expToAdd;    // Temporarily track current experience for UI
+            remainingExp -= expToAdd; // Reduce remaining experience
+
+            // Reset bar if threshold is reached
+            if (currentExp >= expThreshold && remainingExp > 0)
+            {
+                currentExp = 0;        // Reset current experience
+                initialExpNext = expThreshold; // Reset expNext display
+            }
+        }
+
+        // Set final UI state
+        expGained.text = "0"; // Clear gained experience
+        expNext.text = (expThreshold - currentExp).ToString(); // Remaining experience for next level
+
+        yield return new WaitForSeconds(1f);
+        DeactivateExperienceMenu();
+    }
+
+
+// -----------------------------------------------Level Up Menu------------------------------------------------------
+
+    public void DeactivateLevelUpMenu() {
+        lvHPGR.gameObject.SetActive(false);
+        lvStrGR.gameObject.SetActive(false);
+        lvMagGR.gameObject.SetActive(false);
+        lvSpdGR.gameObject.SetActive(false);
+        lvDefGR.gameObject.SetActive(false);
+        lvResGR.gameObject.SetActive(false);
+        lvEvaGR.gameObject.SetActive(false);
+        lvLckGR.gameObject.SetActive(false);
+        levelUpMenu.SetActive(false);
+    }
+
+    public IEnumerator LevelUpMenu(UnitManager unit, int hp, int str, int mag, int spd, int def, int res, int eva, int lck)
+    {
+        // Activate the level-up menu
+        levelUpMenu.SetActive(true);
+
+        // Set initial values for the unit's stats
+        lvName.text = unit.stats.Name;
+        lvClass.text = unit.stats.UnitClass;
+        lvLevel.text = unit.stats.Level.ToString();
+
+        int HP = unit.stats.Health;
+        int Str = unit.stats.Attack;
+        int Mag = unit.stats.Magic;
+        int Spd = unit.stats.Speed;
+        int Def = unit.stats.Defense;
+        int Res = unit.stats.Resistance;
+        int Eva = unit.stats.Evasion;
+        int Lck = unit.stats.Luck;
+
+        // Display current stats
+        lvHP.text = HP.ToString();
+        lvStr.text = Str.ToString();
+        lvMag.text = Mag.ToString();
+        lvSpd.text = Spd.ToString();
+        lvDef.text = Def.ToString();
+        lvRes.text = Res.ToString();
+        lvEva.text = Eva.ToString();
+        lvLck.text = Lck.ToString();
+
+        float waitTime = 0.8f;
+
+        yield return StartCoroutine(AnimateLevelText(lvLevel, unit.stats.Level));
+
+        // Update stats incrementally and display changes
+        if (hp > 0)
+        {
+            lvHPGR.text = "+" + hp.ToString();
+            HP += hp;
+            lvHP.text = HP.ToString();
+            lvHPGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        if (str > 0)
+        {
+            lvStrGR.text = "+" + str.ToString();
+            Str += str;
+            lvStr.text = Str.ToString();
+            lvStrGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        if (mag > 0)
+        {
+            lvMagGR.text = "+" + mag.ToString();
+            Mag += mag;
+            lvMag.text = Mag.ToString();
+            lvMagGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        if (spd > 0)
+        {
+            lvSpdGR.text = "+" + spd.ToString();
+            Spd += spd;
+            lvSpd.text = Spd.ToString();
+            lvSpdGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        if (def > 0)
+        {
+            lvDefGR.text = "+" + def.ToString();
+            Def += def;
+            lvDef.text = Def.ToString();
+            lvDefGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        if (res > 0)
+        {
+            lvResGR.text = "+" + res.ToString();
+            Res += res;
+            lvRes.text = Res.ToString();
+            lvResGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        if (eva > 0)
+        {
+            lvEvaGR.text = "+" + eva.ToString();
+            Eva += eva;
+            lvEva.text = Eva.ToString();
+            lvEvaGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        if (lck > 0)
+        {
+            lvLckGR.text = "+" + lck.ToString();
+            Lck += lck;
+            lvLck.text = Lck.ToString();
+            lvLckGR.gameObject.SetActive(true);
+            yield return new WaitForSeconds(waitTime);
+        }
+
+        // Wait before deactivating the menu
+        yield return new WaitForSeconds(1f);
+
+        DeactivateLevelUpMenu();
+    }
+
+    private IEnumerator AnimateLevelText(TextMeshProUGUI levelText, int level)
+    {
+        Vector3 originalScale = levelText.transform.localScale;
+        Vector3 targetScale = originalScale * 1.5f; // Increase size by 50%
+        float animationTime = 0.5f; // Time for animation
+        float elapsedTime = 0f;
+
+        // Scale up
+        while (elapsedTime < animationTime)
+        {
+            levelText.transform.localScale = Vector3.Lerp(originalScale, targetScale, elapsedTime / animationTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+
+
+        // Ensure it's at the target scale
+        levelText.transform.localScale = targetScale;
+
+        int newLevel = level + 1;
+        levelText.text = newLevel.ToString();
+
+        
+
+        // Reset timer for scale down
+        elapsedTime = 0f;
+
+        // Scale down
+        while (elapsedTime < animationTime)
+        {
+            levelText.transform.localScale = Vector3.Lerp(targetScale, originalScale, elapsedTime / animationTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure it's back to the original scale
+        levelText.transform.localScale = originalScale;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

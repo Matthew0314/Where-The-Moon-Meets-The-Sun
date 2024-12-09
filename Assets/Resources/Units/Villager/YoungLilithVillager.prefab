@@ -217,6 +217,9 @@ MonoBehaviour:
   movement: 0
   attackRange: 0
   unitName: YoungLilith
+  unitCircle: {fileID: 0}
+  combatMenuManager: {fileID: 0}
+  grayscaleMaterial: {fileID: 2100000, guid: 73b147a209899be4881610c2a2055897, type: 2}
 --- !u!1 &3431412522824541635
 GameObject:
   m_ObjectHideFlags: 0
@@ -960,6 +963,18 @@ PrefabInstance:
     - target: {fileID: 2023997153771195692, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8938018307534186159, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8938018307534186159, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8938018307534186159, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}
+      propertyPath: m_Color.r
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}

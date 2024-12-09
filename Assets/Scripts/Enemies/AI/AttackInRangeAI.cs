@@ -12,12 +12,14 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
     private FindPath findPath;
     private GenerateGrid generateGrid;
     private PlayerGridMovement playerGridMovement;
+    private ExecuteAction executeAction;
     
 
     void Start() {
         findPath = GameObject.Find("Player").GetComponent<FindPath>();
         generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
     }
 
     public IEnumerator enemyAttack(GameObject enemy) {
@@ -159,7 +161,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
             generateGrid.MoveUnit(enemyUnit, enemyUnit.XPos, enemyUnit.ZPos, moveX, moveZ);
             Debug.Log("AHHHHHHHHH " + enemyUnit.stats.UnitName + " Attacks " + UnitToAtk.unit.stats.UnitName);
             Debug.Log("AHHHHHHHHHH player primary weapon " + UnitToAtk.unit.primaryWeapon.WeaponName);
-            yield return StartCoroutine(playerGridMovement.ExecuteAttack(enemyUnit, UnitToAtk.unit));
+            yield return StartCoroutine(executeAction.ExecuteAttack(enemyUnit, UnitToAtk.unit));
             Debug.Log("AHHHHHHHHHH End Co Routine");
           
         

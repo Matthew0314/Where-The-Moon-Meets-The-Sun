@@ -66,14 +66,14 @@ public abstract class UnitStats
 }
 
 public class PlayerStats : UnitStats {
-    private int HealthGR {get; set;}                //base health
-    private int AttackGR {get; set;}                //base attack
-    private int MagicGR {get; set;}                //base magic
-    private int DefenseGR {get; set;}               //base defense
-    private int ResistanceGR {get; set;}           //base resistance to magic
-    private int SpeedGR {get; set;}                 //base speed, determines if unit attacks first
-    private int EvasionGR {get; set;}               //base evasion, how often the unit dodges
-    private int LuckGR {get; set;}               //base luck, increases chance of critical
+    public int HealthGR {get; set;}                //base health
+    public int AttackGR {get; set;}                //base attack
+    public int MagicGR {get; set;}                //base magic
+    public int DefenseGR {get; set;}               //base defense
+    public int ResistanceGR {get; set;}           //base resistance to magic
+    public int SpeedGR {get; set;}                 //base speed, determines if unit attacks first
+    public int EvasionGR {get; set;}               //base evasion, how often the unit dodges
+    public int LuckGR {get; set;}               //base luck, increases chance of critical
 
     // public int Experience {get; set;}
 

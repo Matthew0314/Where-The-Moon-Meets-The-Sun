@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class PlayerUnit : UnitManager
 {
     private Image healthBar;
+    private Material originalMaterial;
+    private TurnManager turnManager;
+    [SerializeField] private Material grayscaleMaterial;
 
     protected override void Start() {
         // classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
@@ -13,11 +16,28 @@ public class PlayerUnit : UnitManager
         Transform childImage = transform.Find("PlayerCircle/Canvas/UnitBar");
         healthBar = childImage.GetComponent<Image>();
         unitCircle = transform.Find("PlayerCircle").gameObject;
+        combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+        originalMaterial = healthBar.material;
+        turnManager = GameObject.Find("GridManager").GetComponent<TurnManager>();
 
     }
 
     protected void Update() {
         healthBar.fillAmount = (float)currentHealth / (float)stats.Health; 
+
+        if (!turnManager.IsActive(this.stats))
+        {
+            // Apply grayscale material
+            healthBar.material = grayscaleMaterial;
+
+            // Adjust grayscale intensity (fully grayscale in this example)
+            healthBar.material.SetFloat("_GrayAmount", 1f);
+        }
+        else
+        {
+            // Reset to the original material
+            healthBar.material = originalMaterial;
+        }
     }
 
 
