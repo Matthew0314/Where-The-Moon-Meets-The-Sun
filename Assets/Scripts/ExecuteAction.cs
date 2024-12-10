@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Cinemachine;
 
 public class ExecuteAction : MonoBehaviour
@@ -16,6 +17,7 @@ public class ExecuteAction : MonoBehaviour
     private GameObject playerCurs;
     public CinemachineVirtualCamera mainCam;
     public CinemachineVirtualCamera combatCam;
+    Gamepad gamepad;
     void Start()
     {
         playerCurs = GameObject.Find("Player");
@@ -30,7 +32,7 @@ public class ExecuteAction : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        gamepad = Gamepad.current;
     }
 
     public void unitWait() {
@@ -125,7 +127,7 @@ public class ExecuteAction : MonoBehaviour
             playerGridMovement.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
 
             
-            if (Input.GetKeyDown(KeyCode.E) && playerWeapons.Count > 1) {
+            if (Input.GetKeyDown(KeyCode.E) || gamepad.rightShoulder.wasPressedThisFrame && playerWeapons.Count > 1) {
                 newEnemies = new List<GridTile>();
                 weaponIndex++;
                 
@@ -139,7 +141,7 @@ public class ExecuteAction : MonoBehaviour
 
             }
 
-            if (Input.GetKeyDown(KeyCode.Q) && playerWeapons.Count > 1) {
+            if (Input.GetKeyDown(KeyCode.Q) || gamepad.leftShoulder.wasPressedThisFrame  && playerWeapons.Count > 1) {
                 newEnemies = new List<GridTile>();
                 weaponIndex--;
                 
@@ -188,7 +190,7 @@ public class ExecuteAction : MonoBehaviour
 
                 
             }
-            if (Input.GetKeyDown(KeyCode.Space)) {
+            if (Input.GetKeyDown(KeyCode.Space) || gamepad.buttonSouth.wasPressedThisFrame) {
                 DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
                 
                 playerGridMovement.IsAttacking = true;
@@ -199,12 +201,12 @@ public class ExecuteAction : MonoBehaviour
                 break;
             }
 
-            if (Input.GetKeyDown(KeyCode.B)) {
+            if (Input.GetKeyDown(KeyCode.B) || gamepad.buttonEast.wasPressedThisFrame) {
                 playerGridMovement.IsAttacking = false;
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
                 AttackingUnit.primaryWeapon = orgPrimWeapon;
-                combatMenuManager.ActivateActionMenu();
+                StartCoroutine(combatMenuManager.ActivateActionMenu());
 
                 
                 
@@ -408,8 +410,7 @@ public class ExecuteAction : MonoBehaviour
         } else {
             playerOnLeft = false;
         }
-        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.stats.Health, defendingUnit.stats.Health, 10, 10, 10, 10));
-        SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
+        
         // CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
         // while (brain.ActiveVirtualCamera != combatCam)
         // {
@@ -422,12 +423,24 @@ public class ExecuteAction : MonoBehaviour
         defCircle.SetActive(false);
         findPath.DestroyRange();
         findPath.DestroyArea();
+
+        List<UnitManager> mapUnits = _currentMap.GetMapUnits();
+        List<GameObject> unitObj = new List<GameObject>();
+
+        // foreach (UnitManager unit in mapUnits) {
+        //     if (unit != attackingUnit && unit != defendingUnit) {
+        //         unitObj.Add(unit.gameObject);
+
+        //         unit.gameObject.SetActive(false);
+        //     }
+            
+        // }
         
         
         
         // moveCursor.gameObject.SetActive(false);
         playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = false;
-        yield return new WaitForSeconds(3f);
+        
         attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, attackingUnit.XPos, attackingUnit.ZPos, defendingUnit.XPos, defendingUnit.ZPos);
         Queue<UnitManager> AttackingQueue = attackingUnit.primaryWeapon.AttackingQueue;
         Queue<UnitManager> DefendingQueue = attackingUnit.primaryWeapon.DefendingQueue;
@@ -435,15 +448,50 @@ public class ExecuteAction : MonoBehaviour
         UnitManager playerUnit = null;
         EnemyUnit enemyUnit = null;
 
+        
+
+        Queue<UnitManager> tempQueue = new Queue<UnitManager>(AttackingQueue);
+
+        int playerCount = 0;
+        int enemyCount = 0;
+
+        // Process the temporary queue
+        while (tempQueue.Count > 0)
+        {
+            UnitManager ak = tempQueue.Dequeue();
+
+            if (ak.UnitType == "Player")
+            {
+                playerCount++;
+            }
+            else if (ak.UnitType == "Enemy")
+            {
+                enemyCount++;
+            }
+        }
+
+        int atkCount = 0;
+        int defCount = 0;
+
+        
+
         if (attackingUnit.stats.UnitType == "Player") {
             playerUnit = attackingUnit;
             enemyUnit = (EnemyUnit)defendingUnit;
+            atkCount = playerCount;
+            defCount = enemyCount;
         }
 
         if (defendingUnit.stats.UnitType == "Player") {
             playerUnit = defendingUnit;
             enemyUnit = (EnemyUnit)attackingUnit;
+            atkCount = enemyCount;
+            defCount = playerCount;
         }
+
+        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.stats.Health, defendingUnit.stats.Health, 10, 10, atkCount, defCount));
+        SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
+        yield return new WaitForSeconds(3f);
 
         int coun = AttackingQueue.Count;
         // Debug.Log(" COUNT " + coun);
@@ -463,7 +511,7 @@ public class ExecuteAction : MonoBehaviour
             //     yield return new WaitForSeconds(1f);
             // }
 
-            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), 10, 10, 10, 10));
+            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), 10, 10, atkCount, defCount));
             yield return new WaitForSeconds(1f);
                 
             
@@ -536,6 +584,9 @@ public class ExecuteAction : MonoBehaviour
         }
         playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = true;
         atkObj.transform.rotation = originalAtkRotation;
+        // foreach (GameObject unit in unitObj) {
+        //     unit.SetActive(true);
+        // }
         
         // moveCursor.gameObject.SetActive(true);
         SwitchToMainCamera();

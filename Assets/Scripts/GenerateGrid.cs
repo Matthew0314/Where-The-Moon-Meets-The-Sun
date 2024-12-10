@@ -32,8 +32,7 @@ public class GenerateGrid : MonoBehaviour
 
     //Generates grid using parameters from the map data
     public void GenGrid(int len, int wid)
-    {
-        
+    {  
         length = len;
         width = wid;
         grid = new GridTile[width, length];

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using TMPro;
 
 public class CombatMenuManager : MonoBehaviour
@@ -106,6 +107,9 @@ public class CombatMenuManager : MonoBehaviour
     private Image PlayerPhase;
     private Image EnemyPhase;
 
+
+    Gamepad gamepad;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -208,10 +212,75 @@ public class CombatMenuManager : MonoBehaviour
 
     }
 
-    public void ActivateActionMenu() {
+    void Update() {
+        gamepad = Gamepad.current;
+    }
+
+    public IEnumerator ActivateActionMenu() {
         attackButton.SetActive(true);
         waitButton.SetActive(true);
         itemButton.SetActive(true);
+
+        List<Button> buttons = new List<Button>();
+
+        Button attack = attackButton.GetComponent<Button>();
+        Button wait = waitButton.GetComponent<Button>();
+        Button item = itemButton.GetComponent<Button>();
+
+        buttons.Add(attack);
+        buttons.Add(item);
+        buttons.Add(wait);
+
+
+        int currentIndex = 0;
+        buttons[currentIndex].Select();
+        bool axisInUse = false;
+
+        while (true) {
+            float vertical = -Input.GetAxis("Vertical");
+            
+
+            if (!axisInUse)
+            {
+                if (vertical > 0.5f) // Move up
+                {
+                    buttons[currentIndex].OnDeselect(null);
+                    // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
+                    currentIndex--;
+                    if (currentIndex < 0) { currentIndex = buttons.Count - 1; }
+                    buttons[currentIndex].Select();
+                    axisInUse = true;
+                    // yield return new WaitForSeconds(0.25f);
+                }
+                else if (vertical < -0.5f) // Move down
+                {
+                    buttons[currentIndex].OnDeselect(null);
+                    // currentIndex = (currentIndex + 1) % buttons.Count;
+                    currentIndex++ ;
+                    if (currentIndex >= buttons.Count) { currentIndex = 0; }
+                    buttons[currentIndex].Select();
+                    axisInUse = true;
+                    // yield return new WaitForSeconds(0.25f);
+                }
+            }
+
+            if (Mathf.Abs(vertical) < 0.2f)
+            {
+                axisInUse = false;
+            }
+
+            if (Input.GetButtonDown("Submit")) // "Submit" button
+            {
+                buttons[currentIndex].onClick.Invoke();
+            }
+            if (Input.GetKeyDown(KeyCode.B) || gamepad.buttonEast.wasPressedThisFrame) {
+                break;
+            }
+
+            yield return null;
+        }
+
+        yield return null;
     }
 
     public void DeactivateActionMenu() {
