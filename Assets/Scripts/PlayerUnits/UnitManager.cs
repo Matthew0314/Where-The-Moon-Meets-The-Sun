@@ -5,7 +5,7 @@ using UnityEngine;
 public class UnitManager : MonoBehaviour
 {
     protected int maxHealth;
-    public int currentHealth;
+    protected int currentHealth;
     public UnitStats stats;
     public string UnitType;
     // protected PlayerClassManager classList;
@@ -33,9 +33,14 @@ public class UnitManager : MonoBehaviour
 
     public virtual int getMove() {return 0;}
     public virtual int getAttack() {return 0;}
-    public virtual int getCurrentHealth() { return 0; }
+    public virtual int getCurrentHealth() { return currentHealth; }
     public virtual int getMaxHealth() { return 0; }
     public virtual void setCurrentHealth(int health) {}
+
+    public virtual void TakeDamage(int health) {
+        currentHealth -= health;
+        if (currentHealth < 0) { currentHealth = 0; }
+    }
     public virtual string GetUnitType() { return UnitType; }
 
 

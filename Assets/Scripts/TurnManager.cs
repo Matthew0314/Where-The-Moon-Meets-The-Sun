@@ -16,6 +16,7 @@ public class TurnManager : MonoBehaviour
     private bool enemyTurn; //possibly add another one for ally later on
     private PlayerGridMovement moveGrid;
     private GenerateGrid grid;
+    private CombatMenuManager combatMenuManager;
 
 
     void Start()
@@ -25,6 +26,7 @@ public class TurnManager : MonoBehaviour
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
         moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
+        combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
 
     //Resets Player List after every player turn
@@ -87,7 +89,11 @@ public class TurnManager : MonoBehaviour
     //Executes all enemy actions who are in the queue based on the AI script that is attached to them
     private IEnumerator EnemyPhase() {
 
+        
+
         yield return StartCoroutine(_currentMap.CheckEvents());
+
+        yield return StartCoroutine(combatMenuManager.PhaseStart("Enemy"));
         
         int count = currEnemies.Count;
  
@@ -121,7 +127,11 @@ public class TurnManager : MonoBehaviour
         playerTurn = true;
         yield return StartCoroutine(_currentMap.CheckEvents());
 
-        yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ()));
+        StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ()));
+
+        yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
+
+        // yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ()));
 
         turns++; 
             

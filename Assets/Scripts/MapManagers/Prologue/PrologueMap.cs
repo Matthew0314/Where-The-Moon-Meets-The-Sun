@@ -14,7 +14,8 @@ public class PrologueMap : MonoBehaviour, IMaps
     private PlayerGridMovement playerCursor;
     private FindPath pathFinder;
     private GenerateGrid grid;
-    private TurnManager manageTurn;   
+    private TurnManager manageTurn;  
+    private CombatMenuManager combatMenuManager;
     private string[] newUnits = { "YoungFelix", "YoungLilith" };
     private int unitNum = 2;
     private int[] startGridX = { 9, 10 };
@@ -41,6 +42,7 @@ public class PrologueMap : MonoBehaviour, IMaps
         playerCursor = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
         executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
+        combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
 
         //Reads in data for weapons, all units in the game, and all player classes
         //THESE WILL NEVER BE CALLED AGAIN AFTER THE PROLOGUE MAP
@@ -73,6 +75,8 @@ public class PrologueMap : MonoBehaviour, IMaps
 
         manageTurn.SetLists();
         manageTurn.SetEnemyList();
+
+        StartCoroutine(StartMap());
     }
 
     //Reads in the EnemyCSV, stores each of their data, and prints them on the grid
@@ -382,6 +386,13 @@ public class PrologueMap : MonoBehaviour, IMaps
             Destroy(tempObj);
             mapGameUnits.Remove(unit);
         }
+    }
+
+    public IEnumerator StartMap() {
+        yield return new WaitForSeconds(0.5f);
+        yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
+        yield return new WaitForSeconds(0.5f);
+        playerCursor.startGame = true;
     }
 
     public int GetLength() {

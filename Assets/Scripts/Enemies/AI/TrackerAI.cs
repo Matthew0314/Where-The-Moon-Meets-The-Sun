@@ -51,8 +51,8 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                 
                 UnitManager tempUnit = unitsInRange[l];
 
-                int enemyDamage = enemyUnit.currentHealth;
-                int defDamage = tempUnit.currentHealth;
+                int enemyDamage = enemyUnit.getCurrentHealth();
+                int defDamage = tempUnit.getCurrentHealth();
 
                 enemyUnit.primaryWeapon.InitiateQueues(enemyUnit, tempUnit, enemyUnit.XPos, enemyUnit.ZPos, tempUnit.XPos, tempUnit.ZPos);
                 Queue<UnitManager> AttackingQueue = enemyUnit.primaryWeapon.AttackingQueue;

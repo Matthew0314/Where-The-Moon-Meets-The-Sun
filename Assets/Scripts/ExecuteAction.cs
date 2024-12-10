@@ -72,7 +72,7 @@ public class ExecuteAction : MonoBehaviour
     public void ResetAfterAction(UnitManager playerUn) {
         findPath.DestroyRange();
         findPath.DestroyArea();
-        if (playerUn.currentHealth > 0) {
+        if (playerUn.getCurrentHealth() > 0) {
             generateGrid.MoveUnit(playerUn, playerGridMovement.GetOrgX(), playerGridMovement.GetOrgZ(), playerGridMovement.GetCurX(), playerGridMovement.GetCurZ());
         }
         
@@ -340,9 +340,9 @@ public class ExecuteAction : MonoBehaviour
 
         int coun = AttackingQueue.Count;
         
-        int AttackerExpectHealth = player.currentHealth;
+        int AttackerExpectHealth = player.getCurrentHealth();
       
-        int DefendExpectHealth = enemy.currentHealth;
+        int DefendExpectHealth = enemy.getCurrentHealth();
 
         int PDamage = 0;
         int EDamage = 0;
@@ -394,6 +394,7 @@ public class ExecuteAction : MonoBehaviour
 
 
     public IEnumerator ExecuteAttack(UnitManager attackingUnit, UnitManager defendingUnit) {
+        combatMenuManager.DeactivateHoverMenu();
         GameObject atkObj = attackingUnit.gameObject;
         GameObject defObj = defendingUnit.gameObject;
         Quaternion originalAtkRotation = atkObj.transform.rotation;
@@ -407,7 +408,7 @@ public class ExecuteAction : MonoBehaviour
         } else {
             playerOnLeft = false;
         }
-        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.currentHealth, defendingUnit.currentHealth, 10, 10, 10, 10));
+        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.stats.Health, defendingUnit.stats.Health, 10, 10, 10, 10));
         SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
         // CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
         // while (brain.ActiveVirtualCamera != combatCam)
@@ -451,20 +452,23 @@ public class ExecuteAction : MonoBehaviour
             UnitManager atk = AttackingQueue.Dequeue();
             UnitManager def = DefendingQueue.Dequeue();
             int damage = atk.primaryWeapon.UnitAttack(atk, def, false);
-            def.currentHealth -= damage;
+            def.TakeDamage(damage);
             // Debug.Log(atk.stats.UnitName + " hits " + def.stats.UnitName + " for " +  damage);
             
-            if (atk.UnitType == "Player") {
-                yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, atk.currentHealth, def.currentHealth, 10, 10, 10, 10));
-                yield return new WaitForSeconds(1f);
-            } else {
-                yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, def.currentHealth, atk.currentHealth, 10, 10, 10, 10));
-                yield return new WaitForSeconds(1f);
-            }
+            // if (atk.UnitType == "Player") {
+            //     yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, atk.getCurrentHealth(), def.getCurrentHealth(), 10, 10, 10, 10));
+            //     yield return new WaitForSeconds(1f);
+            // } else {
+            //     yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, def.getCurrentHealth(), atk.getCurrentHealth(), 10, 10, 10, 10));
+            //     yield return new WaitForSeconds(1f);
+            // }
+
+            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), 10, 10, 10, 10));
+            yield return new WaitForSeconds(1f);
                 
             
 
-            if (def.currentHealth <= 0) {
+            if (def.getCurrentHealth() <= 0) {
                 // Debug.Log("Removing " + def.stats.UnitName);
                 _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
                 // Debug.Log("Removing " + def.stats.UnitName);
@@ -475,27 +479,36 @@ public class ExecuteAction : MonoBehaviour
         }
         // Debug.Log("End Execute Attack");
 
+        combatMenuManager.DeactivateExpectedMenu();
+
+        Quaternion targetRotation;
+
         
-        Vector3 forward = atkObj.transform.forward; // The forward direction of the attacker
-        Vector3 right = atkObj.transform.right;     // The right direction of the attacker
+        
 
-        // Offset position: slightly behind and to the right of the attacker
-        Vector3 offsetPosition = atkObj.transform.position - forward * -10f + right * 2f;
-        offsetPosition.y = 4f;
+        if (attackingUnit.UnitType == "Player") {
+            Vector3 forward = atkObj.transform.forward; // The forward direction of the attacker
+            Vector3 right = atkObj.transform.right;     // The right direction of the attacker
+            // Offset position: slightly behind and to the right of the attacker
+            Vector3 offsetPosition = atkObj.transform.position - forward * -10f + right * 2f;
+            offsetPosition.y = 4f;
 
-        combatCam.transform.position = offsetPosition;
+            combatCam.transform.position = offsetPosition;
 
-        // Calculate the target rotation by adding 180 degrees to the object's Y rotation
-        Vector3 currentRotation = atkObj.transform.eulerAngles;
-        Quaternion targetRotation = Quaternion.Euler(0f, currentRotation.y + 180f, 0f);
+            // Calculate the target rotation by adding 180 degrees to the object's Y rotation
+            Vector3 currentRotation = atkObj.transform.eulerAngles;
+            targetRotation = Quaternion.Euler(0f, currentRotation.y + 180f, 0f);
 
-        // Apply the calculated rotation to the camera
-        combatCam.transform.rotation = targetRotation;
+            // Apply the calculated rotation to the camera
+            combatCam.transform.rotation = targetRotation;
 
-        // Set LookAt target to maintain focus on the object
-        combatCam.LookAt = atkObj.transform;
+            // Set LookAt target to maintain focus on the object
+            combatCam.LookAt = atkObj.transform;
+        }
 
-        if (playerUnit != null && playerUnit.currentHealth > 0) {
+        
+
+        if (playerUnit != null && playerUnit.getCurrentHealth() > 0) {
             int expObtained = 0;
 
             expObtained = 30 + ((enemyUnit.stats.Level - playerUnit.stats.Level) * 5);
@@ -504,7 +517,7 @@ public class ExecuteAction : MonoBehaviour
 
             // }
 
-            if (enemyUnit.currentHealth > 0) {
+            if (enemyUnit.getCurrentHealth() > 0) {
                 expObtained /= 2;
             }
 

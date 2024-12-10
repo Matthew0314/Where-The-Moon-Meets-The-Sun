@@ -94,17 +94,17 @@ public abstract class Weapon
                 multiplier += atk.primaryWeapon.MultWhisper - 1; 
             }
 
-            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+            Debug.Log("defender current health " + def.getCurrentHealth() + " " + def.stats.Health);
 
             damage = (int)(damage * multiplier);
 
             Debug.Log(atk.stats.UnitName + " Did" + damage + " damage to " + def.stats.UnitName);
 
-            def.currentHealth -= damage;
+            def.TakeDamage(damage);
 
-            Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+            Debug.Log("defender current health " + def.getCurrentHealth() + " " + def.stats.Health);
 
-            if (def.currentHealth <= 0) {
+            if (def.getCurrentHealth() <= 0) {
 
                 
                 if (defender.stats.UnitName == def.stats.UnitName) {

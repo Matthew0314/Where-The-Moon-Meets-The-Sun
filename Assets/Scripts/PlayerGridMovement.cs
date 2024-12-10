@@ -51,6 +51,8 @@ public class PlayerGridMovement : MonoBehaviour
     private GameObject playerCurs;
 
     private ExecuteAction executeAction;
+
+    public bool startGame = false;
     
 
 
@@ -77,6 +79,10 @@ public class PlayerGridMovement : MonoBehaviour
 
     void Update()
     {
+
+        if(!startGame) {
+            return;
+        }
 
         if(inMenu) {
             transform.position = Vector3.MoveTowards(transform.position, moveCursor.position, speed * Time.deltaTime);
