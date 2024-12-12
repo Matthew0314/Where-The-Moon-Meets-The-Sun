@@ -55,11 +55,17 @@ public class WeaponManager : MonoBehaviour
     }
 
     public static Weapon GetWeaponData(string WeaponName) {
-        return Weapons[WeaponName];
+        Weapon weapon;
+        if (Weapons.TryGetValue(WeaponName, out weapon)) {
+            return weapon; // Key exists, return the value
+        }
+        return null;
     }
 
     public static Weapon MakeWeapon(string WeaponName) {
         Weapon temp = GetWeaponData(WeaponName);
+
+        if (temp == null) { return null; }
 
         Type weaponType = Type.GetType(temp.WeaponClass);
 

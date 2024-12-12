@@ -289,7 +289,7 @@ public class PrologueMap : MonoBehaviour, IMaps
                     eStats.AddWeapon(tempWeapon);
                 }
 
-                yield return StartCoroutine(playerCursor.MoveCursor(enemyX,enemyZ));
+                yield return StartCoroutine(playerCursor.MoveCursor(enemyX,enemyZ, 100f));
 
                
             

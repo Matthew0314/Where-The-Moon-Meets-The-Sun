@@ -99,30 +99,30 @@ public class PlayerGridMovement : MonoBehaviour
         oneAction = true;
 
 
-        if(Input.GetKeyDown(KeyCode.Space) || gamepad.buttonSouth.wasPressedThisFrame && oneAction && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && !pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {
+        if((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) && oneAction && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && !pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {
             pathFinder.SpecificEnemyRange(gridControl.GetGridTile(x,z).UnitOnTile);
             oneAction = false;
         }
 
-        if(Input.GetKeyDown(KeyCode.Space) || gamepad.buttonSouth.wasPressedThisFrame && oneAction && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {
+        if((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) && oneAction && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {
             pathFinder.UnSelectEnemies(gridControl.GetGridTile(x,z).UnitOnTile);
             oneAction = false;
         }
 
         //Toggles enemy ranges for all enemies
-        if (Input.GetKeyDown(KeyCode.X) || gamepad.buttonNorth.wasPressedThisFrame && !enemyRangeActive && !inMenu && oneAction && !manageTurn.IsEnemyTurn()) {
+        if ((Input.GetKeyDown(KeyCode.X) || (gamepad != null && gamepad.buttonNorth.wasPressedThisFrame)) && !enemyRangeActive && !inMenu && oneAction && !manageTurn.IsEnemyTurn()) {
             pathFinder.EnemyRange();
             enemyRangeActive = true;
             oneAction = false;
         }
-        if (Input.GetKeyDown(KeyCode.X) || gamepad.buttonNorth.wasPressedThisFrame && enemyRangeActive && !inMenu && oneAction && !manageTurn.IsEnemyTurn()) {
+        if ((Input.GetKeyDown(KeyCode.X) || (gamepad != null &&  gamepad.buttonNorth.wasPressedThisFrame)) && enemyRangeActive && !inMenu && oneAction && !manageTurn.IsEnemyTurn()) {
             pathFinder.DestroyEnemyRange();
             enemyRangeActive = false;
             oneAction = false;
         }
      
      
-        if (Input.GetKeyDown(KeyCode.Space) || gamepad.buttonSouth.wasPressedThisFrame && !charSelected && playerCollide.collPlayer && oneAction && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
+        if ((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) && !charSelected && playerCollide.collPlayer && oneAction && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
             pathFinder.ResetArea();
             currUnit = playerCollide.GetPlayerObject();
 
@@ -140,7 +140,7 @@ public class PlayerGridMovement : MonoBehaviour
             oneAction = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) || gamepad.buttonSouth.wasPressedThisFrame && charSelected && oneAction && !inMenu && !playerCollide.cantPlace)
+        if ((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) && charSelected && oneAction && !inMenu && !playerCollide.cantPlace)
         {
             
             StartCoroutine(combatMenu.ActivateActionMenu());
@@ -165,7 +165,7 @@ public class PlayerGridMovement : MonoBehaviour
             oneAction = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.B) || gamepad.buttonEast.wasPressedThisFrame && oneAction && inMenu) {
+        if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction && inMenu) {
             combatMenu.DeactivateActionMenu();
             pathFinder.DestroyArea();
             pathFinder.DestroyRange();
@@ -181,7 +181,7 @@ public class PlayerGridMovement : MonoBehaviour
           
         }
        
-        if (Input.GetKeyDown(KeyCode.B) || gamepad.buttonEast.wasPressedThisFrame && oneAction )
+        if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction )
         {
             pathFinder.DestroyArea();
             charSelected = false;
@@ -256,12 +256,12 @@ public class PlayerGridMovement : MonoBehaviour
 
 
     // Moves cursor to a specific x and z position
-    public IEnumerator MoveCursor(int moveCurX, int moveCurZ) {
+    public IEnumerator MoveCursor(int moveCurX, int moveCurZ, float fspeed) {
         Vector3 targetPosition = new Vector3(gridControl.GetGridTile(moveCurX, moveCurZ).GetXPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetYPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetZPos());
         
         moveCursor.position = new Vector3(gridControl.GetGridTile(moveCurX, moveCurZ).GetXPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetYPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetZPos());
 
-        float fspeed = 40f;
+        // float fspeed = 40f;
 
         // // Move the enemy towards the target position
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)

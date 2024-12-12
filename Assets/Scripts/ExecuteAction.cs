@@ -127,7 +127,7 @@ public class ExecuteAction : MonoBehaviour
             playerGridMovement.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
 
             
-            if (Input.GetKeyDown(KeyCode.E) || gamepad.rightShoulder.wasPressedThisFrame && playerWeapons.Count > 1) {
+            if ((Input.GetKeyDown(KeyCode.E) || (gamepad != null && gamepad.rightShoulder.wasPressedThisFrame)) && playerWeapons.Count > 1) {
                 newEnemies = new List<GridTile>();
                 weaponIndex++;
                 
@@ -141,7 +141,7 @@ public class ExecuteAction : MonoBehaviour
 
             }
 
-            if (Input.GetKeyDown(KeyCode.Q) || gamepad.leftShoulder.wasPressedThisFrame  && playerWeapons.Count > 1) {
+            if ((Input.GetKeyDown(KeyCode.Q) || (gamepad != null && gamepad.leftShoulder.wasPressedThisFrame))  && playerWeapons.Count > 1) {
                 newEnemies = new List<GridTile>();
                 weaponIndex--;
                 
@@ -190,7 +190,7 @@ public class ExecuteAction : MonoBehaviour
 
                 
             }
-            if (Input.GetKeyDown(KeyCode.Space) || gamepad.buttonSouth.wasPressedThisFrame) {
+            if ((Input.GetKeyDown(KeyCode.Space) || (gamepad != null &&  gamepad.buttonSouth.wasPressedThisFrame))) {
                 DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
                 
                 playerGridMovement.IsAttacking = true;
@@ -201,7 +201,7 @@ public class ExecuteAction : MonoBehaviour
                 break;
             }
 
-            if (Input.GetKeyDown(KeyCode.B) || gamepad.buttonEast.wasPressedThisFrame) {
+            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame))) {
                 playerGridMovement.IsAttacking = false;
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
@@ -571,7 +571,7 @@ public class ExecuteAction : MonoBehaviour
 
             Debug.Log("AHHHHHH GAINED " + expObtained + " EXP");
 
-            yield return StartCoroutine(playerUnit.ExperienceGain(210));
+            yield return StartCoroutine(playerUnit.ExperienceGain(expObtained));
             
         }
         yield return new WaitForSeconds(1f);

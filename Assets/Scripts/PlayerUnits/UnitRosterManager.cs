@@ -77,8 +77,17 @@ public class UnitRosterManager : MonoBehaviour
                 }
 
                 Weapon tempWeapon = WeaponManager.MakeWeapon(data[i + 22 + j]);
-                stats.AddWeapon(tempWeapon);
-                Debug.Log("Added " + tempWeapon.WeaponName);
+                if (tempWeapon != null) {
+                    stats.AddWeapon(tempWeapon);
+                    Debug.Log("Added " + tempWeapon.WeaponName);
+                } else {
+                    Type itemType = Type.GetType(data[i + 22 + j]);
+                    Item tempItem = (Item)Activator.CreateInstance(itemType);
+                    if (tempItem != null) {
+                        stats.AddItem(tempItem);
+                    }
+                }
+                
             }
 
 

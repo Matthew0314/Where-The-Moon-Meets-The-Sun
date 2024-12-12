@@ -31,7 +31,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
         UnitManager enemyUnit = enemy.GetComponent<UnitManager>();
         List<UnitsToAttack> unitAttackList = new List<UnitsToAttack>();
 
-        yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos));
+        yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
 
         for (int k = 0; k < weaponList.Count; k++) {
             findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.getMove(), enemyUnit);

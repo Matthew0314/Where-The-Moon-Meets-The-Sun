@@ -26,7 +26,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
         List<Weapon> weaponList = enemy.GetComponent<UnitManager>().stats.weapons;
         UnitManager enemyUnit = enemy.GetComponent<UnitManager>();
 
-        yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos));
+        yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
 
         List<UnitsToAttack> unitAttackList = new List<UnitsToAttack>();
         List<UnitManager> unitsInRange = new List<UnitManager>();;

@@ -235,14 +235,17 @@ public class CombatMenuManager : MonoBehaviour
         int currentIndex = 0;
         buttons[currentIndex].Select();
         bool axisInUse = false;
+        bool oneAction = false;
 
         while (true) {
             float vertical = -Input.GetAxis("Vertical");
+
+            Debug.Log(buttons[currentIndex]);
             
 
             if (!axisInUse)
             {
-                if (vertical > 0.5f) // Move up
+                if (vertical > 0.2f) // Move up
                 {
                     buttons[currentIndex].OnDeselect(null);
                     // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
@@ -252,7 +255,7 @@ public class CombatMenuManager : MonoBehaviour
                     axisInUse = true;
                     // yield return new WaitForSeconds(0.25f);
                 }
-                else if (vertical < -0.5f) // Move down
+                else if (vertical < -0.2f) // Move down
                 {
                     buttons[currentIndex].OnDeselect(null);
                     // currentIndex = (currentIndex + 1) % buttons.Count;
@@ -269,13 +272,15 @@ public class CombatMenuManager : MonoBehaviour
                 axisInUse = false;
             }
 
-            if (Input.GetButtonDown("Submit")) // "Submit" button
+            if (oneAction && Input.GetButtonDown("Submit")) // "Submit" button
             {
                 buttons[currentIndex].onClick.Invoke();
-            }
-            if (Input.GetKeyDown(KeyCode.B) || gamepad.buttonEast.wasPressedThisFrame) {
                 break;
             }
+            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
+                break;
+            }
+            oneAction = true;
 
             yield return null;
         }
@@ -326,6 +331,18 @@ public class CombatMenuManager : MonoBehaviour
 
         StartCoroutine(executeAction.CycleAttackList(UnitsInRange));
 
+    }
+
+    public void PlayerItem() {
+        UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+
+        Item temp = unit.GetStats().GetItemAt(0);
+
+        if (temp != null) {
+            temp.Use(unit);
+        }
+
+        executeAction.ResetAfterAction(unit);
     }
 
 
@@ -1011,14 +1028,14 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
             rectTransform.localPosition = startPosition;
 
             // Fade in and slide in
-            yield return StartCoroutine(FadeAndSlideToPosition(temp, 1f, 1f, startPosition, originalPosition));
+            yield return StartCoroutine(FadeAndSlideToPosition(temp, 1f, 0.25f, startPosition, originalPosition));
 
             // Wait for 1 second
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1.15f);
 
             // Fade out and slide out
             Vector3 endPosition = originalPosition - new Vector3(1000, 0, 0); // Adjust as needed
-            yield return StartCoroutine(FadeAndSlideToPosition(temp, 0f, 1f, originalPosition, endPosition));
+            yield return StartCoroutine(FadeAndSlideToPosition(temp, 0f, 0.25f, originalPosition, endPosition));
 
             // Reset position to the original
             rectTransform.localPosition = originalPosition;

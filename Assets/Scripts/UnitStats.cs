@@ -32,6 +32,7 @@ public abstract class UnitStats
     public int Experience {get; set;}
 
     public List<Weapon> weapons;
+    public List<Item> items;
 
     public UnitStats(string uName, string dName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
     {
@@ -51,16 +52,21 @@ public abstract class UnitStats
         Movement = MOV;
 
         weapons = new List<Weapon>();
+        items = new List<Item>();
 
     }
 
     public virtual void AddWeapon(Weapon weapon) {
-        weapons.Add(weapon);
+        if (weapons.Count + items.Count < 6) { weapons.Add(weapon); }
     }
 
-    public virtual Weapon GetWeaponAt(int x) {
-        return weapons[x];
+    public virtual Weapon GetWeaponAt(int x) { return weapons[x]; }
+
+    public virtual void AddItem(Item item) {
+        if (weapons.Count + items.Count < 6) { items.Add(item); }
     }
+
+    public virtual Item GetItemAt(int x) { return items[x]; }
 
     public abstract PlayerClass getClass();
 }

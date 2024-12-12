@@ -127,7 +127,7 @@ public class TurnManager : MonoBehaviour
         playerTurn = true;
         yield return StartCoroutine(_currentMap.CheckEvents());
 
-        StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ()));
+        yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ(), 200f));
 
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
 
