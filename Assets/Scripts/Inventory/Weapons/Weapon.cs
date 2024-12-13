@@ -202,6 +202,8 @@ public abstract class Weapon
         }
     }
 
+    public virtual void DecrementUses() { Uses--; }
+
     public abstract void SpecialAbility();
 
 

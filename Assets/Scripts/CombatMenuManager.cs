@@ -1272,7 +1272,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
             Debug.Log(maxIndex + " MAX Cureent" + currItemIndex);
             maxIndex = unit.GetWeapons().Count + unit.GetItems().Count - 1 ;
             // maxIndex = 100;
-            float vertical = -Input.GetAxis("Vertical");
+            float vertical = Input.GetAxis("Vertical");
 
             // Debug.Log(buttons[currentIndex]);
 
@@ -1378,6 +1378,8 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
                     texts[0].text += " (E)";
                 }
 
+                texts[1].text = weapons[i].Uses + "/" + weapons[i].MaxUses;
+
                 
 
                 itemButtons.Add(tempBtn.GetComponent<Button>());
@@ -1452,7 +1454,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
         optionButtons[index].Select();
 
         while (true) {
-            float vertical = -Input.GetAxis("Vertical");
+            float vertical = Input.GetAxis("Vertical");
 
             // Debug.Log(buttons[currentIndex]);
 
@@ -1617,7 +1619,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
         while (true) {
             maxIndex = usableWeapons.Count + nonUsableWeapons.Count - 1;
             // maxIndex = 100;
-            float vertical = -Input.GetAxis("Vertical");
+            float vertical = Input.GetAxis("Vertical");
 
             // Debug.Log(buttons[currentIndex]);
 

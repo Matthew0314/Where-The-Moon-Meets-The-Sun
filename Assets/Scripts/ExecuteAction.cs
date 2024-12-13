@@ -386,6 +386,32 @@ public class ExecuteAction : MonoBehaviour
                 EDamage = damage;
                 numEHits++;
             }
+
+            atk.primaryWeapon.DecrementUses();
+
+            if(atk.primaryWeapon.Uses <= 0) {
+                Debug.Log("Item Broke");
+                Queue<UnitManager> newAttackingQueue = new Queue<UnitManager>();
+                while (AttackingQueue.Count > 0) {
+                    UnitManager unit = AttackingQueue.Dequeue();
+                    if (unit != atk) {
+                        newAttackingQueue.Enqueue(unit);
+                    }
+                }
+                AttackingQueue.Clear();
+                AttackingQueue = newAttackingQueue;
+
+                // Rebuild DefendingQueue without any references to atk
+                Queue<UnitManager> newDefendingQueue = new Queue<UnitManager>();
+                while (DefendingQueue.Count > 0) {
+                    UnitManager unit = DefendingQueue.Dequeue();
+                    if (unit != atk) {
+                        newDefendingQueue.Enqueue(unit);
+                    }
+                }
+                DefendingQueue.Clear();
+                DefendingQueue = newDefendingQueue;
+            }
             
         }
 
