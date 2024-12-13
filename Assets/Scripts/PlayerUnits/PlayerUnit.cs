@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerUnit : UnitManager
 {
-    private Image healthBar;
+    // private Image healthBar;
     private Material originalMaterial;
     private TurnManager turnManager;
     [SerializeField] private Material grayscaleMaterial;

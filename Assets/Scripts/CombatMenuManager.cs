@@ -123,6 +123,8 @@ public class CombatMenuManager : MonoBehaviour
     List<Weapon> listOfWeapons;
     int currWeapIndex = 0;
 
+    bool inItemMenu = false;
+
 
     Gamepad gamepad;
 
@@ -140,8 +142,8 @@ public class CombatMenuManager : MonoBehaviour
 
         //Action Menu
         attackButton = GameObject.Find("Canvas/AttackButton");
-        itemButton = GameObject.Find("Canvas/WaitButton");
-        waitButton = GameObject.Find("Canvas/ItemButton");
+        itemButton = GameObject.Find("Canvas/ItemButton");
+        waitButton = GameObject.Find("Canvas/WaitButton");
 
         DeactivateActionMenu();
 
@@ -252,10 +254,13 @@ public class CombatMenuManager : MonoBehaviour
         waitButton.SetActive(true);
         itemButton.SetActive(true);
 
+        Debug.Log("Start Of Action");
+
         CheckWeapons(moveGrid.GetPlayerCollide().GetPlayer());
 
 
         List<Button> buttons = new List<Button>();
+        List<string> Actions = new List<string>();
 
         Button attack = attackButton.GetComponent<Button>();
         Button wait = waitButton.GetComponent<Button>();
@@ -265,19 +270,27 @@ public class CombatMenuManager : MonoBehaviour
         buttons.Add(item);
         buttons.Add(wait);
 
+        Actions.Add("Attack");
+        Actions.Add("Item");
+        Actions.Add("Wait");
+
+        bool buttonClicked = false;
+
         if(usableWeapons.Count <= 0) {
             buttons.Remove(attack);
+            Actions.Remove("Attack");
             attackButton.SetActive(false);
         }
 
 
         int currentIndex = 0;
+        Debug.Log(buttons[currentIndex] + " " + Actions[currentIndex]);
         buttons[currentIndex].Select();
         bool axisInUse = false;
         bool oneAction = false;
 
         while (true) {
-            float vertical = -Input.GetAxis("Vertical");
+            float vertical = Input.GetAxis("Vertical");
 
             Debug.Log(buttons[currentIndex]);
             
@@ -311,12 +324,21 @@ public class CombatMenuManager : MonoBehaviour
                 axisInUse = false;
             }
 
-            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
+            if (oneAction && !buttonClicked && (Input.GetKeyDown(KeyCode.Space))) // "Submit" button
             {
-                buttons[currentIndex].onClick.Invoke();
-                DeactivateActionMenu();
+                // buttons[currentIndex].onClick.Invoke();
+                Debug.Log("Start Of Click");
+                // buttonClicked = true;
+
+                if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack(); }
+                if (Actions[currentIndex] == "Item") {  Debug.Log("Start of ITEM CHOSEN"); DeactivateActionMenu(); PlayerItem();  }
+                if (Actions[currentIndex] == "Wait") { Debug.Log("Start of WAIT CHOSEN");  DeactivateActionMenu(); PlayerWait(); }
+
+                
                 break;
             }
+            if ((oneAction && gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) { DeactivateActionMenu(); break; }
+
             if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
                 // moveGrid.inMenu = false;
                 moveGrid.OutOfMenu();
@@ -475,6 +497,9 @@ public class CombatMenuManager : MonoBehaviour
     // }
 
     public void PlayerItem() {
+        Debug.Log("Start of Item");
+        // if (inItemMenu) { return; }
+        // inItemMenu = true;
         // UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
 
         // Item temp = unit.GetStats().GetItemAt(0);
@@ -524,9 +549,12 @@ public class CombatMenuManager : MonoBehaviour
 
 //-------------------------------------Expected Menu--------------------------------------------------//
 
-public void SetUpExpectedMenu(UnitManager player, UnitManager enemy, int expectedPlayerHP, int expectedEnemyHP, int PDamage, int EDamage, int numPHits, int numEHits) {
+    public void SetUpExpectedMenu(UnitManager player, UnitManager enemy, int expectedPlayerHP, int expectedEnemyHP, int PDamage, int EDamage, int numPHits, int numEHits) {
         PHealthSwapped.gameObject.SetActive(false);
         EHealthSwapped.gameObject.SetActive(false);
+        PHealth.gameObject.SetActive(true);
+        EHealth.gameObject.SetActive(true);
+        PHealthLost.fillAmount = 1;
         int playerHit = player.primaryWeapon.HitRate + (player.stats.Luck * 4) - enemy.stats.Evasion;
         int enemyHit = enemy.primaryWeapon.HitRate + (enemy.stats.Luck * 4) - player.stats.Evasion;
         int playerCrit = player.primaryWeapon.CritRate + (int)(player.stats.Luck / 2);
@@ -1254,6 +1282,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
     public IEnumerator ItemMenu() {
         // itemMenu.SetActive(true);
         // UnitManager unit = generateGrid.GetGridTile(moveGrid.GetOrgX(), moveGrid.GetOrgZ()).UnitOnTile;
+        
         UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
         
         
@@ -1273,12 +1302,19 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
             maxIndex = unit.GetWeapons().Count + unit.GetItems().Count - 1 ;
             // maxIndex = 100;
             float vertical = Input.GetAxis("Vertical");
+            // if (gamepad != null) {
+            //     vertical = gamepad.leftStick.y.ReadValue();
+            // } else {
+            //     vertical = Input.GetAxis("Vertical");
+            // }
 
             // Debug.Log(buttons[currentIndex]);
 
             if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
+                inItemMenu = false;
                 StartCoroutine(ActivateActionMenu());
                 DeactivateItemMenu();
+                
                 break;
             }
 
@@ -1304,7 +1340,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
                     itemButtons[currItemIndex].Select();
                     // EnsureButtonVisible(currItemIndex);
                     axisInUse = true;
-                    // yield return new WaitForSeconds(0.25f);
+                    yield return new WaitForSeconds(0.1f);
                     
                 }
                 else if (vertical < -0.2f) // Move down
@@ -1318,7 +1354,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
                     itemButtons[currItemIndex].Select();
                     // EnsureButtonVisible(currItemIndex);
                     axisInUse = true;
-                    // yield return new WaitForSeconds(0.25f);
+                    yield return new WaitForSeconds(0.1f);
                     
                 }
 
@@ -1327,6 +1363,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
             }
              if (Mathf.Abs(vertical) < 0.2f)
             {
+                Debug.Log("RESET " + vertical);
                 axisInUse = false;
             }
 
@@ -1434,26 +1471,43 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
             tempBtn = (GameObject)Instantiate(buttonItemOption);
             tempBtn.transform.SetParent(button.transform, false);
             optionButtons.Add(tempBtn.GetComponent<Button>());
-            options.Add("Equip");
-            TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-            texts[0].text = "Equip";
+            List<Weapon> weps = user.GetWeapons();
+            if (weps[ind] == user.primaryWeapon) {
+                options.Add("Unequip");
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = "Unequip";
+            } else {
+                options.Add("Equip");
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = "Equip";
+            }
+            
         }
         else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
-            tempBtn = (GameObject)Instantiate(buttonItemOption);
-            tempBtn.transform.SetParent(button.transform, false);
-            optionButtons.Add(tempBtn.GetComponent<Button>());
-            options.Add("Use");
-            TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-            texts[0].text = "Use";
+            if (user.GetItems()[ind - user.GetWeapons().Count].CanUse(user)) {
+                tempBtn = (GameObject)Instantiate(buttonItemOption);
+                tempBtn.transform.SetParent(button.transform, false);
+                optionButtons.Add(tempBtn.GetComponent<Button>());
+                options.Add("Use");
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = "Use";
+            }
+        }
+        int index = 0;
+
+        if (optionButtons.Count <= 0) {
+            StartCoroutine(ItemMenu());
+        } else {
+            optionButtons[index].Select();
         }
 
-        int index = 0;
+        
 
         bool axisInUse = false;
         bool oneAction = false;
-        optionButtons[index].Select();
+        
 
-        while (true) {
+        while (optionButtons.Count > 0) {
             float vertical = Input.GetAxis("Vertical");
 
             // Debug.Log(buttons[currentIndex]);
@@ -1512,12 +1566,22 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
                             Destroy(btn.gameObject);
                         }
                         StartCoroutine(ItemMenu());
+                    } else if (options[index] == "Unequip") {
+                        user.primaryWeapon = null;
+                        foreach (Button btn in optionButtons) {
+                            Destroy(btn.gameObject);
+                        }
+                        StartCoroutine(ItemMenu());
                     }
                 } else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
                     if (options[index] == "Use") {
                         List<Item> tempItems = user.GetItems();
                         DeactivateItemMenu();
                         yield return StartCoroutine(tempItems[ind - user.GetWeapons().Count].Use(user));
+
+                        if(tempItems[ind - user.GetWeapons().Count].Uses <= 0) {
+                            user.GetItems().Remove(tempItems[ind - user.GetWeapons().Count]);
+                        }
                         
                         PlayerWait(); //Might have to change if wait abilities are implemented
                     }

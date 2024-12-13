@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UnitManager : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class UnitManager : MonoBehaviour
     public int ZPos {get; set;}
     public GameObject unitCircle;
     public CombatMenuManager combatMenuManager;
+    public Image healthBar;
 
     protected virtual void Start()
     {

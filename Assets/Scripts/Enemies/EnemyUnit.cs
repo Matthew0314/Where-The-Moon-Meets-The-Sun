@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class EnemyUnit : UnitManager
 {
 
-    private Image healthBar;
+    // private Image healthBar;
    
 
     protected override void Start() {

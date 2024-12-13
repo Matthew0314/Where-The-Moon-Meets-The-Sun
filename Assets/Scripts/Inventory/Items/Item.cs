@@ -47,12 +47,31 @@ public abstract class Item
 
 public class Vulnerary: Item {
     // Constructor for Vulnerary
-    public Vulnerary() : base("Vulnerary", 3, false, true) { }
+    public Vulnerary() : base("Vulnerary", 1, false, true) { }
 
     // Implementing the abstract Use method
     public override IEnumerator Use(UnitManager user)
     {
         Uses--;
+
+        float targetFillAmount = 1f;  
+        float duration = 1f;  
+        float elapsedTime = 0f;
+
+        
+        float initialFillAmount = user.healthBar.fillAmount;
+
+        while (elapsedTime < duration)
+        {
+            
+            user.healthBar.fillAmount = Mathf.Lerp(initialFillAmount, targetFillAmount, elapsedTime / duration);
+            
+            elapsedTime += Time.deltaTime;  
+            yield return null;  
+        }
+
+        
+        user.healthBar.fillAmount = targetFillAmount;
 
         user.HealUnit(10);
 

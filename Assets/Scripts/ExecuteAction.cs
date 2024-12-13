@@ -387,31 +387,7 @@ public class ExecuteAction : MonoBehaviour
                 numEHits++;
             }
 
-            atk.primaryWeapon.DecrementUses();
-
-            if(atk.primaryWeapon.Uses <= 0) {
-                Debug.Log("Item Broke");
-                Queue<UnitManager> newAttackingQueue = new Queue<UnitManager>();
-                while (AttackingQueue.Count > 0) {
-                    UnitManager unit = AttackingQueue.Dequeue();
-                    if (unit != atk) {
-                        newAttackingQueue.Enqueue(unit);
-                    }
-                }
-                AttackingQueue.Clear();
-                AttackingQueue = newAttackingQueue;
-
-                // Rebuild DefendingQueue without any references to atk
-                Queue<UnitManager> newDefendingQueue = new Queue<UnitManager>();
-                while (DefendingQueue.Count > 0) {
-                    UnitManager unit = DefendingQueue.Dequeue();
-                    if (unit != atk) {
-                        newDefendingQueue.Enqueue(unit);
-                    }
-                }
-                DefendingQueue.Clear();
-                DefendingQueue = newDefendingQueue;
-            }
+        
             
         }
 
@@ -516,7 +492,7 @@ public class ExecuteAction : MonoBehaviour
             defCount = playerCount;
         }
 
-        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.stats.Health, defendingUnit.stats.Health, 10, 10, atkCount, defCount));
+        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), 10, 10, atkCount, defCount));
         SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
         yield return new WaitForSeconds(3f);
 
@@ -538,15 +514,57 @@ public class ExecuteAction : MonoBehaviour
             //     yield return new WaitForSeconds(1f);
             // }
 
+            atk.primaryWeapon.DecrementUses();
+
+            if(atk.primaryWeapon.Uses <= 0) {
+                Debug.Log("Item Broke");
+                Queue<UnitManager> newAttackingQueue = new Queue<UnitManager>();
+                while (AttackingQueue.Count > 0) {
+                    UnitManager unit = AttackingQueue.Dequeue();
+                    if (unit != atk) {
+                        newAttackingQueue.Enqueue(unit);
+                    }
+                }
+                AttackingQueue.Clear();
+                AttackingQueue = newAttackingQueue;
+
+                // Rebuild DefendingQueue without any references to atk
+                Queue<UnitManager> newDefendingQueue = new Queue<UnitManager>();
+                while (DefendingQueue.Count > 0) {
+                    UnitManager unit = DefendingQueue.Dequeue();
+                    if (unit != def) {
+                        newDefendingQueue.Enqueue(unit);
+                    }
+                }
+                DefendingQueue.Clear();
+                DefendingQueue = newDefendingQueue;
+
+                
+            }
+
             yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), 10, 10, atkCount, defCount));
             yield return new WaitForSeconds(1f);
+
+            
+
+
                 
             
 
             if (def.getCurrentHealth() <= 0) {
                 // Debug.Log("Removing " + def.stats.UnitName);
-                _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
+                if (def.stats.HealthBars > 1) {
+                    def.stats.HealthBars -= 1;
+                    def.HealUnit(def.stats.Health);
+                } else {
+                    _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
+                }
+                
                 // Debug.Log("Removing " + def.stats.UnitName);
+                break;
+            }
+
+            if(AttackingQueue.Count == 0) {
                 break;
             }
             
