@@ -324,7 +324,7 @@ public class CombatMenuManager : MonoBehaviour
                 axisInUse = false;
             }
 
-            if (oneAction && !buttonClicked && (Input.GetKeyDown(KeyCode.Space))) // "Submit" button
+            if (oneAction && !buttonClicked && (Input.GetKeyDown(KeyCode.Space) || gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) // "Submit" button
             {
                 // buttons[currentIndex].onClick.Invoke();
                 Debug.Log("Start Of Click");
@@ -337,7 +337,7 @@ public class CombatMenuManager : MonoBehaviour
                 
                 break;
             }
-            if ((oneAction && gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) { DeactivateActionMenu(); break; }
+            // if ((oneAction && gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) { DeactivateActionMenu(); break; }
 
             if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
                 // moveGrid.inMenu = false;
