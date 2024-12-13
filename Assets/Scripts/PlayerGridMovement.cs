@@ -89,6 +89,7 @@ public class PlayerGridMovement : MonoBehaviour
 
         if(inMenu) {
             transform.position = Vector3.MoveTowards(transform.position, moveCursor.position, speed * Time.deltaTime);
+            return;
         }
         
         
@@ -145,14 +146,14 @@ public class PlayerGridMovement : MonoBehaviour
             
             StartCoroutine(combatMenu.ActivateActionMenu());
             pathFinder.DestroyArea();
-            currUnit = playerCollide.GetPlayerObject();
-            attackRangeStat = playerCollide.GetPlayerAttack();
+            // currUnit = playerCollide.GetPlayerObject();
+            // attackRangeStat = playerCollide.GetPlayerAttack();
 
-            UnitManager temp = playerCollide.GetPlayer();
+            // UnitManager temp = playerCollide.GetPlayer();
             
 
-            executeAction.attackGrid = pathFinder.CalculateAttack(x, z, temp.primaryWeapon.Range, temp.primaryWeapon.Range1, temp.primaryWeapon.Range2, temp.primaryWeapon.Range3);
-            pathFinder.HighlightAttack(executeAction.attackGrid);
+            // executeAction.attackGrid = pathFinder.CalculateAttack(x, z, temp.primaryWeapon.Range, temp.primaryWeapon.Range1, temp.primaryWeapon.Range2, temp.primaryWeapon.Range3);
+            // pathFinder.HighlightAttack(executeAction.attackGrid);
             
             curX = x;
             curZ = z;
@@ -166,17 +167,17 @@ public class PlayerGridMovement : MonoBehaviour
         }
 
         if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction && inMenu) {
-            combatMenu.DeactivateActionMenu();
-            pathFinder.DestroyArea();
-            pathFinder.DestroyRange();
-            pathFinder.ResetArea();
-            MoveUnit(orgX, orgZ);
-            // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-            pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-            pathFinder.PrintArea();
-            charSelected = true;
-            inMenu = false;
-            oneAction = false;
+            // combatMenu.DeactivateActionMenu();
+            // pathFinder.DestroyArea();
+            // pathFinder.DestroyRange();
+            // pathFinder.ResetArea();
+            // MoveUnit(orgX, orgZ);
+            // // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+            // pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+            // pathFinder.PrintArea();
+            // charSelected = true;
+            // inMenu = false;
+            // oneAction = false;
 
           
         }
@@ -293,6 +294,20 @@ public class PlayerGridMovement : MonoBehaviour
     {
         get { return isAttacking; }
         set { isAttacking = value; }
+    }
+
+    public void OutOfMenu() {
+        combatMenu.DeactivateActionMenu();
+        pathFinder.DestroyArea();
+        pathFinder.DestroyRange();
+        pathFinder.ResetArea();
+        MoveUnit(orgX, orgZ);
+        // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+        pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+        pathFinder.PrintArea();
+        charSelected = true;
+        inMenu = false;
+        oneAction = false;
     }
 
     

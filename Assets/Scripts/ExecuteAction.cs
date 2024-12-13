@@ -84,7 +84,7 @@ public class ExecuteAction : MonoBehaviour
         playerGridMovement.GetPlayerCollide().removePlayer();
     }
 
-    public IEnumerator CycleAttackList(List<GridTile> UnitsInRange) {
+    public IEnumerator CycleAttackList(List<GridTile> UnitsInRange, Weapon selectedWeapon) {
         // bool playerGridMovement.IsAttacking = false;
         int currentIndex = 0;
         UnitManager AttackingUnit = playerGridMovement.GetPlayerCollide().GetPlayer();
@@ -99,6 +99,7 @@ public class ExecuteAction : MonoBehaviour
         Weapon orgPrimWeapon = AttackingUnit.primaryWeapon;
         List<Weapon> playerWeapons = AttackingUnit.stats.weapons;
         List<GridTile> newEnemies = new List<GridTile>();
+        AttackingUnit.primaryWeapon = selectedWeapon;
     
         
 
@@ -206,7 +207,7 @@ public class ExecuteAction : MonoBehaviour
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
                 AttackingUnit.primaryWeapon = orgPrimWeapon;
-                StartCoroutine(combatMenuManager.ActivateActionMenu());
+                StartCoroutine(combatMenuManager.WeaponList(playerGridMovement.GetPlayerCollide().GetPlayer()));
 
                 
                 

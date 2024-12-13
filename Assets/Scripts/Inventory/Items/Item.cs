@@ -9,6 +9,8 @@ public abstract class Item
     public bool Usable { get; protected set; }
     public string Name { get; protected set; }
 
+    public int MaxUses {get; protected set; }
+
     // Constructor
     protected Item()
     {
@@ -16,6 +18,7 @@ public abstract class Item
         Uses = 0;
         Equipable = false;
         Usable = false;
+        MaxUses = 0;
     }
 
     protected Item(string name, int uses, bool equipable, bool usable)
@@ -24,10 +27,11 @@ public abstract class Item
         Uses = uses;
         Equipable = equipable;
         Usable = usable;
+        MaxUses = uses;
     }
 
-    public virtual void Use(UnitManager user) {
-        return;
+    public virtual IEnumerator Use(UnitManager user) {
+        yield return null;
     }
 
     public virtual void Equip(UnitManager user) {
@@ -46,11 +50,13 @@ public class Vulnerary: Item {
     public Vulnerary() : base("Vulnerary", 3, false, true) { }
 
     // Implementing the abstract Use method
-    public override void Use(UnitManager user)
+    public override IEnumerator Use(UnitManager user)
     {
         Uses--;
 
         user.HealUnit(10);
+
+        yield return null;
 
     }
 
