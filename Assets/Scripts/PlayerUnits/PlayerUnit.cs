@@ -165,7 +165,13 @@ public class PlayerUnit : UnitManager
     }
 
     public override int getMove() { return stats.getClass().Movement + stats.Movement; }
-    public override int getAttack() { return primaryWeapon.Range; }
+    public override int getAttack() { 
+        if (primaryWeapon != null) {
+            return primaryWeapon.Range;
+        } else { return 0;}
+    }
+
+    
 
     public override int getCurrentHealth() { return currentHealth; }
     public override int getMaxHealth() { return stats.Health; }

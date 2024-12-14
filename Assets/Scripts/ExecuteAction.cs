@@ -197,7 +197,7 @@ public class ExecuteAction : MonoBehaviour
                 playerGridMovement.IsAttacking = true;
                 defenderX = UnitsInRange[currentIndex].GetGridX();
                 defenderZ = UnitsInRange[currentIndex].GetGridZ();
-                Debug.Log("Hello");
+                // Debug.Log("Hello");
                 //Go to another IEnumerator to show attacking stats
                 break;
             }
@@ -301,7 +301,7 @@ public class ExecuteAction : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log("Broke Free");
+        // Debug.Log("Broke Free");
 
 
 
@@ -309,12 +309,12 @@ public class ExecuteAction : MonoBehaviour
             //Start Attacking based on primary weapons
             yield return StartCoroutine(ExecuteAttack(AttackingUnit, DefendingEnemy));
 
-            Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
-            Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
+            // Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
+            // Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
             combatMenuManager.DeactivateExpectedMenu();
             // AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             // AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
-            Debug.Log(AttackingUnit.stats.UnitName);
+            // Debug.Log(AttackingUnit.stats.UnitName);
             playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(attackerX, attackerZ).GetXPos(), generateGrid.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, generateGrid.GetGridTile(attackerX, attackerZ).GetZPos());
             UnitManager temp = playerGridMovement.GetPlayerCollide().GetPlayer();
             temp.XPos = playerGridMovement.GetCurX();
@@ -476,6 +476,11 @@ public class ExecuteAction : MonoBehaviour
         int atkCount = 0;
         int defCount = 0;
 
+        int atkAttack = 0;
+        int defAttack = 0;
+        atkAttack = attackingUnit.GetAttackStat();
+        defAttack = defendingUnit.GetAttackStat();
+
         
 
         if (attackingUnit.stats.UnitType == "Player") {
@@ -492,7 +497,7 @@ public class ExecuteAction : MonoBehaviour
             defCount = playerCount;
         }
 
-        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), 10, 10, atkCount, defCount));
+        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, atkCount, defCount));
         SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
         yield return new WaitForSeconds(3f);
 
@@ -536,13 +541,22 @@ public class ExecuteAction : MonoBehaviour
                         newDefendingQueue.Enqueue(unit);
                     }
                 }
+
                 DefendingQueue.Clear();
                 DefendingQueue = newDefendingQueue;
+
+                atk.stats.weapons.Remove(atk.primaryWeapon);
+                if (atk.stats.weapons.Count >= 1) {
+                    atk.primaryWeapon = atk.stats.weapons[0];
+                } else {
+                    atk.primaryWeapon = null;
+                }
+                
 
                 
             }
 
-            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), 10, 10, atkCount, defCount));
+            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, atkCount, defCount));
             yield return new WaitForSeconds(1f);
 
             
@@ -605,10 +619,11 @@ public class ExecuteAction : MonoBehaviour
             int expObtained = 0;
 
             expObtained = 30 + ((enemyUnit.stats.Level - playerUnit.stats.Level) * 5);
-
-            // if (enemyUnit.stats.IsBoss) {
-
-            // }
+            EnemyStats eneStats = (EnemyStats)enemyUnit.stats;
+            if (eneStats.IsBoss) {
+                Debug.Log("Boss Slained");
+                expObtained = (int)((double)expObtained * 1.5);
+            }
 
             if (enemyUnit.getCurrentHealth() > 0) {
                 expObtained /= 2;
@@ -616,7 +631,7 @@ public class ExecuteAction : MonoBehaviour
 
             Debug.Log("AHHHHHH GAINED " + expObtained + " EXP");
 
-            yield return StartCoroutine(playerUnit.ExperienceGain(expObtained));
+            yield return StartCoroutine(playerUnit.ExperienceGain(expObtained * 2));
             
         }
         yield return new WaitForSeconds(1f);

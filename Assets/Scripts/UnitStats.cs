@@ -118,7 +118,7 @@ public class PlayerStats : UnitStats {
 public class EnemyStats : UnitStats {
 
     
-    bool IsBoss {get; set;}
+    public bool IsBoss {get; set;}
 
     public EnemyStats(int id, string uName, string uDesc,string uClass,int LV, int HLT,int ATK,int MG,int DEF,int RES,int SPD,int EVA,int LCK,int MOV,bool air,bool mount,bool arm,bool whisp, int hBars, bool boss) : base(uName, uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
         UnitType = "Enemy";

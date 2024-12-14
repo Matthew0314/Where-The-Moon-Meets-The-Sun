@@ -181,7 +181,12 @@ public class FindPath : MonoBehaviour
             if (moveVisited[currX, currZ]) { continue; }
 
             moveVisited[currX, currZ] = true;
-            discard = CalculateAttack(currX, currZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
+            if (unit.primaryWeapon != null) {
+                discard = CalculateAttack(currX, currZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
+            } else {
+                discard = CalculateAttack(currX, currZ, 0, false, false, false);
+            }
+            
 
             for (int x = -1; x < 2; x++)
             {

@@ -159,10 +159,10 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
             }
 
             generateGrid.MoveUnit(enemyUnit, enemyUnit.XPos, enemyUnit.ZPos, moveX, moveZ);
-            Debug.Log("AHHHHHHHHH " + enemyUnit.stats.UnitName + " Attacks " + UnitToAtk.unit.stats.UnitName);
-            Debug.Log("AHHHHHHHHHH player primary weapon " + UnitToAtk.unit.primaryWeapon.WeaponName);
+            // Debug.Log("AHHHHHHHHH " + enemyUnit.stats.UnitName + " Attacks " + UnitToAtk.unit.stats.UnitName);
+            // Debug.Log("AHHHHHHHHHH player primary weapon " + UnitToAtk.unit.primaryWeapon.WeaponName);
             yield return StartCoroutine(executeAction.ExecuteAttack(enemyUnit, UnitToAtk.unit));
-            Debug.Log("AHHHHHHHHHH End Co Routine");
+            // Debug.Log("AHHHHHHHHHH End Co Routine");
           
         
         }
@@ -175,7 +175,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
         // Debug.Log("ENEMY ATTACKING " + highestScoreUnit.unit.stats.UnitName);
 
 
-        Debug.Log("Howdy");
+        // Debug.Log("Howdy");
         // yield return new WaitForSeconds(2);
         // yield return null;
         if (enemyUnit.getCurrentHealth() > 0) {

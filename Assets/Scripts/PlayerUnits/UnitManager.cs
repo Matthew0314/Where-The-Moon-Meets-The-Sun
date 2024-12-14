@@ -50,6 +50,14 @@ public class UnitManager : MonoBehaviour
         yield return null;
     }
 
+    public virtual int GetAttackStat() {
+        int attack = stats.Attack;
+        if (primaryWeapon != null) {
+            attack += primaryWeapon.Attack;
+        }
+
+        return attack;
+    }
     public virtual void HealUnit(int health) {
         int curHlt = health + currentHealth;
 

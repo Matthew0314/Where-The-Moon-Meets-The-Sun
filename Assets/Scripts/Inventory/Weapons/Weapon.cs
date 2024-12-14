@@ -179,25 +179,33 @@ public abstract class Weapon
             DefendingQueue.Enqueue(defender);
             Debug.Log("hi");
         }
+        bool[,] counter;
         
-        bool[,] counter = pathFinder.CalculateAttack(defenderX, defenderZ, defender.primaryWeapon.Range, defender.primaryWeapon.Range1, defender.primaryWeapon.Range2, defender.primaryWeapon.Range3);
+        if (defender.primaryWeapon != null) {
+            counter = pathFinder.CalculateAttack(defenderX, defenderZ, defender.primaryWeapon.Range, defender.primaryWeapon.Range1, defender.primaryWeapon.Range2, defender.primaryWeapon.Range3);
 
-        if (counter[attackerX, attackerZ]) {
-            for (int i = 0; i < defender.primaryWeapon.NumHits; i++) {
-                AttackingQueue.Enqueue(defender);
-                DefendingQueue.Enqueue(attacker);
+            if (counter[attackerX, attackerZ] && defender.primaryWeapon != null) {
+                for (int i = 0; i < defender.primaryWeapon.NumHits; i++) {
+                    AttackingQueue.Enqueue(defender);
+                    DefendingQueue.Enqueue(attacker);
+                }
             }
         }
+        
 
         if (attacker.stats.Speed >=  defender.stats.Speed + 4) {
             for (int i = 0; i < attacker.primaryWeapon.NumHits; i++) {
                 AttackingQueue.Enqueue(attacker);
                 DefendingQueue.Enqueue(defender);
             }
-        } else if (attacker.stats.Speed <=  defender.stats.Speed - 4) {
-            for (int i = 0; i < defender.primaryWeapon.NumHits; i++) {
-                AttackingQueue.Enqueue(defender);
-                DefendingQueue.Enqueue(attacker);
+        } else if (attacker.stats.Speed <=  defender.stats.Speed - 4 && defender.primaryWeapon != null) {
+            counter = pathFinder.CalculateAttack(defenderX, defenderZ, defender.primaryWeapon.Range, defender.primaryWeapon.Range1, defender.primaryWeapon.Range2, defender.primaryWeapon.Range3);
+
+            if (counter[attackerX, attackerZ] && defender.primaryWeapon != null) {
+                for (int i = 0; i < defender.primaryWeapon.NumHits; i++) {
+                    AttackingQueue.Enqueue(defender);
+                    DefendingQueue.Enqueue(attacker);
+                }
             }
         }
     }

@@ -555,10 +555,21 @@ public class CombatMenuManager : MonoBehaviour
         PHealth.gameObject.SetActive(true);
         EHealth.gameObject.SetActive(true);
         PHealthLost.fillAmount = 1;
-        int playerHit = player.primaryWeapon.HitRate + (player.stats.Luck * 4) - enemy.stats.Evasion;
-        int enemyHit = enemy.primaryWeapon.HitRate + (enemy.stats.Luck * 4) - player.stats.Evasion;
-        int playerCrit = player.primaryWeapon.CritRate + (int)(player.stats.Luck / 2);
-        int enemyCrit = enemy.primaryWeapon.CritRate + (int)(enemy.stats.Luck / 2);
+        int playerHit = -1;
+        int enemyHit = -1;
+        int playerCrit = -1;
+        int enemyCrit = -1;
+
+        if (player.primaryWeapon != null) {
+            playerHit = player.primaryWeapon.HitRate + (player.stats.Luck * 4) - enemy.stats.Evasion;
+            playerCrit = player.primaryWeapon.CritRate + (int)(player.stats.Luck / 2);
+        }
+
+        if (enemy.primaryWeapon != null) {
+            enemyHit = enemy.primaryWeapon.HitRate + (enemy.stats.Luck * 4) - player.stats.Evasion;
+            enemyCrit = enemy.primaryWeapon.CritRate + (int)(enemy.stats.Luck / 2);
+        }
+
 
         Debug.Log(expectedEnemyHP);
 
@@ -585,7 +596,11 @@ public class CombatMenuManager : MonoBehaviour
         }
 
         PlayerName.text = player.stats.Name;
-        PlayerWeapon.text = player.primaryWeapon.WeaponName;
+        if (player.primaryWeapon != null) {
+            PlayerWeapon.text = player.primaryWeapon.WeaponName;
+        } else {
+            PlayerWeapon.text = "";
+        }
         
         if (numPHits > 1) {
             PlayerDamage.text = $"{PDamage} x {numPHits}";
@@ -624,7 +639,12 @@ public class CombatMenuManager : MonoBehaviour
 
 
         EnemyName.text = enemy.stats.Name;
-        EnemyWeapon.text = enemy.primaryWeapon.WeaponName;
+        if (enemy.primaryWeapon != null) {
+            EnemyWeapon.text = enemy.primaryWeapon.WeaponName;
+        } else {
+            EnemyWeapon.text = "";
+        }
+        
         
         if (numEHits > 1) {
             EnemyDamage.text = $"{EDamage} x {numEHits}";
@@ -1060,10 +1080,19 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
     UnitManager rightUnit = right;
 
     // Calculate hit and crit rates for both units
-    int leftHit = leftUnit.primaryWeapon.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
-    int rightHit = rightUnit.primaryWeapon.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
-    int leftCrit = leftUnit.primaryWeapon.CritRate + (int)(leftUnit.stats.Luck / 2);
-    int rightCrit = rightUnit.primaryWeapon.CritRate + (int)(rightUnit.stats.Luck / 2);
+    int leftHit = -1;
+    int rightHit = -1;
+    int leftCrit = -1;
+    int rightCrit = -1;
+    if (leftUnit.primaryWeapon != null) {
+        leftHit = leftUnit.primaryWeapon.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
+        leftCrit = leftUnit.primaryWeapon.CritRate + (int)(leftUnit.stats.Luck / 2);
+    }
+    if (rightUnit.primaryWeapon != null) {
+        rightHit = rightUnit.primaryWeapon.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
+        rightCrit = rightUnit.primaryWeapon.CritRate + (int)(rightUnit.stats.Luck / 2);
+    }
+    
 
     // Clamp hit and crit rates between 0 and 100
     leftHit = Mathf.Clamp(leftHit, 0, 100);
@@ -1073,7 +1102,13 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
 
     // Set the left unit (player or enemy) info
     PlayerName.text = leftUnit.stats.Name;
-    PlayerWeapon.text = leftUnit.primaryWeapon.WeaponName;
+
+    if(leftUnit.primaryWeapon != null) {
+        PlayerWeapon.text = leftUnit.primaryWeapon.WeaponName;
+
+    } else {
+        PlayerWeapon.text = "";
+    }
     if (numPHits > 1) {
         PlayerDamage.text = $"{PDamage} x {numPHits}";
         PlayerHit.text = $"{leftHit}%";
@@ -1117,7 +1152,13 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
 
     // Set the right unit (enemy or player) info
     EnemyName.text = rightUnit.stats.Name;
-    EnemyWeapon.text = rightUnit.primaryWeapon.WeaponName;
+
+    if (rightUnit.primaryWeapon != null) {
+        EnemyWeapon.text = rightUnit.primaryWeapon.WeaponName;
+    } else {
+        EnemyWeapon.text = "";
+    }
+    
     if (numEHits > 1) {
         EnemyDamage.text = $"{EDamage} x {numEHits}";
         EnemyHit.text = $"{rightHit}%";
