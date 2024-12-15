@@ -9,6 +9,7 @@ public class UnitRosterManager : MonoBehaviour
 {
     private UnitStats stats;
     [SerializeField] TextAsset statTextData;
+    [SerializeField] TextAsset faithTextData;
     private static Dictionary<string, UnitStats> fullRoster = new Dictionary<string, UnitStats>();
     // public static Dictionary<string, UnitStats> playableRoster = new Dictionary<string, UnitStats>();
     public static Dictionary<string, UnitStats> MapRoster = new Dictionary<string, UnitStats>();
@@ -25,10 +26,13 @@ public class UnitRosterManager : MonoBehaviour
     public void ReadCSV()
     {
         string[] data = statTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+        string[] faithData = faithTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("PlayerStats");
+        int faithInd = 0;
         
-        for (int i = 29; i < data.Length - 1; i += 29)
+        for (int i = 30; i < data.Length - 1; i += 30)
         {
+            faithInd += 11;
             string chrName = data[i];
             string dName = data[i + 1];
             string chrDesc = data[i + 2];
@@ -57,6 +61,7 @@ public class UnitRosterManager : MonoBehaviour
             string item4 = data[i + 25];
             string item5 = data[i + 26];
             string item6 = data[i + 27];
+            int faithRank = int.Parse(data[i + 28]);
 
             Debug.Log(chrName);
             Debug.Log(chrDesc);
@@ -64,7 +69,7 @@ public class UnitRosterManager : MonoBehaviour
             Debug.Log("MOV: " + MOV);
 
             
-            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
+            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass, faithRank);
             // stats = new UnitStats(chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
            
             Debug.Log("Name: " + stats.UnitName);
@@ -89,6 +94,18 @@ public class UnitRosterManager : MonoBehaviour
                 }
                 
             }
+
+            int ind = 0;
+
+            for(int j = faithInd; j < faithInd + 10; j++) {
+                Debug.Log("Faith Created " + faithData[j+1]);
+                stats.faithRankList[ind] = faithData[j+1];
+                ind++;
+            }
+
+            
+
+
 
 
             fullRoster.Add(chrName, stats);
@@ -165,5 +182,11 @@ public class UnitRosterManager : MonoBehaviour
     public List<UnitStats> getMapUnits() { return  mapList; }
 
     public int GetNumUnits() { return playableList.Count; }
+
+    public void setFaithSpells() {
+        foreach (UnitStats un in playableList) {
+            un.SetFaith();
+        }
+    }
 
 }

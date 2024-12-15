@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class PrologueMap : MonoBehaviour, IMaps
 {
+    
     private UnitRosterManager unitRos;
     private WeaponManager manageWeapons;
     private UnitStats stats;
@@ -26,6 +27,8 @@ public class PrologueMap : MonoBehaviour, IMaps
     private List<UnitManager> mapGameUnits = new List<UnitManager>();
     [SerializeField] TextAsset enemyTextData;
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
+    private string winCondition = "Rout the enemy.";
+    private string loseCondition = "<color=#3160BC>Felix</color> or <color=#3160BC>Lilith</color> falls in battle.";
 
     bool calledReinforcements = false;
     private ExecuteAction executeAction;
@@ -72,6 +75,8 @@ public class PrologueMap : MonoBehaviour, IMaps
 
         //Prints the enemies on the map
         InitEnemies();
+
+        unitRos.setFaithSpells();
 
         manageTurn.SetLists();
         manageTurn.SetEnemyList();
@@ -189,12 +194,15 @@ public class PrologueMap : MonoBehaviour, IMaps
             GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
             Instantiate(unitPrefab, new Vector3(grid.GetGridTile(startGridX[i], startGridZ[i]).GetXPos(), grid.GetGridTile(startGridX[i], startGridZ[i]).GetYPos() + 0.005f, grid.GetGridTile(startGridX[i], startGridZ[i]).GetZPos()), Quaternion.identity);
             PlayerUnit UnitToGrid = unitPrefab.GetComponent<PlayerUnit>();
+            // UnitToGrid.stats = stats;
             UnitToGrid.XPos = startGridX[i];
             UnitToGrid.ZPos = startGridZ[i];
             // mapUnits.Add(UnitToGrid);
-            // UnitToGrid.InitializeUnitData();
-            grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = UnitToGrid;
+            UnitToGrid.InitializeUnitData();
+            grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = unitPrefab.GetComponent<UnitManager>();
+            // Debug.LogError(grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile.stats.Name);
             mapGameUnits.Add(unitPrefab.GetComponent<UnitManager>());
+
             // Debug.Log("Assigned to Tile")
             // Type typePUnit = Type.GetType("PlayerUnit");
             // UnitManager enemyUnit = unitPrefab.AddComponent(typePUnit) as UnitManager;
@@ -390,6 +398,7 @@ public class PrologueMap : MonoBehaviour, IMaps
 
     public IEnumerator StartMap() {
         yield return new WaitForSeconds(0.5f);
+        yield return StartCoroutine(combatMenuManager.FadeUpVD(winCondition, loseCondition));
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
         yield return new WaitForSeconds(0.5f);
         playerCursor.startGame = true;

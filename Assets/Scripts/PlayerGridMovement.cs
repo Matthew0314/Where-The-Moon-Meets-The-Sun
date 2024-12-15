@@ -91,13 +91,14 @@ public class PlayerGridMovement : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, moveCursor.position, speed * Time.deltaTime);
             return;
         }
+        oneAction = true;
         
-        
-        if (isAttacking) {
-            return;
+        if (isAttacking || manageTurn.IsEnemyTurn()) {
+            oneAction = false;
+            // return;
         }
 
-        oneAction = true;
+        
 
 
         if((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) && oneAction && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && !pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {

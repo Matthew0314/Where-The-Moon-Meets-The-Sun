@@ -13,13 +13,23 @@ public class EnemyUnit : UnitManager
         
         Transform childImage = transform.Find("EnemyCircle/Canvas/UnitBar");
         unitCircle = transform.Find("EnemyCircle").gameObject;
-        healthBar = childImage.GetComponent<Image>();
+        extraHealth1 = transform.Find("EnemyCircle/Canvas/UnitCircle/ExtraHealth1").GetComponent<Image>();
+        // if (extraHealth1 != null)
+        // {
+        //     extraHealth1.gameObject.SetActive(false);
+        // }
+        // else
+        // {
+        //     Debug.Log("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
+        //     Debug.LogWarning("ExtraHealth1 not found!");
+        // }
+        healthBar = transform.Find("EnemyCircle/Canvas/UnitBar").GetComponent<Image>();
 
     }
 
     protected void Update() {
        
-            healthBar.fillAmount = (float)currentHealth / (float)getMaxHealth(); 
+        healthBar.fillAmount = (float)currentHealth / (float)getMaxHealth(); 
         
     }
 
@@ -29,6 +39,13 @@ public class EnemyUnit : UnitManager
         maxHealth = stats.Health;
         currentHealth = maxHealth;
         primaryWeapon = stats.GetWeaponAt(0);
+        Debug.LogWarning(stats.Name);
+        extraHealth1 = transform.Find("EnemyCircle/Canvas/UnitCircle/ExtraHealth1").GetComponent<Image>();
+        if(stats.HealthBars < 2) 
+        {
+            // extraHealth1.gameObject.SetActive(false);
+            extraHealth1.gameObject.GetComponent<CanvasGroup>().alpha = 0;
+        }
         UnitType = "Enemy";
         Debug.Log(stats.UnitName + " Has been initlialized");
         // Initialize Enemy-specific data here

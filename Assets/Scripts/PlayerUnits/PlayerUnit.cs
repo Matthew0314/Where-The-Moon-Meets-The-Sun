@@ -158,7 +158,8 @@ public class PlayerUnit : UnitManager
         
         stats = UnitRosterManager.GetUnitStats(unitName);
         maxHealth = stats.Health;
-        currentHealth = maxHealth;
+        // currentHealth = maxHealth;
+        UnitType = "Player"; 
         primaryWeapon = stats.GetWeaponAt(0);
         Debug.Log(stats.UnitName + " Has been initlialized");
 
@@ -174,7 +175,12 @@ public class PlayerUnit : UnitManager
     
 
     public override int getCurrentHealth() { return currentHealth; }
-    public override int getMaxHealth() { return stats.Health; }
+    public override int getMaxHealth() { 
+        if (stats == null){
+            Debug.LogError("HELP THERES NO STATS!");
+        }
+        return stats.Health; 
+        }
     public override void setCurrentHealth(int health) { currentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 

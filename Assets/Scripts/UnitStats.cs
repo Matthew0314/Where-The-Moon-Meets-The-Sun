@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public abstract class UnitStats
 {
@@ -33,6 +34,10 @@ public abstract class UnitStats
 
     public List<Weapon> weapons;
     public List<Item> items;
+    public List<Faith> faith;
+    public int faithRank {get; set;}
+    public string[] faithRankList = new string[10];
+
 
     public UnitStats(string uName, string dName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
     {
@@ -53,6 +58,7 @@ public abstract class UnitStats
 
         weapons = new List<Weapon>();
         items = new List<Item>();
+        faith = new List<Faith>();
 
     }
 
@@ -69,6 +75,8 @@ public abstract class UnitStats
     public virtual Item GetItemAt(int x) { return items[x]; }
 
     public abstract PlayerClass getClass();
+
+    public abstract void SetFaith(); 
 }
 
 public class PlayerStats : UnitStats {
@@ -86,7 +94,7 @@ public class PlayerStats : UnitStats {
     private PlayerClass ClassStats;
 
 
-    public PlayerStats(string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass) : base(uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
+    public PlayerStats(string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass, int faiRank) : base(uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
 
         Experience = 0;
         HealthGR = HLTGR;
@@ -107,11 +115,30 @@ public class PlayerStats : UnitStats {
         Whisper = ClassStats.Whisper;
 
         HealthBars = 1;
+        faithRank = faiRank;
 
     }
 
     public override PlayerClass getClass() {
         return ClassStats;
+    }
+
+    public override void SetFaith()
+    {
+        Debug.Log("Started Faith");
+        faith = new List<Faith>();
+        for(int i = 0; i < faithRank; i++) {
+            Debug.Log(Name + " Faith " + faithRankList[i] + " with rank " + faithRank);
+            if (faithRankList[i] != "null") {
+                Type faithType = Type.GetType(faithRankList[i]);
+                Faith tempFai = (Faith)Activator.CreateInstance(faithType);
+                if (tempFai != null) {
+                    faith.Add(tempFai);
+                }
+                Debug.Log("Added " + tempFai.Name + " Faith");
+            }
+                
+        }
     }
 }
 
@@ -129,9 +156,12 @@ public class EnemyStats : UnitStats {
         HealthBars = hBars;
         EnemyID = id;
         IsBoss = boss;
+        faithRank = 1;
     }
 
     public override PlayerClass getClass() {
         return null;
     }
+
+    public override void SetFaith() {}
 }

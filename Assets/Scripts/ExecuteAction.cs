@@ -336,7 +336,7 @@ public class ExecuteAction : MonoBehaviour
 
 
     void CalculateExpectedAttack(UnitManager player, UnitManager enemy, int attackerX, int attackerZ, int defenderX, int defenderZ) {
-        
+        // bool extraHealth = false;
         player.primaryWeapon.InitiateQueues(player, enemy, attackerX, attackerZ, defenderX, defenderZ);
         Queue<UnitManager> AttackingQueue = player.primaryWeapon.AttackingQueue;
         Queue<UnitManager> DefendingQueue = player.primaryWeapon.DefendingQueue;
@@ -399,6 +399,8 @@ public class ExecuteAction : MonoBehaviour
 
 
     public IEnumerator ExecuteAttack(UnitManager attackingUnit, UnitManager defendingUnit) {
+        bool extraHealthBar = false;
+        UnitManager extraHltUnit = null;
         combatMenuManager.DeactivateHoverMenu();
         GameObject atkObj = attackingUnit.gameObject;
         GameObject defObj = defendingUnit.gameObject;
@@ -568,8 +570,8 @@ public class ExecuteAction : MonoBehaviour
             if (def.getCurrentHealth() <= 0) {
                 // Debug.Log("Removing " + def.stats.UnitName);
                 if (def.stats.HealthBars > 1) {
-                    def.stats.HealthBars -= 1;
-                    def.HealUnit(def.stats.Health);
+                    extraHealthBar = true;
+                    extraHltUnit = def;
                 } else {
                     _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
                 }
@@ -658,6 +660,10 @@ public class ExecuteAction : MonoBehaviour
 
         // Apply the calculated rotation to the camera
         combatCam.transform.rotation = targetRotation;
+
+        if (extraHealthBar) {
+            yield return StartCoroutine(extraHltUnit.ExtraHealthBar());
+        }
 
 
         yield return null;
@@ -794,6 +800,185 @@ public class ExecuteAction : MonoBehaviour
     public void SwitchToMainCamera()
     {
         combatCam.Priority = 0; 
+    }
+
+
+
+
+
+    public IEnumerator CycleAssist(List<GridTile> UnitsInRange, Faith faithInUse) {
+        // bool playerGridMovement.IsAttacking = false;
+        int currentIndex = 0;
+        UnitManager AttackingUnit = playerGridMovement.GetPlayerCollide().GetPlayer();
+        UnitManager DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
+        int attackerX = playerGridMovement.GetCurX();
+        int attackerZ = playerGridMovement.GetCurZ();
+        int defenderX = UnitsInRange[currentIndex].GetGridX();
+        int defenderZ = UnitsInRange[currentIndex].GetGridZ();
+        bool weaponChange = false;
+
+        int weaponIndex = 0;
+        playerGridMovement.inMenu = true;
+        
+    
+        
+
+        combatMenuManager.DeactivateHoverMenu();
+        // CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
+
+        Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+        float fspeed = 40f; // Speed of movement
+        playerGridMovement.moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+
+        // Move the enemy towards the target position
+        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+        {
+            float step = fspeed * Time.deltaTime;
+
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
+
+            yield return null;
+        }
+
+        transform.position = targetPosition; 
+
+        while(true) {
+
+            Vector3 currentPosition = playerGridMovement.moveCursor.transform.position;
+            playerGridMovement.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
+
+            if ((Input.GetKeyDown(KeyCode.Space) || (gamepad != null &&  gamepad.buttonSouth.wasPressedThisFrame))) {
+                DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;     
+                playerGridMovement.IsAttacking = true;
+                yield return StartCoroutine(faithInUse.Use(AttackingUnit, DefendingEnemy));
+                Debug.LogWarning("Howdy");
+                break;
+            }
+
+            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame))) {
+                playerGridMovement.IsAttacking = false;
+                combatMenuManager.DeactivateExpectedMenu();
+                playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
+                // AttackingUnit.primaryWeapon = orgPrimWeapon;
+                combatMenuManager.PlayerAssist();
+
+                
+                
+                playerGridMovement.inMenu = true;
+                break;
+            }
+
+            if (Mathf.Abs(Input.GetAxis("Horizontal")) >= .15) {
+                float rawHorizontalInput = Input.GetAxis("Horizontal");
+
+                // Determine the sign of the input
+                float horizontalSign = Mathf.Sign(rawHorizontalInput);
+
+                // Round down to -1 if negative, round up to 1 if positive
+                int horizontalInput = (int)Mathf.Ceil(horizontalSign);
+
+                // Move through the list based on the horizontal input
+                if (horizontalInput > 0)
+                {
+                    // Move up in the list
+                    currentIndex++;
+                
+                    if (currentIndex >= UnitsInRange.Count)
+                    {
+                        currentIndex = 0; // Wrap around to the start
+                        
+                    }
+
+                    
+
+                    
+                }
+                else if (horizontalInput < 0)
+                {
+                    // Move down in the list
+                    currentIndex--;
+                    if (currentIndex < 0)
+                    {
+                        currentIndex = UnitsInRange.Count - 1; // Wrap around to the end
+                    }
+
+                    
+                }
+
+                Debug.Log("Index Changed");
+
+                defenderX = UnitsInRange[currentIndex].GetGridX();
+                defenderZ = UnitsInRange[currentIndex].GetGridZ();
+                // CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
+
+                
+                targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+                
+                playerGridMovement.moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+
+                // // Move the enemy towards the target position
+                while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+                {
+                    // Calculate the step based on speed and deltaTime
+                    float step = fspeed * Time.deltaTime;
+
+                    // Move the enemy towards the target position gradually
+                    transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
+
+                    yield return null;
+                }
+
+                transform.position = targetPosition; 
+
+                
+
+
+                yield return new WaitForSeconds(0.25f);
+            }
+
+
+
+           
+            
+           
+            // Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+            // playerGridMovement.moveCursor.transform.position = Vector3.MoveTowards(playerGridMovement.moveCursor.transform.position, targetPosition, 30.0f * Time.deltaTime);
+
+            // Move the cursor towards the target position using interpolation
+            // moveGrid.playerGridMovement.moveCursor.position = Vector3.Lerp(moveGrid.playerGridMovement.moveCursor.position, targetPosition, 20.0f * Time.deltaTime);
+            
+            // currentPosition = moveGrid.moveCursor.transform.position;
+            // moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
+            
+
+            yield return null;
+        }
+        if (playerGridMovement.IsAttacking) {
+            //Start Attacking based on primary weapons
+            // yield return StartCoroutine(ExecuteAttack(AttackingUnit, DefendingEnemy));
+
+            
+            // combatMenuManager.DeactivateExpectedMenu();
+            // Debug.LogWarning("In Thing");
+            playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(attackerX, attackerZ).GetXPos(), generateGrid.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, generateGrid.GetGridTile(attackerX, attackerZ).GetZPos());
+            UnitManager temp = playerGridMovement.GetPlayerCollide().GetPlayer();
+            temp.XPos = playerGridMovement.GetCurX();
+            temp.ZPos = playerGridMovement.GetCurZ();
+            turnManager.RemovePlayer(AttackingUnit.stats);
+            // unitWait();
+            ResetAfterAction(AttackingUnit);
+            
+            turnManager.CheckPhase();
+            _currentMap.CheckClearCondition();
+            _currentMap.CheckDefeatCondition();
+            
+            
+
+        }
+        // Debug.Log(generateGrid.GetGridTile(5, 4).UnitOnTile.stats.UnitName);
+        playerGridMovement.inMenu = false;
+        playerGridMovement.IsAttacking = false;
+        yield return null;
     }
 
 }

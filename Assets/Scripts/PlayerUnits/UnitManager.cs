@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UnitManager : MonoBehaviour
 {
     protected int maxHealth;
-    protected int currentHealth;
+    protected int currentHealth = 2;
     public UnitStats stats;
     public string UnitType;
     // protected PlayerClassManager classList;
@@ -19,6 +19,8 @@ public class UnitManager : MonoBehaviour
     public GameObject unitCircle;
     public CombatMenuManager combatMenuManager;
     public Image healthBar;
+
+    public Image extraHealth1;
 
     protected virtual void Start()
     {
@@ -74,118 +76,74 @@ public class UnitManager : MonoBehaviour
     public virtual List<Item> GetItems() { return stats.items; }
 
     public virtual Weapon GetPrimaryWeapon() { return primaryWeapon; }
+    public virtual List<Faith> GetFaithList() { return stats.faith; }
 
+    public virtual IEnumerator ExtraHealthBar() {
+        stats.HealthBars--;
+        CanvasGroup hltBar = null;
+        if (stats.HealthBars == 1) {
+            hltBar = extraHealth1.GetComponent<CanvasGroup>();
+        }
 
-    // public virtual IEnumerator ExperienceGain(int experience) {
-        
+        float elapsed = 0f;
 
-    //     Debug.Log("Now has " + stats.Experience + " experience");
-    //     PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
+        while (elapsed < 1f && hltBar != null)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1, 0, elapsed / 1f);
+            hltBar.alpha = alpha;
+            yield return null;
+        }
 
-    //     yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience));
+        elapsed = 0f;
+        float initialFillAmount = 0;
 
-    //     stats.Experience += experience;
-
-    //     PlayerStats pStats = (PlayerStats)stats;
-        
-
-    //     while (stats.Experience > 100) {
-    //         Debug.Log("LEVEL UP");
-
+        while (elapsed < 1f)
+        {
             
+            healthBar.fillAmount = Mathf.Lerp(initialFillAmount, 1, elapsed / 1f);
+            
+            elapsed += Time.deltaTime;  
+            yield return null;  
+        }
 
-    //         // PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
-    //         // if (unitClass == null) {
-    //         //     return;
-    //         // }
-    //         int hlt = 0;
-    //         int atk = 0;
-    //         int mag = 0;
-    //         int def = 0;
-    //         int res = 0;
-    //         int eva = 0;
-    //         int luk = 0;
-    //         int spd = 0;
+        
+        healthBar.fillAmount = 1;
 
-    //         while (true) {
-    //             hlt = 0;
-    //             atk = 0;
-    //             mag = 0;
-    //             def = 0;
-    //             res = 0;
-    //             eva = 0;
-    //             luk = 0;
-    //             spd = 0;
-    //             if (Random.Range(0, 101) <= unitClass.Health + pStats.HealthGR) {
-    //                 Debug.Log("Health Level Up");
-    //                 hlt++;
-    //             }
+        HealUnit(stats.Health);
 
-    //             if (Random.Range(0, 101) <= unitClass.Attack + pStats.AttackGR) {
-    //                 Debug.Log("Attack Level Up");
-    //                 // stats.Attack++;
-    //                 atk++;
-    //             }
+        yield return null;
 
-    //             if (Random.Range(0, 101) <= unitClass.Magic + pStats.MagicGR) {
-    //                 Debug.Log("Magic Level Up");
-    //                 // stats.Magic++;
-    //                 mag++;
-    //             }
 
-    //             if (Random.Range(0, 101) <= unitClass.Defense + pStats.DefenseGR) {
-    //                 Debug.Log("Defense Level Up");
-    //                 // stats.Defense++;
-    //                 def++;
-    //             }
+    }
 
-    //             if (Random.Range(0, 101) <= unitClass.Resistance + pStats.ResistanceGR) {
-    //                 Debug.Log("Resistance Level Up");
-    //                 // stats.Resistance++;
-    //                 res++;
-    //             }
+    public virtual IEnumerator Heal(int hlt) {
+        float elapsed = 0f;
+        float initialFillAmount = healthBar.fillAmount;
 
-    //             if (Random.Range(0, 101) <= unitClass.Evasion + pStats.EvasionGR) {
-    //                 Debug.Log("Evasion Level Up");
-    //                 // stats.Evasion++;
-    //                 eva++;
-    //             }
+        int newHealth = hlt + currentHealth;
+        if(newHealth > stats.Health) {
+            newHealth = stats.Health;
+        }
 
-    //             if (Random.Range(0, 101) <= unitClass.Luck + pStats.LuckGR) {
-    //                 Debug.Log("Luck Level Up");
-    //                 // stats.Luck++;
-    //                 luk++;
-    //             }
+        while (elapsed < 1f)
+        {
+            
+            healthBar.fillAmount = Mathf.Lerp(initialFillAmount, newHealth / stats.Health, elapsed / 1f);
+            
+            elapsed += Time.deltaTime;  
+            yield return null;  
+        }
 
-    //             if (Random.Range(0, 101) <= unitClass.Speed + pStats.SpeedGR) {
-    //                 Debug.Log("Speed Level Up");
-    //                 // stats.Speed++;
-    //                 spd++;
-    //             }
+        
+        healthBar.fillAmount = 1;
 
-    //             if (hlt + atk + mag + def + res + eva + luk + spd >= 2) {
-    //                 break;
-    //             }
+        HealUnit(hlt);
+    }
 
-    //         }
 
-    //         yield return StartCoroutine(combatMenuManager.LevelUpMenu(this, hlt, atk, mag, spd, def, res, eva, luk));
 
-    //         stats.Health += hlt;
-    //         stats.Attack += atk;
-    //         stats.Magic += mag;
-    //         stats.Defense += def;
-    //         stats.Resistance += res;
-    //         stats.Evasion += eva;
-    //         stats.Luck += luk;
-    //         stats.Speed += spd;
 
-    //         stats.Level++;
-    //         stats.Experience -= 100;
-    //     }
-
-    //     yield return null;
-    // }
-
+   
 }
 

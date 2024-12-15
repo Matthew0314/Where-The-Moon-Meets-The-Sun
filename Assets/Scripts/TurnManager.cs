@@ -129,11 +129,13 @@ public class TurnManager : MonoBehaviour
 
         yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ(), 200f));
 
+        turns++; 
+
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
 
         // yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ()));
 
-        turns++; 
+        
             
         Debug.Log("PLAYER PHASE");
         Debug.Log("Turn: " + turns);

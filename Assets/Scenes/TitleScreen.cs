@@ -26,6 +26,7 @@ public class TitleScreen : MonoBehaviour
     Gamepad gamepad;
     void Start()
     {
+        Screen.SetResolution(1920, 1080, true);
         startButtons[0].Select();
     }
 
@@ -33,7 +34,7 @@ public class TitleScreen : MonoBehaviour
     void Update()
     {
         gamepad = Gamepad.current;
-        float vertical = -Input.GetAxis("Vertical");
+        float vertical = Input.GetAxis("Vertical");
 
         if (!axisInUse)
         {
