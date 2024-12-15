@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
+using UnityEngine.SceneManagement;
 using System.Linq;
 using UnityEngine;
 
@@ -25,12 +26,16 @@ public class PrologueMap : MonoBehaviour, IMaps
     private int width = 24;
     private List<UnitStats> mapUnits;
     private List<UnitManager> mapGameUnits = new List<UnitManager>();
-    [SerializeField] TextAsset enemyTextData;
+    [SerializeField] TextAsset enemyTextDataNormal;
+    [SerializeField] TextAsset enemyTextDataHard;
+    [SerializeField] TextAsset enemyTextDataEclipse;
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
     private string winCondition = "Rout the enemy.";
     private string loseCondition = "<color=#3160BC>Felix</color> or <color=#3160BC>Lilith</color> falls in battle.";
 
     bool calledReinforcements = false;
+    string Difficulty = "Normal";
+    int maxEID;
     private ExecuteAction executeAction;
   
     // Start is called before the first frame update
@@ -61,6 +66,9 @@ public class PrologueMap : MonoBehaviour, IMaps
 
     public void Init()
     {
+        string temp = TitleScreen.GetDifficulty();
+        if (temp == " ") { Difficulty = "Normal"; }
+        else { Difficulty = temp; }
         //Calls GenerateGrid.cs to generate the grid based on how big it is, specified by length and width variables
         grid.GenGrid(length, width);
 
@@ -86,11 +94,22 @@ public class PrologueMap : MonoBehaviour, IMaps
 
     //Reads in the EnemyCSV, stores each of their data, and prints them on the grid
     private void InitEnemies() {
+
+        string[] data;
+        if (Difficulty == "Hard") {
+            data = enemyTextDataHard.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            maxEID = 5;
+        } else if (Difficulty == "Eclipse") {
+            data = enemyTextDataEclipse.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            maxEID = 2;
+        } else {
+            data = enemyTextDataNormal.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            maxEID = 5;
+        }
         
-        string[] data = enemyTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("EnemyStats");
 
-        for (int i = 31; i < 186; i += 31)
+        for (int i = 31; i < data.Length - 1; i += 31)
         {
             //Reads in the data from the CSV file
            
@@ -142,6 +161,7 @@ public class PrologueMap : MonoBehaviour, IMaps
                 Weapon tempWeapon = WeaponManager.MakeWeapon(data[i + 23 + j]);
                 eStats.AddWeapon(tempWeapon);
             }
+            Debug.LogWarning("HIIII");
 
           
            
@@ -164,6 +184,8 @@ public class PrologueMap : MonoBehaviour, IMaps
             enemy.ZPos = enemyZ;
             grid.GetGridTile(enemyX, enemyZ).UnitOnTile = enemy;
             mapEnemies.Enqueue(enemy);
+
+            if(eID >= maxEID) { break; }
                       
 
             
@@ -211,19 +233,37 @@ public class PrologueMap : MonoBehaviour, IMaps
 
 
     //The clear condition for the prologue is routing all the enemies 
-    public void CheckClearCondition()
+    public IEnumerator CheckClearCondition()
     {
         if (mapEnemies.Count == 0) {
-            Debug.Log("VICTORY");
+            yield return StartCoroutine(combatMenuManager.VicDefText("Victory"));
+            while (true) {
+
+                Debug.Log("VICTORY!!!");
+                yield return null;
+            }
+            
         }
+
+        yield return null;
     }
 
     //Niether YoungFelix nor YoungLilith can die, check to see if alive
-    public void CheckDefeatCondition()
+    public IEnumerator CheckDefeatCondition()
     {
         if (!mapUnits.Any(unit => unit.UnitName == "YoungFelix") || !mapUnits.Any(unit => unit.UnitName == "YoungLilith")) {
-            Debug.Log("DEFEAT");
+            yield return StartCoroutine(combatMenuManager.VicDefText("Defeat"));
+            while (true) {
+                if (Input.GetKeyDown(KeyCode.R)) {
+                    SceneManager.LoadScene("Prologue");
+                }
+                Debug.Log("DEFEAT");
+                yield return null;
+            }
+            
         }
+
+        yield return null;
     }
 
     public IEnumerator CheckEvents() {
@@ -238,15 +278,25 @@ public class PrologueMap : MonoBehaviour, IMaps
                 }
             }
         }
-        if (!calledReinforcements && callNewEnemies && manageTurn.IsEnemyTurn()) {
+        if (!calledReinforcements && callNewEnemies && manageTurn.IsEnemyTurn() && Difficulty != "Normal") {
             
 
-            string[] data = enemyTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            string[] data;
+            if (Difficulty == "Hard") {
+                data = enemyTextDataHard.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+                // maxEID = 5;
+            } else if (Difficulty == "Eclipse") {
+                data = enemyTextDataEclipse.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+                // maxEID = 5;
+            } else {
+                data = enemyTextDataNormal.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+                // maxEID = 5;
+            }
             Type unitType = Type.GetType("EnemyStats");
             for (int i = 31; i < data.Length - 1; i += 31) {
 
                 int eID = int.Parse(data[i]);
-                if (eID < 6) {
+                if (eID < maxEID) {
                     continue;
                 }
                 string cName = data[i + 1];

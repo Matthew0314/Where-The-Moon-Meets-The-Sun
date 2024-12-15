@@ -5,6 +5,7 @@ using UnityEngine;
 public class AggressiveAI : MonoBehaviour, IEnemyAI
 {
     private GenerateGrid grid;
+    public bool DidAction { get; set; }
   
  
 
@@ -17,6 +18,7 @@ public class AggressiveAI : MonoBehaviour, IEnemyAI
         // Vector3 targetPosition = new Vector3(grid.GetGridTile(4, 3).GetXPos(), grid.GetGridTile(4, 3).GetYPos(), grid.GetGridTile(4, 3).GetZPos());
         // objTransform.position = Vector3.MoveTowards(objTransform.position, targetPosition, 20f * Time.deltaTime);
         Debug.Log("Aggressive");
+        DidAction = false;
 
       
 

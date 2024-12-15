@@ -158,7 +158,7 @@ public class PlayerUnit : UnitManager
         
         stats = UnitRosterManager.GetUnitStats(unitName);
         maxHealth = stats.Health;
-        // currentHealth = maxHealth;
+        currentHealth = maxHealth;
         UnitType = "Player"; 
         primaryWeapon = stats.GetWeaponAt(0);
         Debug.Log(stats.UnitName + " Has been initlialized");

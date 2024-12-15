@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UnitManager : MonoBehaviour
 {
     protected int maxHealth;
-    protected int currentHealth = 2;
+    protected int currentHealth;
     public UnitStats stats;
     public string UnitType;
     // protected PlayerClassManager classList;

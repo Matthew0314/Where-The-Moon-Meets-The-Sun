@@ -6,6 +6,8 @@ public struct UnitsToAttack {
     public Weapon weaponUsed;
     public int score;
 
+    
+
     public UnitsToAttack(UnitManager unitToAdd, Weapon weapon, int sco) {
         unit = unitToAdd;
         weaponUsed = weapon;
@@ -15,6 +17,8 @@ public struct UnitsToAttack {
 
 public interface IEnemyAI
 {
+
+    bool DidAction { get; set; }
     //interface for how enemies will behave during enemy phase
     //will assign a point system based on how we want the enemies to react
     IEnumerator enemyAttack(GameObject enemy);

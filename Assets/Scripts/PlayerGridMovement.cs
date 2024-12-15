@@ -247,6 +247,8 @@ public class PlayerGridMovement : MonoBehaviour
                 }
 
             }
+
+            Debug.Log (x + " " + z);
         }
     }
 

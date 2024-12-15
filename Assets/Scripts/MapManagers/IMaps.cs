@@ -12,8 +12,8 @@ public interface IMaps
 
     //Need function for add and remove characters later on
     
-    void CheckClearCondition(); //After every action checks if clear condition has been met
-    void CheckDefeatCondition();  //After every action checks if main characters have died
+    IEnumerator CheckClearCondition(); //After every action checks if clear condition has been met
+    IEnumerator CheckDefeatCondition();  //After every action checks if main characters have died
 
     IEnumerator CheckEvents();
     void RemoveDeadUnit(UnitManager unit, int x, int y);

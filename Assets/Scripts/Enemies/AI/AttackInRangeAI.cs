@@ -13,6 +13,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
     private GenerateGrid generateGrid;
     private PlayerGridMovement playerGridMovement;
     private ExecuteAction executeAction;
+    public bool DidAction { get; set; }
     
 
     void Start() {
@@ -24,14 +25,14 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
 
     public IEnumerator enemyAttack(GameObject enemy) {
 
-
+        DidAction = false;
 
 
         List<Weapon> weaponList = enemy.GetComponent<UnitManager>().stats.weapons;
         UnitManager enemyUnit = enemy.GetComponent<UnitManager>();
         List<UnitsToAttack> unitAttackList = new List<UnitsToAttack>();
 
-        yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
+        // yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
 
         for (int k = 0; k < weaponList.Count; k++) {
             findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.getMove(), enemyUnit);
@@ -134,7 +135,8 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
             Transform objectTrans = playerGridMovement.transform;
             Transform enemyTrans = enemy.transform;
             float step;
-
+            yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
+            yield return new WaitForSeconds(0.20f);
             for (int i = 0; i < shortestPath.Count; i++) {
                 Vector3 targetPosition = new Vector3(generateGrid.GetGridTile(shortestPath[i].x, shortestPath[i].z).GetXPos(), generateGrid.GetGridTile(shortestPath[i].x, shortestPath[i].z).GetYPos() + 0.30f, generateGrid.GetGridTile(shortestPath[i].x, shortestPath[i].z).GetZPos());
                 float speed = 25f; // Speed of movement
@@ -157,11 +159,13 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
                 enemyTrans.position = targetPosition; 
                 yield return null;
             }
-
+            
             generateGrid.MoveUnit(enemyUnit, enemyUnit.XPos, enemyUnit.ZPos, moveX, moveZ);
             // Debug.Log("AHHHHHHHHH " + enemyUnit.stats.UnitName + " Attacks " + UnitToAtk.unit.stats.UnitName);
             // Debug.Log("AHHHHHHHHHH player primary weapon " + UnitToAtk.unit.primaryWeapon.WeaponName);
+            
             yield return StartCoroutine(executeAction.ExecuteAttack(enemyUnit, UnitToAtk.unit));
+            DidAction = true;
             // Debug.Log("AHHHHHHHHHH End Co Routine");
           
         
@@ -178,11 +182,11 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
         // Debug.Log("Howdy");
         // yield return new WaitForSeconds(2);
         // yield return null;
-        if (enemyUnit.getCurrentHealth() > 0) {
-            yield return new WaitForSeconds(1f);
-        } else {
-            yield return null;
-        }
+        // if (enemyUnit.getCurrentHealth() > 0) {
+        //     yield return new WaitForSeconds(1f);
+        // } else {
+        //     yield return null;
+        // }
 
     }
 }

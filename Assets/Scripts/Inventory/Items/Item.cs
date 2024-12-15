@@ -47,7 +47,7 @@ public abstract class Item
 
 public class Vulnerary: Item {
     // Constructor for Vulnerary
-    public Vulnerary() : base("Vulnerary", 1, false, true) { }
+    public Vulnerary() : base("Vulnerary", 3, false, true) { }
 
     // Implementing the abstract Use method
     public override IEnumerator Use(UnitManager user)

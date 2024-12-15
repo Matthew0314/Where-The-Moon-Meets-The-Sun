@@ -14,12 +14,12 @@ public class TitleScreen : MonoBehaviour
     [SerializeField] List<Button> difficultyButtons;
     [SerializeField] GameObject diffMenu;
     [SerializeField] GameObject startMenu;
-    string[] difficulties = { "Easy", "Hard", "Maddening" };
+    string[] difficulties = { "Normal", "Hard", "Eclipse" };
     bool inStartMenu = true;
     bool inDiffMenu = false;
     bool axisInUse = false;
     bool oneAction = false;
-    public static string difficulty;
+    public static string difficulty = " ";
     int currentIndex = 0;
 
 
@@ -126,5 +126,9 @@ public class TitleScreen : MonoBehaviour
 
     void DeactivateStartMenu() {
         startMenu.SetActive(false);
+    }
+
+    public static string GetDifficulty() {
+        return difficulty;
     }
 }

@@ -40,7 +40,7 @@ public abstract class Faith
 }
 
 public class Heal : Faith {
-    public Heal() : base("Heal", 1, 1, true, false, false) {}
+    public Heal() : base("Heal", 5, 1, true, false, false) {}
 
     public override bool CanUse(UnitManager user) {
         if (Uses <= 0) { return false; }

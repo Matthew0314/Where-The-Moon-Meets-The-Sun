@@ -134,6 +134,8 @@ public class CombatMenuManager : MonoBehaviour
     TextMeshProUGUI defeatText;
     TextMeshProUGUI victoryText;
 
+    CanvasGroup VictoryText;
+    CanvasGroup DefeatText;
     GameObject background;
 
 
@@ -265,6 +267,9 @@ public class CombatMenuManager : MonoBehaviour
 
         victoryBox.alpha = 0;
         defeatBox.alpha = 0;
+
+        VictoryText = GameObject.Find("Canvas/Phases/Victory/VicPop").GetComponent<CanvasGroup>();
+        DefeatText = GameObject.Find("Canvas/Phases/Defeat/DefPop").GetComponent<CanvasGroup>();
 
         background = GameObject.Find("Canvas/Background");
         
@@ -1490,8 +1495,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
         } else if (phase == "Enemy") {
             EnemyPhase.gameObject.SetActive(true);
             temp = EnemyPhase;
-        }
-
+        } 
         if (temp != null) {
             RectTransform rectTransform = temp.rectTransform;
 
@@ -1516,6 +1520,26 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
         PlayerPhase.gameObject.SetActive(false);
         EnemyPhase.gameObject.SetActive(false);
 
+    }
+
+    public IEnumerator VicDefText(string endType) {
+        Image temp = null;
+        if (endType == "Victory") { temp = VictoryText.gameObject.GetComponent<Image>(); }
+        else if (endType == "Defeat") { temp = DefeatText.gameObject.GetComponent<Image>(); }
+
+        background.SetActive(true);
+
+
+
+        if (temp != null) {
+            Debug.LogWarning("Defeat");
+            RectTransform rectTransform = temp.rectTransform;
+            Vector3 originalPosition = rectTransform.localPosition;
+            Vector3 startPosition = originalPosition + new Vector3(1000, 0, 0);
+            yield return StartCoroutine(FadeAndSlideToPosition(temp, 1f, 0.25f, startPosition, originalPosition));
+        }
+
+        yield return null;
     }
 
     private IEnumerator FadeAndSlideToPosition(Image image, float targetAlpha, float duration, Vector3 startPosition, Vector3 endPosition) {
@@ -2211,7 +2235,7 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
     }
 
 
-
+    
 
 
 

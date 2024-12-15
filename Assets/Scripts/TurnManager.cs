@@ -113,15 +113,21 @@ public class TurnManager : MonoBehaviour
             IEnemyAI AIenemy = tempGameObj.GetComponent<IEnemyAI>();
   
             yield return StartCoroutine(AIenemy.enemyAttack(temp.gameObject));
+            bool didAct = false;
+            if (AIenemy.DidAction) { didAct = true; }
 
             if (temp.getCurrentHealth() <= 0) {
                 Destroy(tempGameObj);
                 yield return new WaitForSeconds(1f);
             }
 
+            if (didAct) { yield return new WaitForSeconds(0.5f); }
+            yield return StartCoroutine(_currentMap.CheckClearCondition());
+            yield return StartCoroutine(_currentMap.CheckDefeatCondition());
+
         }
 
-        yield return new WaitForSeconds(2f);
+        // yield return new WaitForSeconds(2f);
 
         SetEnemyList();
         playerTurn = true;

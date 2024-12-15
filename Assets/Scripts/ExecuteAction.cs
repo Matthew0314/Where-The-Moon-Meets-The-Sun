@@ -322,8 +322,8 @@ public class ExecuteAction : MonoBehaviour
             turnManager.RemovePlayer(AttackingUnit.stats);
             ResetAfterAction(AttackingUnit);
             turnManager.CheckPhase();
-            _currentMap.CheckClearCondition();
-            _currentMap.CheckDefeatCondition();
+            yield return StartCoroutine(_currentMap.CheckClearCondition());
+            yield return StartCoroutine(_currentMap.CheckDefeatCondition());
             
 
         }
@@ -634,6 +634,7 @@ public class ExecuteAction : MonoBehaviour
             Debug.Log("AHHHHHH GAINED " + expObtained + " EXP");
 
             yield return StartCoroutine(playerUnit.ExperienceGain(expObtained * 2));
+            // yield return StartCoroutine(playerUnit.ExperienceGain(210));
             
         }
         yield return new WaitForSeconds(1f);
@@ -969,8 +970,8 @@ public class ExecuteAction : MonoBehaviour
             ResetAfterAction(AttackingUnit);
             
             turnManager.CheckPhase();
-            _currentMap.CheckClearCondition();
-            _currentMap.CheckDefeatCondition();
+            yield return StartCoroutine(_currentMap.CheckClearCondition());
+            yield return StartCoroutine(_currentMap.CheckDefeatCondition());
             
             
 
