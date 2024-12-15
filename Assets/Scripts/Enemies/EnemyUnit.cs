@@ -46,6 +46,9 @@ public class EnemyUnit : UnitManager
             // extraHealth1.gameObject.SetActive(false);
             extraHealth1.gameObject.GetComponent<CanvasGroup>().alpha = 0;
         }
+        // if (stats.weapons.Count > 0) {
+        //     primaryWeapon = stats.weapons[0];
+        // }
         UnitType = "Enemy";
         Debug.Log(stats.UnitName + " Has been initlialized");
         // Initialize Enemy-specific data here

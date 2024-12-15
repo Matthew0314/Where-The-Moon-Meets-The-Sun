@@ -30,7 +30,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     [SerializeField] TextAsset enemyTextDataHard;
     [SerializeField] TextAsset enemyTextDataEclipse;
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
-    private string winCondition = "Rout the enemy.";
+    private string winCondition = "Defeat the boss.";
     private string loseCondition = "<color=#3160BC>Felix</color> or <color=#3160BC>Lilith</color> falls in battle.";
 
     bool calledReinforcements = false;
@@ -101,7 +101,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             maxEID = 5;
         } else if (Difficulty == "Eclipse") {
             data = enemyTextDataEclipse.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
-            maxEID = 2;
+            maxEID = 8;
         } else {
             data = enemyTextDataNormal.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
             maxEID = 5;
@@ -178,6 +178,10 @@ public class PrologueMap : MonoBehaviour, IMaps
             UnitManager enemy = newEnemy.GetComponent<UnitManager>();
             
             enemy.stats = eStats;
+            if (enemy.stats.weapons.Count > 0) {
+                enemy.primaryWeapon = enemy.stats.weapons[0];
+
+            }
 
             enemy.InitializeUnitData();
             enemy.XPos = enemyX;
@@ -214,8 +218,9 @@ public class PrologueMap : MonoBehaviour, IMaps
             //Loads the prefab based on the units class and instantiates it on one of the positions specified by StartGrid
             stats = mapUnits[i];
             GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
-            Instantiate(unitPrefab, new Vector3(grid.GetGridTile(startGridX[i], startGridZ[i]).GetXPos(), grid.GetGridTile(startGridX[i], startGridZ[i]).GetYPos() + 0.005f, grid.GetGridTile(startGridX[i], startGridZ[i]).GetZPos()), Quaternion.identity);
-            PlayerUnit UnitToGrid = unitPrefab.GetComponent<PlayerUnit>();
+            GameObject gridUnit = Instantiate(unitPrefab, new Vector3(grid.GetGridTile(startGridX[i], startGridZ[i]).GetXPos(), grid.GetGridTile(startGridX[i], startGridZ[i]).GetYPos() + 0.005f, grid.GetGridTile(startGridX[i], startGridZ[i]).GetZPos()), Quaternion.identity);
+            PlayerUnit UnitToGrid = gridUnit.GetComponent<PlayerUnit>();
+            
             // UnitToGrid.stats = stats;
             UnitToGrid.XPos = startGridX[i];
             UnitToGrid.ZPos = startGridZ[i];
@@ -235,8 +240,10 @@ public class PrologueMap : MonoBehaviour, IMaps
     //The clear condition for the prologue is routing all the enemies 
     public IEnumerator CheckClearCondition()
     {
-        if (mapEnemies.Count == 0) {
+        // if (mapEnemies.Count == 0) {
+        if (!mapEnemies.Any(unit => unit.stats.EnemyID == 5)) {
             yield return StartCoroutine(combatMenuManager.VicDefText("Victory"));
+            playerCursor.startGame = false;
             while (true) {
 
                 Debug.Log("VICTORY!!!");
@@ -447,8 +454,16 @@ public class PrologueMap : MonoBehaviour, IMaps
     }
 
     public IEnumerator StartMap() {
+        combatMenuManager.DeactivateHoverMenu();
+        yield return new WaitForSeconds(1f);
+        yield return StartCoroutine(playerCursor.MoveCursor(21, 13, 40f));
+        combatMenuManager.DeactivateHoverMenu();
         yield return new WaitForSeconds(0.5f);
+        combatMenuManager.ActivateBackground();
+        
         yield return StartCoroutine(combatMenuManager.FadeUpVD(winCondition, loseCondition));
+
+        StartCoroutine(playerCursor.MoveCursor(playerCursor.getX(), playerCursor.getZ(), 200f));
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
         yield return new WaitForSeconds(0.5f);
         playerCursor.startGame = true;

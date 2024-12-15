@@ -229,6 +229,7 @@ public class PlayerGridMovement : MonoBehaviour
 
                     x += (int)Mathf.Sign(Input.GetAxis("Horizontal"));
                 }
+                 Debug.Log (x + " " + z);
             }
 
             if (Mathf.Abs(Input.GetAxis("Vertical")) >= cursorSen)
@@ -245,10 +246,10 @@ public class PlayerGridMovement : MonoBehaviour
 
                     z += (int)Mathf.Sign(Input.GetAxis("Vertical"));
                 }
-
+                 Debug.Log (x + " " + z);
             }
 
-            Debug.Log (x + " " + z);
+           
         }
     }
 
@@ -261,6 +262,8 @@ public class PlayerGridMovement : MonoBehaviour
 
     // Moves cursor to a specific x and z position
     public IEnumerator MoveCursor(int moveCurX, int moveCurZ, float fspeed) {
+
+        if(!startGame) { combatMenu.DeactivateHoverMenu(); }
         Vector3 targetPosition = new Vector3(gridControl.GetGridTile(moveCurX, moveCurZ).GetXPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetYPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetZPos());
         
         moveCursor.position = new Vector3(gridControl.GetGridTile(moveCurX, moveCurZ).GetXPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetYPos(), gridControl.GetGridTile(moveCurX, moveCurZ).GetZPos());

@@ -123,7 +123,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
             Debug.Log(movX + " " + movZ + " " + min);
 
             
-
+            yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
             Vector3 currentPosition = enemy.transform.position;
                 // enemy.transform.position = new Vector3(generateGrid.GetGridTile(moveX, moveZ).GetXPos(), currentPosition.y, generateGrid.GetGridTile(moveX, moveZ).GetZPos());
 

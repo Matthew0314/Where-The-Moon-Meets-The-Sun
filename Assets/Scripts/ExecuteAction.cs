@@ -321,9 +321,10 @@ public class ExecuteAction : MonoBehaviour
             temp.ZPos = playerGridMovement.GetCurZ();
             turnManager.RemovePlayer(AttackingUnit.stats);
             ResetAfterAction(AttackingUnit);
-            turnManager.CheckPhase();
             yield return StartCoroutine(_currentMap.CheckClearCondition());
             yield return StartCoroutine(_currentMap.CheckDefeatCondition());
+            turnManager.CheckPhase();
+            
             
 
         }
@@ -376,6 +377,8 @@ public class ExecuteAction : MonoBehaviour
 
 
             damage = (int)(damage * multiplier);
+
+            if (damage < 0) {damage = 0;}
 
             if (atk.stats.UnitType == "Player") {
                 DefendExpectHealth -= damage;
@@ -440,15 +443,51 @@ public class ExecuteAction : MonoBehaviour
         //     }
             
         // }
+
+        if (defendingUnit == null) { Debug.LogError("NO DEFENDER!!!!");}
+        else { Debug.LogError("DEFENDER: " + defendingUnit); }
+
+        if (defendingUnit.primaryWeapon == null) { Debug.LogError("NO WEAPON!!!!! ");}
         
         
         
         // moveCursor.gameObject.SetActive(false);
         playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = false;
+        if (attackingUnit.UnitType == "Player") {
+            // Debug.LogError(playerGridMovement.GetCurX() + " " + playerGridMovement.GetCurZ());
+            attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, playerGridMovement.GetCurX(), playerGridMovement.GetCurZ(), defendingUnit.XPos, defendingUnit.ZPos);
+        } else {
+            attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, attackingUnit.XPos, attackingUnit.ZPos, defendingUnit.XPos, defendingUnit.ZPos);
+        }
         
-        attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, attackingUnit.XPos, attackingUnit.ZPos, defendingUnit.XPos, defendingUnit.ZPos);
         Queue<UnitManager> AttackingQueue = attackingUnit.primaryWeapon.AttackingQueue;
         Queue<UnitManager> DefendingQueue = attackingUnit.primaryWeapon.DefendingQueue;
+
+        int leftCou = 0;
+        int rightCou = 0;
+
+        foreach (UnitManager unit in AttackingQueue)
+        {
+            if (unit == attackingUnit)
+            {
+                // Debug.LogError("One More Attacking");
+                leftCou++;
+            }
+            else
+            {
+                rightCou++;
+            }
+        }
+
+        Weapon leftWeap, rightWeap;
+
+        // if (leftCou > 0) { leftWeap = attackingUnit.primaryWeapon; }
+        // else { leftWeap = null; }
+
+        // if (rightCou > 0) { rightWeap = defendingUnit.primaryWeapon; }
+        // else { rightWeap = null; }
+        leftWeap = attackingUnit.primaryWeapon; 
+        rightWeap = defendingUnit.primaryWeapon; 
 
         UnitManager playerUnit = null;
         EnemyUnit enemyUnit = null;
@@ -478,10 +517,13 @@ public class ExecuteAction : MonoBehaviour
         int atkCount = 0;
         int defCount = 0;
 
-        int atkAttack = 0;
-        int defAttack = 0;
-        atkAttack = attackingUnit.GetAttackStat();
-        defAttack = defendingUnit.GetAttackStat();
+        int atkAttack = attackingUnit.stats.Attack + attackingUnit.primaryWeapon.Attack - defendingUnit.stats.Defense;
+        int defAttack = defendingUnit.stats.Attack + defendingUnit.primaryWeapon.Attack - attackingUnit.stats.Defense;
+
+        if(atkAttack < 0) {atkAttack = 0;}
+        if(defAttack < 0) {defAttack = 0;}
+        // atkAttack = attackingUnit.GetAttackStat();
+        // defAttack = defendingUnit.GetAttackStat();
 
         
 
@@ -499,7 +541,7 @@ public class ExecuteAction : MonoBehaviour
             defCount = playerCount;
         }
 
-        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, atkCount, defCount));
+        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
         SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
         yield return new WaitForSeconds(3f);
 
@@ -510,6 +552,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager atk = AttackingQueue.Dequeue();
             UnitManager def = DefendingQueue.Dequeue();
             int damage = atk.primaryWeapon.UnitAttack(atk, def, false);
+            if(damage < 0) { damage = 0; }
             def.TakeDamage(damage);
             // Debug.Log(atk.stats.UnitName + " hits " + def.stats.UnitName + " for " +  damage);
             
@@ -558,7 +601,7 @@ public class ExecuteAction : MonoBehaviour
                 
             }
 
-            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, atkCount, defCount));
+            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
             yield return new WaitForSeconds(1f);
 
             

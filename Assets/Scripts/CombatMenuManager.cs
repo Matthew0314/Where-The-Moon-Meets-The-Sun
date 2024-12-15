@@ -272,6 +272,7 @@ public class CombatMenuManager : MonoBehaviour
         DefeatText = GameObject.Find("Canvas/Phases/Defeat/DefPop").GetComponent<CanvasGroup>();
 
         background = GameObject.Find("Canvas/Background");
+        DeactivateBackground();
         
 
 
@@ -279,6 +280,14 @@ public class CombatMenuManager : MonoBehaviour
 
     void Update() {
         gamepad = Gamepad.current;
+    }
+
+    public void ActivateBackground() {
+        background.SetActive(true);
+    }
+
+    public void DeactivateBackground() {
+        background.SetActive(false);
     }
 
     public IEnumerator ActivateActionMenu() {
@@ -1310,169 +1319,169 @@ public class CombatMenuManager : MonoBehaviour
 //     // yield return new WaitForSeconds(1f);
 // }
 
-public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOnLeft, int expectedPlayerHP, int expectedEnemyHP, int PDamage, int EDamage, int numPHits, int numEHits) {
+// public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOnLeft, int expectedPlayerHP, int expectedEnemyHP, int PDamage, int EDamage, int numPHits, int numEHits) {
 
-    Image pBar;
-    Image eBar;
-    Image pLostBar;
-    Image eLostBar;
+//     Image pBar;
+//     Image eBar;
+//     Image pLostBar;
+//     Image eLostBar;
 
-    // Assign health bars based on whether the player is on the left
-    if (playerOnLeft) {
-        pBar = PHealth;
-        eBar = EHealth;
-        pLostBar = PHealthLost;
-        eLostBar = EHealthLost;
-        pBar.gameObject.SetActive(true);
-        eBar.gameObject.SetActive(true);
-        PHealthSwapped.gameObject.SetActive(false);
-        EHealthSwapped.gameObject.SetActive(false);
-    } else {
-        eBar = EHealthSwapped;
-        pBar = PHealthSwapped;
-        pLostBar = PHealthLost;
-        eLostBar = EHealthLost;
-        pBar.gameObject.SetActive(true);
-        eBar.gameObject.SetActive(true);
-        PHealth.gameObject.SetActive(false);
-        EHealth.gameObject.SetActive(false);
-    }
+//     // Assign health bars based on whether the player is on the left
+//     if (playerOnLeft) {
+//         pBar = PHealth;
+//         eBar = EHealth;
+//         pLostBar = PHealthLost;
+//         eLostBar = EHealthLost;
+//         pBar.gameObject.SetActive(true);
+//         eBar.gameObject.SetActive(true);
+//         PHealthSwapped.gameObject.SetActive(false);
+//         EHealthSwapped.gameObject.SetActive(false);
+//     } else {
+//         eBar = EHealthSwapped;
+//         pBar = PHealthSwapped;
+//         pLostBar = PHealthLost;
+//         eLostBar = EHealthLost;
+//         pBar.gameObject.SetActive(true);
+//         eBar.gameObject.SetActive(true);
+//         PHealth.gameObject.SetActive(false);
+//         EHealth.gameObject.SetActive(false);
+//     }
 
-    if (expectedPlayerHP < 0) { expectedPlayerHP = 0; }
-    if (expectedEnemyHP < 0) { expectedEnemyHP = 0; }
+//     if (expectedPlayerHP < 0) { expectedPlayerHP = 0; }
+//     if (expectedEnemyHP < 0) { expectedEnemyHP = 0; }
 
-    // Use left and right units directly instead of re-assigning them
-    UnitManager leftUnit = left;
-    UnitManager rightUnit = right;
+//     // Use left and right units directly instead of re-assigning them
+//     UnitManager leftUnit = left;
+//     UnitManager rightUnit = right;
 
-    // Calculate hit and crit rates for both units
-    int leftHit = -1;
-    int rightHit = -1;
-    int leftCrit = -1;
-    int rightCrit = -1;
-    if (leftUnit.primaryWeapon != null) {
-        leftHit = leftUnit.primaryWeapon.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
-        leftCrit = leftUnit.primaryWeapon.CritRate + (int)(leftUnit.stats.Luck / 2);
-    }
-    if (rightUnit.primaryWeapon != null) {
-        rightHit = rightUnit.primaryWeapon.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
-        rightCrit = rightUnit.primaryWeapon.CritRate + (int)(rightUnit.stats.Luck / 2);
-    }
+//     // Calculate hit and crit rates for both units
+//     int leftHit = -1;
+//     int rightHit = -1;
+//     int leftCrit = -1;
+//     int rightCrit = -1;
+//     if (leftUnit.primaryWeapon != null) {
+//         leftHit = leftUnit.primaryWeapon.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
+//         leftCrit = leftUnit.primaryWeapon.CritRate + (int)(leftUnit.stats.Luck / 2);
+//     }
+//     if (rightUnit.primaryWeapon != null) {
+//         rightHit = rightUnit.primaryWeapon.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
+//         rightCrit = rightUnit.primaryWeapon.CritRate + (int)(rightUnit.stats.Luck / 2);
+//     }
     
 
-    // Clamp hit and crit rates between 0 and 100
-    leftHit = Mathf.Clamp(leftHit, 0, 100);
-    leftCrit = Mathf.Clamp(leftCrit, 0, 100);
-    rightHit = Mathf.Clamp(rightHit, 0, 100);
-    rightCrit = Mathf.Clamp(rightCrit, 0, 100);
+//     // Clamp hit and crit rates between 0 and 100
+//     leftHit = Mathf.Clamp(leftHit, 0, 100);
+//     leftCrit = Mathf.Clamp(leftCrit, 0, 100);
+//     rightHit = Mathf.Clamp(rightHit, 0, 100);
+//     rightCrit = Mathf.Clamp(rightCrit, 0, 100);
 
-    // Set the left unit (player or enemy) info
-    PlayerName.text = leftUnit.stats.Name;
+//     // Set the left unit (player or enemy) info
+//     PlayerName.text = leftUnit.stats.Name;
 
-    if(leftUnit.primaryWeapon != null) {
-        PlayerWeapon.text = leftUnit.primaryWeapon.WeaponName;
+//     if(leftUnit.primaryWeapon != null) {
+//         PlayerWeapon.text = leftUnit.primaryWeapon.WeaponName;
 
-    } else {
-        PlayerWeapon.text = "";
-    }
-    if (numPHits > 1) {
-        PlayerDamage.text = $"{PDamage} x {numPHits}";
-        PlayerHit.text = $"{leftHit}%";
-        PlayerCrit.text = $"{leftCrit}%";
-    } else if (numPHits == 0) {
-        PlayerDamage.text = "-";
-        PlayerHit.text = "-";
-        PlayerCrit.text = "-";
-    } else {
-        PlayerDamage.text = $"{PDamage}";
-        PlayerHit.text = $"{leftHit}%";
-        PlayerCrit.text = $"{leftCrit}%";
-    }
-    PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+//     } else {
+//         PlayerWeapon.text = "";
+//     }
+//     if (numPHits > 1) {
+//         PlayerDamage.text = $"{PDamage} x {numPHits}";
+//         PlayerHit.text = $"{leftHit}%";
+//         PlayerCrit.text = $"{leftCrit}%";
+//     } else if (numPHits == 0) {
+//         PlayerDamage.text = "-";
+//         PlayerHit.text = "-";
+//         PlayerCrit.text = "-";
+//     } else {
+//         PlayerDamage.text = $"{PDamage}";
+//         PlayerHit.text = $"{leftHit}%";
+//         PlayerCrit.text = $"{leftCrit}%";
+//     }
+//     PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
 
-    // Update health bars and positions
-    float leftCurrFill = (float)(expectedPlayerHP) / leftUnit.stats.Health;
-    float leftLostFill = (float)leftUnit.getCurrentHealth() / leftUnit.stats.Health;
-    pBar.fillAmount = leftCurrFill;
-    pLostBar.fillAmount = leftLostFill;
+//     // Update health bars and positions
+//     float leftCurrFill = (float)(expectedPlayerHP) / leftUnit.stats.Health;
+//     float leftLostFill = (float)leftUnit.getCurrentHealth() / leftUnit.stats.Health;
+//     pBar.fillAmount = leftCurrFill;
+//     pLostBar.fillAmount = leftLostFill;
 
-    // Destroy any previous HP indicator for the player
-    Destroy(HPplayer);
+//     // Destroy any previous HP indicator for the player
+//     Destroy(HPplayer);
 
-    // Set position for the player's health bar
-    float pXPos = (290.0f * (1.0f - leftLostFill)) - 217.0f ;
-    HPplayer = Instantiate(HPIndicator, new Vector3(pXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
+//     // Set position for the player's health bar
+//     float pXPos = (290.0f * (1.0f - leftLostFill)) - 217.0f ;
+//     HPplayer = Instantiate(HPIndicator, new Vector3(pXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
 
-    GameObject plaChild = HPplayer.transform.GetChild(0).gameObject;
-    TextMeshProUGUI plaText = plaChild.GetComponent<TextMeshProUGUI>();
-    // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-    plaText.text = $"{expectedPlayerHP}";
-    // if(playerOnLeft) {
-    //     plaText.text = $"{expectedPlayerHP}";
-    //     // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-    // } else {
-    //     plaText.text = $"{expectedEnemyHP}";
-    //     // PlayerCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
-    // }
+//     GameObject plaChild = HPplayer.transform.GetChild(0).gameObject;
+//     TextMeshProUGUI plaText = plaChild.GetComponent<TextMeshProUGUI>();
+//     // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+//     plaText.text = $"{expectedPlayerHP}";
+//     // if(playerOnLeft) {
+//     //     plaText.text = $"{expectedPlayerHP}";
+//     //     // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+//     // } else {
+//     //     plaText.text = $"{expectedEnemyHP}";
+//     //     // PlayerCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+//     // }
     
 
-    // Set the right unit (enemy or player) info
-    EnemyName.text = rightUnit.stats.Name;
+//     // Set the right unit (enemy or player) info
+//     EnemyName.text = rightUnit.stats.Name;
 
-    if (rightUnit.primaryWeapon != null) {
-        EnemyWeapon.text = rightUnit.primaryWeapon.WeaponName;
-    } else {
-        EnemyWeapon.text = "";
-    }
+//     if (rightUnit.primaryWeapon != null) {
+//         EnemyWeapon.text = rightUnit.primaryWeapon.WeaponName;
+//     } else {
+//         EnemyWeapon.text = "";
+//     }
     
-    if (numEHits > 1) {
-        EnemyDamage.text = $"{EDamage} x {numEHits}";
-        EnemyHit.text = $"{rightHit}%";
-        EnemyCrit.text = $"{rightCrit}%";
-    } else if (numEHits == 0) {
-        EnemyDamage.text = "-";
-        EnemyHit.text = "-";
-        EnemyCrit.text = "-";
-    } else {
-        EnemyDamage.text = $"{EDamage}";
-        EnemyHit.text = $"{rightHit}%";
-        EnemyCrit.text = $"{rightCrit}%";
-    }
-    EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+//     if (numEHits > 1) {
+//         EnemyDamage.text = $"{EDamage} x {numEHits}";
+//         EnemyHit.text = $"{rightHit}%";
+//         EnemyCrit.text = $"{rightCrit}%";
+//     } else if (numEHits == 0) {
+//         EnemyDamage.text = "-";
+//         EnemyHit.text = "-";
+//         EnemyCrit.text = "-";
+//     } else {
+//         EnemyDamage.text = $"{EDamage}";
+//         EnemyHit.text = $"{rightHit}%";
+//         EnemyCrit.text = $"{rightCrit}%";
+//     }
+//     EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
 
-    // Update health bars and positions
-    float rightCurrFill = (float)(expectedEnemyHP) / rightUnit.stats.Health;
-    float rightLostFill = (float)rightUnit.getCurrentHealth() / rightUnit.stats.Health;
-    eBar.fillAmount = rightCurrFill;
-    eLostBar.fillAmount = rightLostFill;
+//     // Update health bars and positions
+//     float rightCurrFill = (float)(expectedEnemyHP) / rightUnit.stats.Health;
+//     float rightLostFill = (float)rightUnit.getCurrentHealth() / rightUnit.stats.Health;
+//     eBar.fillAmount = rightCurrFill;
+//     eLostBar.fillAmount = rightLostFill;
 
-    // Destroy any previous HP indicator for the enemy
-    Destroy(HPenemy);
+//     // Destroy any previous HP indicator for the enemy
+//     Destroy(HPenemy);
 
-    // Set position for the enemy's health bar
-    float eXPos = (291.0f * rightLostFill) + 140.0f ;
-    HPenemy = Instantiate(HPIndicator, new Vector3(eXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
+//     // Set position for the enemy's health bar
+//     float eXPos = (291.0f * rightLostFill) + 140.0f ;
+//     HPenemy = Instantiate(HPIndicator, new Vector3(eXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
 
-    GameObject eneChild = HPenemy.transform.GetChild(0).gameObject;
-    TextMeshProUGUI eneText = eneChild.GetComponent<TextMeshProUGUI>();
+//     GameObject eneChild = HPenemy.transform.GetChild(0).gameObject;
+//     TextMeshProUGUI eneText = eneChild.GetComponent<TextMeshProUGUI>();
 
-    eneText.text = $"{expectedEnemyHP}";
+//     eneText.text = $"{expectedEnemyHP}";
 
-    // if(playerOnLeft) {
-    //     eneText.text = $"{expectedEnemyHP}";
-    //     // EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
-    // } else {
-    //     eneText.text = $"{expectedPlayerHP}";
-    //     // EnemyCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-    // }
+//     // if(playerOnLeft) {
+//     //     eneText.text = $"{expectedEnemyHP}";
+//     //     // EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+//     // } else {
+//     //     eneText.text = $"{expectedPlayerHP}";
+//     //     // EnemyCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+//     // }
 
 
-    // Activate the menu
-    Menu.SetActive(true);
+//     // Activate the menu
+//     Menu.SetActive(true);
 
-    yield return null;
-    // yield return new WaitForSeconds(1f);
-}
+//     yield return null;
+//     // yield return new WaitForSeconds(1f);
+// }
 
 
 
@@ -2244,7 +2253,165 @@ public IEnumerator BattleMenu(UnitManager left, UnitManager right, bool playerOn
 
 
 
+    public IEnumerator BattleMenu(UnitManager left, UnitManager right, int expectedLeftHP, int expectedRightHP, int lDamage, int rDamage, int numLHits, int numRHits, Weapon leftWeap, Weapon rightWeap) {
 
+    Image lBar;
+    Image rBar;
+    Image lLostBar;
+    Image rLostBar;
+
+    lLostBar = PHealthLost;
+    rLostBar = EHealthLost;
+
+    if (left.UnitType == "Player") {
+        lBar = PHealth;
+        PHealth.gameObject.SetActive(true);
+        PHealthSwapped.gameObject.SetActive(false);
+    } else {
+        lBar = PHealthSwapped;
+        PHealthSwapped.gameObject.SetActive(true);
+        PHealth.gameObject.SetActive(false);
+    }
+
+    if (right.UnitType == "Player") {
+        rBar = EHealthSwapped;
+        EHealthSwapped.gameObject.SetActive(true);
+        EHealth.gameObject.SetActive(false);
+    } else {
+        rBar = EHealth;
+        EHealth.gameObject.SetActive(true);
+        EHealthSwapped.gameObject.SetActive(false);
+    }
+    
+    if (expectedLeftHP < 0) { expectedLeftHP = 0; }
+    if (expectedRightHP < 0) { expectedRightHP = 0; }
+
+    // Use left and right units directly instead of re-assigning them
+    UnitManager leftUnit = left;
+    UnitManager rightUnit = right;
+
+    // Calculate hit and crit rates for both units
+    int leftHit = -1;
+    int rightHit = -1;
+    int leftCrit = -1;
+    int rightCrit = -1;
+    PlayerWeapon.text = "";
+    EnemyWeapon.text = "";
+    if (leftWeap != null) {
+        leftHit = leftWeap.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
+        leftCrit = leftWeap.CritRate + (int)(leftUnit.stats.Luck / 2);
+        PlayerWeapon.text = leftWeap.WeaponName;
+    } 
+    if (rightWeap != null) {
+        rightHit = rightWeap.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
+        rightCrit = rightWeap.CritRate + (int)(rightUnit.stats.Luck / 2);
+        EnemyWeapon.text = rightWeap.WeaponName;
+    }
+    
+
+    // Clamp hit and crit rates between 0 and 100
+    leftHit = Mathf.Clamp(leftHit, 0, 100);
+    leftCrit = Mathf.Clamp(leftCrit, 0, 100);
+    rightHit = Mathf.Clamp(rightHit, 0, 100);
+    rightCrit = Mathf.Clamp(rightCrit, 0, 100);
+
+    // Set the left unit (player or enemy) info
+    PlayerName.text = leftUnit.stats.Name;
+
+    if (numLHits > 1) {
+        PlayerDamage.text = $"{lDamage} x {numLHits}";
+        PlayerHit.text = $"{leftHit}%";
+        PlayerCrit.text = $"{leftCrit}%";
+    } else if (numLHits == 0) {
+        PlayerDamage.text = "-";
+        PlayerHit.text = "-";
+        PlayerCrit.text = "-";
+    } else {
+        PlayerDamage.text = $"{lDamage}";
+        PlayerHit.text = $"{leftHit}%";
+        PlayerCrit.text = $"{leftCrit}%";
+    }
+    PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+
+    // Update health bars and positions
+    float leftCurrFill = (float)(expectedLeftHP) / leftUnit.stats.Health;
+    float leftLostFill = (float)leftUnit.getCurrentHealth() / leftUnit.stats.Health;
+    lBar.fillAmount = leftCurrFill;
+    lLostBar.fillAmount = leftLostFill;
+
+    // Destroy any previous HP indicator for the player
+    Destroy(HPplayer);
+
+    // Set position for the player's health bar
+    float pXPos = (290.0f * (1.0f - leftLostFill)) - 217.0f ;
+    HPplayer = Instantiate(HPIndicator, new Vector3(pXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
+
+    GameObject plaChild = HPplayer.transform.GetChild(0).gameObject;
+    TextMeshProUGUI plaText = plaChild.GetComponent<TextMeshProUGUI>();
+    // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+    plaText.text = $"{expectedLeftHP}";
+    // if(playerOnLeft) {
+    //     plaText.text = $"{expectedPlayerHP}";
+    //     // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+    // } else {
+    //     plaText.text = $"{expectedEnemyHP}";
+    //     // PlayerCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+    // }
+    
+
+    // Set the right unit (enemy or player) info
+    EnemyName.text = rightUnit.stats.Name;
+
+
+    
+    if (numRHits > 1) {
+        EnemyDamage.text = $"{rDamage} x {numRHits}";
+        EnemyHit.text = $"{rightHit}%";
+        EnemyCrit.text = $"{rightCrit}%";
+    } else if (numRHits == 0) {
+        EnemyDamage.text = "-";
+        EnemyHit.text = "-";
+        EnemyCrit.text = "-";
+    } else {
+        EnemyDamage.text = $"{rDamage}";
+        EnemyHit.text = $"{rightHit}%";
+        EnemyCrit.text = $"{rightCrit}%";
+    }
+    EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+
+    // Update health bars and positions
+    float rightCurrFill = (float)(expectedRightHP) / rightUnit.stats.Health;
+    float rightLostFill = (float)rightUnit.getCurrentHealth() / rightUnit.stats.Health;
+    rBar.fillAmount = rightCurrFill;
+    rLostBar.fillAmount = rightLostFill;
+
+    // Destroy any previous HP indicator for the enemy
+    Destroy(HPenemy);
+
+    // Set position for the enemy's health bar
+    float eXPos = (291.0f * rightLostFill) + 140.0f ;
+    HPenemy = Instantiate(HPIndicator, new Vector3(eXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
+
+    GameObject eneChild = HPenemy.transform.GetChild(0).gameObject;
+    TextMeshProUGUI eneText = eneChild.GetComponent<TextMeshProUGUI>();
+
+    eneText.text = $"{expectedRightHP}";
+
+    // if(playerOnLeft) {
+    //     eneText.text = $"{expectedEnemyHP}";
+    //     // EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+    // } else {
+    //     eneText.text = $"{expectedPlayerHP}";
+    //     // EnemyCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+    // }
+
+
+    // Activate the menu
+    Menu.SetActive(true);
+
+    yield return null;
+    // yield return new WaitForSeconds(1f);
+}
 
 
 

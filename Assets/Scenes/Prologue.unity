@@ -24479,7 +24479,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyTextDataNormal: {fileID: 4900000, guid: d857066bc020a0643acaab6dc062f0f6, type: 3}
   enemyTextDataHard: {fileID: 4900000, guid: 23ed6c837e1c31b43981560e9aa77f72, type: 3}
-  enemyTextDataEclipse: {fileID: 4900000, guid: d857066bc020a0643acaab6dc062f0f6, type: 3}
+  enemyTextDataEclipse: {fileID: 4900000, guid: 68464ef6b49fd7140acebd22c7cda689, type: 3}
 --- !u!114 &641421685
 MonoBehaviour:
   m_ObjectHideFlags: 0
