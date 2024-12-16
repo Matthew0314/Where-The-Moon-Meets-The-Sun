@@ -109,7 +109,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
                 {
                     for (int j = 0; j < generateGrid.GetLength(); j++)
                     {
-                        if(tempGrid[i,j] && findPath.canMove[i,j]) {
+                        if(tempGrid[i,j] && findPath.canMove[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile == null) {
                             foundSpace = true;
                             moveX = i;
                             moveZ = j;

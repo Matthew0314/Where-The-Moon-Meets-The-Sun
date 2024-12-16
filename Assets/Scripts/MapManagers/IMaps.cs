@@ -10,6 +10,8 @@ public interface IMaps
     void AddNewPlayers();  //Adds new players during that map
     void PrintCharacters();  //Prints the initlial characters
 
+    string GetDifficulty();
+
     //Need function for add and remove characters later on
     
     IEnumerator CheckClearCondition(); //After every action checks if clear condition has been met

@@ -26,14 +26,16 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
 
     public IEnumerator enemyAttack(GameObject enemy) {
         DidAction = false;
+
+        //Get the enemy's UnitManager and its weapon list
         List<Weapon> weaponList = enemy.GetComponent<UnitManager>().stats.weapons;
         UnitManager enemyUnit = enemy.GetComponent<UnitManager>();
 
-        // yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
-
+        //Sets up lists for Units to attack and units in range
         List<UnitsToAttack> unitAttackList = new List<UnitsToAttack>();
         List<UnitManager> unitsInRange = new List<UnitManager>();;
 
+        // For each weapon, get the enemies movement and attack range and adds it to the list
         for (int k = 0; k < weaponList.Count; k++) {
             findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.getMove(), enemyUnit);
             unitsInRange = new List<UnitManager>();
@@ -48,8 +50,10 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                 }
             }
 
+            //If there are no units in range, continue to next weapon
             if(unitsInRange.Count == 0) {continue;}
 
+            //For each Unit in the list, 
             for (int l = 0; l < unitsInRange.Count; l++) {
                 
                 UnitManager tempUnit = unitsInRange[l];
@@ -82,8 +86,9 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
             }
         }
 
-        if (unitsInRange.Count == 0) {
+        if (unitAttackList.Count == 0) {
             
+            //Sets up lists that will be used later
             List<List<PathTile>> shortestPaths = new List<List<PathTile>>();
             List<UnitManager> tempUnits = _currentMap.GetMapUnits();
             List<PathTile> minPath = new List<PathTile>();
@@ -91,17 +96,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
             int movZ = 0;
             int min = 999;
  
-            // Debug.Log("AHHHHHHHHHHHHHHHHHH unitCount " + tempUnits.Count);
-            // for (int i = 0; i < tempUnits.Count; i++) {
-            //     shortestPaths.Add(findPath.FindShortestPath(enemyUnit.XPos, enemyUnit.ZPos, tempUnits[i].XPos, tempUnits[i].ZPos));
-            //     Debug.Log("AHHHHHHHHHHHHHHHHHHHH" + tempUnits[i].XPos + " " + tempUnits[i].ZPos + " " + min);
-            //     if (shortestPaths[i].Count < min) {
-            //         minPath = shortestPaths[i];
-            //         min = minPath.Count;
-                    
-            //     }
-                
-            // }
+    
             int pathCou = 0;
             for (int i = 0; i < generateGrid.GetWidth(); i++)
             {
@@ -120,44 +115,51 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                     }
                 }
             }
-            Debug.Log(movX + " " + movZ + " " + min);
+            // Debug.Log(movX + " " + movZ + " " + min);
+
+            //Bruteforce way of preventing unit from going on tile with another unit
+            int curInd = minPath.Count - 1;
+            while (curInd >= 0 && generateGrid.GetGridTile(minPath[curInd].x, minPath[curInd].z).UnitOnTile != null) {
+                minPath.Remove(minPath[curInd]);
+                curInd--;
+            }
 
             
             yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
             Vector3 currentPosition = enemy.transform.position;
                 // enemy.transform.position = new Vector3(generateGrid.GetGridTile(moveX, moveZ).GetXPos(), currentPosition.y, generateGrid.GetGridTile(moveX, moveZ).GetZPos());
 
-                // enemyUnit.primaryWeapon = UnitToAtk.weaponUsed;
+            // enemyUnit.primaryWeapon = UnitToAtk.weaponUsed;
 
-                
-                Transform objectTrans = playerGridMovement.transform;
-                Transform enemyTrans = enemy.transform;
-                float step;
+            
+            Transform objectTrans = playerGridMovement.transform;
+            Transform enemyTrans = enemy.transform;
+            float step;
 
-                for (int i = 0; i < enemyUnit.getMove(); i++) {
-                    Vector3 targetPosition = new Vector3(generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetXPos(), generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetYPos() + 0.30f, generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetZPos());
-                    float speed = 25f; // Speed of movement
-                    playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetXPos(), generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetYPos() + 0.30f, generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetZPos());
+            for (int i = 0; i < enemyUnit.getMove(); i++) {
+                Vector3 targetPosition = new Vector3(generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetXPos(), generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetYPos() + 0.30f, generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetZPos());
+                float speed = 25f; // Speed of movement
+                playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetXPos(), generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetYPos() + 0.30f, generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetZPos());
 
-                    // // Move the enemy towards the target position
-                    while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)
-                    {
-                        // Calculate the step based on speed and deltaTime
-                        step = speed * Time.deltaTime;
+                // // Move the enemy towards the target position
+                while (Vector3.Distance(objectTrans.position, targetPosition) > 0.01f)
+                {
+                    // Calculate the step based on speed and deltaTime
+                    step = speed * Time.deltaTime;
 
-                        // Move the enemy towards the target position gradually
-                        objectTrans.position = Vector3.MoveTowards(objectTrans.position, targetPosition, step);
-                        enemyTrans.position = Vector3.MoveTowards(enemyTrans.position, targetPosition, step);
+                    // Move the enemy towards the target position gradually
+                    objectTrans.position = Vector3.MoveTowards(objectTrans.position, targetPosition, step);
+                    enemyTrans.position = Vector3.MoveTowards(enemyTrans.position, targetPosition, step);
 
-                        yield return null; // Wait for the next frame
-                    }
-
-                    objectTrans.position = targetPosition; 
-                    enemyTrans.position = targetPosition; 
-                    movX = minPath[i].x;
-                    movZ = minPath[i].z;
-                    yield return null;
+                    yield return null; // Wait for the next frame
                 }
+
+                objectTrans.position = targetPosition; 
+                enemyTrans.position = targetPosition; 
+                movX = minPath[i].x;
+                movZ = minPath[i].z;
+                yield return null;
+            }
 
             generateGrid.MoveUnit(enemyUnit, enemyUnit.XPos, enemyUnit.ZPos, movX, movZ);
             
@@ -181,7 +183,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                 {
                     for (int j = 0; j < generateGrid.GetLength(); j++)
                     {
-                        if(tempGrid[i,j] && findPath.canMove[i,j]) {
+                        if(tempGrid[i,j] && findPath.canMove[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile == null) {
                             foundSpace = true;
                             moveX = i;
                             moveZ = j;
@@ -233,24 +235,10 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                 }
                 
                 generateGrid.MoveUnit(enemyUnit, enemyUnit.XPos, enemyUnit.ZPos, moveX, moveZ);
-                Debug.Log("AHHHHHHHHH " + enemyUnit.stats.UnitName + " Attacks " + UnitToAtk.unit.stats.UnitName);
-                Debug.Log("AHHHHHHHHHH player primary weapon " + UnitToAtk.unit.primaryWeapon.WeaponName);
                 
                 yield return StartCoroutine(executeAction.ExecuteAttack(enemyUnit, UnitToAtk.unit));
-                DidAction = true;
-                Debug.Log("AHHHHHHHHHH End Co Routine");
-            
-            
+                DidAction = true;       
             }
-        }
-    
-
-    // yield return null;
-    // if (enemyUnit.getCurrentHealth() > 0) {
-    //     yield return new WaitForSeconds(1f);
-    // } else {
-    //     yield return null;
-    // }
-    
+        }   
     }
 }

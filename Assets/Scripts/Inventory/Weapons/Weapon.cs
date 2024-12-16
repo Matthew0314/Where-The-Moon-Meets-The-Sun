@@ -150,6 +150,9 @@ public abstract class Weapon
             int hit = atk.primaryWeapon.HitRate + (atk.stats.Luck * 4) - def.stats.Evasion;
             int crit =  atk.primaryWeapon.CritRate + (int)(atk.stats.Luck / 2);
 
+            if (hit < 0) { hit = 0; }
+            if (crit < 0) { crit = 0; }
+
             int rand = Random.Range(0, 101);
             if (hit <= rand) {
                 miss = true;

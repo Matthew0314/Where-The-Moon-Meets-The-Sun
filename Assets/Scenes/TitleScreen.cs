@@ -14,11 +14,13 @@ public class TitleScreen : MonoBehaviour
     [SerializeField] List<Button> difficultyButtons;
     [SerializeField] GameObject diffMenu;
     [SerializeField] GameObject startMenu;
+    [SerializeField] GameObject controlMenu;
     string[] difficulties = { "Normal", "Hard", "Eclipse" };
     bool inStartMenu = true;
     bool inDiffMenu = false;
     bool axisInUse = false;
     bool oneAction = false;
+    bool inControlMenu = false;
     public static string difficulty = " ";
     int currentIndex = 0;
 
@@ -34,6 +36,20 @@ public class TitleScreen : MonoBehaviour
     void Update()
     {
         gamepad = Gamepad.current;
+
+        if (inControlMenu) {
+            if ((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) || (Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame))) {
+                inStartMenu = true;
+                inControlMenu = false;
+                DeactivateControlMenu();
+                ActivateStartMenu();
+                currentIndex = 1;
+                startButtons[currentIndex].Select();
+                
+            }
+
+            return;
+        }
         float vertical = Input.GetAxis("Vertical");
 
         if (!axisInUse)
@@ -91,7 +107,7 @@ public class TitleScreen : MonoBehaviour
             axisInUse = false;
         }
 
-        if (oneAction && (Input.GetKeyDown(KeyCode.Space) || gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) // "Submit" button
+        if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
         {
             if(inStartMenu) {
                 if (currentIndex == 0) {
@@ -101,6 +117,11 @@ public class TitleScreen : MonoBehaviour
                     inDiffMenu = true;
                     currentIndex = 0;
                     difficultyButtons[0].Select();
+                } else {
+                    ActivateControlMenu();
+                    DeactivateStartMenu();
+                    inControlMenu = true;
+                    inStartMenu = false;
                 }
             } else if (inDiffMenu) {
                 difficulty = difficulties[currentIndex];
@@ -126,6 +147,18 @@ public class TitleScreen : MonoBehaviour
 
     void DeactivateStartMenu() {
         startMenu.SetActive(false);
+    }
+
+    void ActivateStartMenu() {
+        startMenu.SetActive(true);
+    }
+
+    void ActivateControlMenu() {
+        controlMenu.SetActive(true);
+    }
+
+    void DeactivateControlMenu() {
+        controlMenu.SetActive(false);
     }
 
     public static string GetDifficulty() {

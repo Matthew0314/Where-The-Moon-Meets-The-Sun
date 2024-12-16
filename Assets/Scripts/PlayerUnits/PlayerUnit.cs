@@ -53,7 +53,7 @@ public class PlayerUnit : UnitManager
         PlayerStats pStats = (PlayerStats)stats;
         
 
-        while (stats.Experience > 100) {
+        while (stats.Experience >= 100) {
             Debug.Log("LEVEL UP");
 
             

@@ -402,172 +402,113 @@ public class ExecuteAction : MonoBehaviour
 
 
     public IEnumerator ExecuteAttack(UnitManager attackingUnit, UnitManager defendingUnit) {
+        // Used to check if unit lost an extra healthbar and needs to revived
         bool extraHealthBar = false;
         UnitManager extraHltUnit = null;
+
+        // Deactivates the hover menu
         combatMenuManager.DeactivateHoverMenu();
+
+        // Gets attacking and defending object and rotation so it can make them face each other
         GameObject atkObj = attackingUnit.gameObject;
         GameObject defObj = defendingUnit.gameObject;
         Quaternion originalAtkRotation = atkObj.transform.rotation;
         Quaternion originalDefRotation = defObj.transform.rotation;
         atkObj.transform.LookAt(defObj.transform);
         defObj.transform.LookAt(atkObj.transform);
-        bool playerOnLeft;
-        combatMenuManager.DeactivateExpectedMenu();
-        if (attackingUnit.UnitType == "Player") {
-            playerOnLeft = true;
-        } else {
-            playerOnLeft = false;
-        }
-        
-        // CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
-        // while (brain.ActiveVirtualCamera != combatCam)
-        // {
-        //     yield return null; // Wait until next frame
-        // }
 
+        // Deactivates the Expected Menu
+        combatMenuManager.DeactivateExpectedMenu();
+
+        // Get the unit circle of the attacker and defender so it can deactivate them
         GameObject atkCircle = attackingUnit.unitCircle;
         GameObject defCircle = defendingUnit.unitCircle;
         atkCircle.SetActive(false);
         defCircle.SetActive(false);
+
+        // Destroys the Range and area
         findPath.DestroyRange();
-        findPath.DestroyArea();
-
-        List<UnitManager> mapUnits = _currentMap.GetMapUnits();
-        List<GameObject> unitObj = new List<GameObject>();
-
-        // foreach (UnitManager unit in mapUnits) {
-        //     if (unit != attackingUnit && unit != defendingUnit) {
-        //         unitObj.Add(unit.gameObject);
-
-        //         unit.gameObject.SetActive(false);
-        //     }
-            
-        // }
-
-        if (defendingUnit == null) { Debug.LogError("NO DEFENDER!!!!");}
-        else { Debug.LogError("DEFENDER: " + defendingUnit); }
-
-        if (defendingUnit.primaryWeapon == null) { Debug.LogError("NO WEAPON!!!!! ");}
+        findPath.DestroyArea();  
         
-        
-        
-        // moveCursor.gameObject.SetActive(false);
+        // Disables the cursor
         playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = false;
+
+        // Initlializes the queues
         if (attackingUnit.UnitType == "Player") {
-            // Debug.LogError(playerGridMovement.GetCurX() + " " + playerGridMovement.GetCurZ());
             attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, playerGridMovement.GetCurX(), playerGridMovement.GetCurZ(), defendingUnit.XPos, defendingUnit.ZPos);
         } else {
             attackingUnit.primaryWeapon.InitiateQueues(attackingUnit, defendingUnit, attackingUnit.XPos, attackingUnit.ZPos, defendingUnit.XPos, defendingUnit.ZPos);
         }
-        
+
+        // Gets the queues
         Queue<UnitManager> AttackingQueue = attackingUnit.primaryWeapon.AttackingQueue;
         Queue<UnitManager> DefendingQueue = attackingUnit.primaryWeapon.DefendingQueue;
 
+        // Gets the amount of times the left and right until will attack
         int leftCou = 0;
         int rightCou = 0;
 
-        foreach (UnitManager unit in AttackingQueue)
-        {
-            if (unit == attackingUnit)
-            {
-                // Debug.LogError("One More Attacking");
-                leftCou++;
-            }
-            else
-            {
-                rightCou++;
-            }
+        foreach (UnitManager unit in AttackingQueue) {
+            if (unit == attackingUnit) { leftCou++; }
+            else { rightCou++; }
         }
 
+        // Gets Weapons for the Battle Menu
         Weapon leftWeap, rightWeap;
-
-        // if (leftCou > 0) { leftWeap = attackingUnit.primaryWeapon; }
-        // else { leftWeap = null; }
-
-        // if (rightCou > 0) { rightWeap = defendingUnit.primaryWeapon; }
-        // else { rightWeap = null; }
         leftWeap = attackingUnit.primaryWeapon; 
         rightWeap = defendingUnit.primaryWeapon; 
 
+        // Used later for experience
         UnitManager playerUnit = null;
         EnemyUnit enemyUnit = null;
-
-        
-
-        Queue<UnitManager> tempQueue = new Queue<UnitManager>(AttackingQueue);
-
-        int playerCount = 0;
-        int enemyCount = 0;
-
-        // Process the temporary queue
-        while (tempQueue.Count > 0)
-        {
-            UnitManager ak = tempQueue.Dequeue();
-
-            if (ak.UnitType == "Player")
-            {
-                playerCount++;
-            }
-            else if (ak.UnitType == "Enemy")
-            {
-                enemyCount++;
-            }
-        }
-
-        int atkCount = 0;
-        int defCount = 0;
-
-        int atkAttack = attackingUnit.stats.Attack + attackingUnit.primaryWeapon.Attack - defendingUnit.stats.Defense;
-        int defAttack = defendingUnit.stats.Attack + defendingUnit.primaryWeapon.Attack - attackingUnit.stats.Defense;
-
-        if(atkAttack < 0) {atkAttack = 0;}
-        if(defAttack < 0) {defAttack = 0;}
-        // atkAttack = attackingUnit.GetAttackStat();
-        // defAttack = defendingUnit.GetAttackStat();
-
-        
 
         if (attackingUnit.stats.UnitType == "Player") {
             playerUnit = attackingUnit;
             enemyUnit = (EnemyUnit)defendingUnit;
-            atkCount = playerCount;
-            defCount = enemyCount;
         }
 
         if (defendingUnit.stats.UnitType == "Player") {
             playerUnit = defendingUnit;
             enemyUnit = (EnemyUnit)attackingUnit;
-            atkCount = enemyCount;
-            defCount = playerCount;
         }
+        
+        // Calculates Expected Attack for both defender and attacker that will be used in the battle menu
+        int defAttack = 0;
+        int atkAttack = attackingUnit.stats.Attack + attackingUnit.primaryWeapon.Attack - defendingUnit.stats.Defense;
+        if (defendingUnit.primaryWeapon != null)
+        {
+            defAttack = defendingUnit.stats.Attack + defendingUnit.primaryWeapon.Attack - attackingUnit.stats.Defense;
+        }
+            
+        if (atkAttack < 0) {atkAttack = 0;}
+        if(defAttack < 0) {defAttack = 0;}
 
+        // Opens battle menu and switches to combat cam with a 3f transition
         yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
         SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
         yield return new WaitForSeconds(3f);
 
+        // Get the Count of the queue at its original state
         int coun = AttackingQueue.Count;
-        // Debug.Log(" COUNT " + coun);
 
         for (int i = 0; i < coun; i++) {
+            // Dequeue both the attacker and defender
             UnitManager atk = AttackingQueue.Dequeue();
             UnitManager def = DefendingQueue.Dequeue();
+
+            // Calculates the damage
             int damage = atk.primaryWeapon.UnitAttack(atk, def, false);
             if(damage < 0) { damage = 0; }
-            def.TakeDamage(damage);
-            // Debug.Log(atk.stats.UnitName + " hits " + def.stats.UnitName + " for " +  damage);
-            
-            // if (atk.UnitType == "Player") {
-            //     yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, atk.getCurrentHealth(), def.getCurrentHealth(), 10, 10, 10, 10));
-            //     yield return new WaitForSeconds(1f);
-            // } else {
-            //     yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, playerOnLeft, def.getCurrentHealth(), atk.getCurrentHealth(), 10, 10, 10, 10));
-            //     yield return new WaitForSeconds(1f);
-            // }
 
+            // Damages the defender
+            def.TakeDamage(damage);
+
+            // Decrements the weapons uses
             atk.primaryWeapon.DecrementUses();
 
+            // If uses is 0 or less the item has been broken
             if(atk.primaryWeapon.Uses <= 0) {
-                Debug.Log("Item Broke");
+                // Removes the unit that lost their weapon from the attacking queue and the other from the defending queu
                 Queue<UnitManager> newAttackingQueue = new Queue<UnitManager>();
                 while (AttackingQueue.Count > 0) {
                     UnitManager unit = AttackingQueue.Dequeue();
@@ -578,7 +519,6 @@ public class ExecuteAction : MonoBehaviour
                 AttackingQueue.Clear();
                 AttackingQueue = newAttackingQueue;
 
-                // Rebuild DefendingQueue without any references to atk
                 Queue<UnitManager> newDefendingQueue = new Queue<UnitManager>();
                 while (DefendingQueue.Count > 0) {
                     UnitManager unit = DefendingQueue.Dequeue();
@@ -590,17 +530,17 @@ public class ExecuteAction : MonoBehaviour
                 DefendingQueue.Clear();
                 DefendingQueue = newDefendingQueue;
 
+                // Makes the primary weapon the next one in the list, if none then set it to null
                 atk.stats.weapons.Remove(atk.primaryWeapon);
                 if (atk.stats.weapons.Count >= 1) {
                     atk.primaryWeapon = atk.stats.weapons[0];
                 } else {
                     atk.primaryWeapon = null;
                 }
-                
-
-                
             }
 
+
+            // Sets up combat battle menu with updated health
             yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
             yield return new WaitForSeconds(1f);
 
@@ -609,28 +549,27 @@ public class ExecuteAction : MonoBehaviour
 
                 
             
-
+            // If defender dies
             if (def.getCurrentHealth() <= 0) {
-                // Debug.Log("Removing " + def.stats.UnitName);
+                // checked if more than 1 health bar, else remove the dead unit 
                 if (def.stats.HealthBars > 1) {
                     extraHealthBar = true;
                     extraHltUnit = def;
                 } else {
                     _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
                 }
-                
-                // Debug.Log("Removing " + def.stats.UnitName);
                 break;
             }
 
+            // If the queue is finished then break
             if(AttackingQueue.Count == 0) {
                 break;
             }
             
             yield return new WaitForSeconds(1f);
         }
-        // Debug.Log("End Execute Attack");
 
+        // Deactivate Expected Battle Menu
         combatMenuManager.DeactivateExpectedMenu();
 
         Quaternion targetRotation;
@@ -639,12 +578,13 @@ public class ExecuteAction : MonoBehaviour
         
 
         if (attackingUnit.UnitType == "Player") {
-            Vector3 forward = atkObj.transform.forward; // The forward direction of the attacker
-            Vector3 right = atkObj.transform.right;     // The right direction of the attacker
-            // Offset position: slightly behind and to the right of the attacker
+            // Transforms the camera to face the player, but have them slightly to the right
+            Vector3 forward = atkObj.transform.forward; 
+            Vector3 right = atkObj.transform.right;     
             Vector3 offsetPosition = atkObj.transform.position - forward * -10f + right * 2f;
-            offsetPosition.y = 4f;
 
+            // Offset y value
+            offsetPosition.y = 4f;
             combatCam.transform.position = offsetPosition;
 
             // Calculate the target rotation by adding 180 degrees to the object's Y rotation
@@ -659,60 +599,65 @@ public class ExecuteAction : MonoBehaviour
         }
 
         
-
+        // If the playerunit is still alive calculate and send over the amount of EXP
         if (playerUnit != null && playerUnit.getCurrentHealth() > 0) {
             int expObtained = 0;
 
+            // Calculate EXP with a base of 30 with +5 for every level the player is below, or -5 for every level the player is above
             expObtained = 30 + ((enemyUnit.stats.Level - playerUnit.stats.Level) * 5);
+
             EnemyStats eneStats = (EnemyStats)enemyUnit.stats;
-            if (eneStats.IsBoss) {
-                Debug.Log("Boss Slained");
-                expObtained = (int)((double)expObtained * 1.5);
-            }
 
-            if (enemyUnit.getCurrentHealth() > 0) {
-                expObtained /= 2;
-            }
+            // If the Enemy is a boss, multiply the EXP by 1.5
+            if (eneStats.IsBoss) { expObtained = (int)((double)expObtained * 1.5); }
 
-            Debug.Log("AHHHHHH GAINED " + expObtained + " EXP");
+            // If the Enemy is still alive, divide by 2
+            if (enemyUnit.getCurrentHealth() > 0) { expObtained /= 2; }
 
-            yield return StartCoroutine(playerUnit.ExperienceGain(expObtained * 2));
-            // yield return StartCoroutine(playerUnit.ExperienceGain(210));
-            
+            // If the player is not on Eclipse difficulty, then multiply it by 2
+            if (_currentMap.GetDifficulty() != "Eclipse") { expObtained *= 2; }
+
+            // If the player recieved 0 or less than EXP, give them 1
+            if (expObtained <= 0) { expObtained = 1; }
+
+            // Send over the EXP
+            yield return StartCoroutine(playerUnit.ExperienceGain(expObtained)); 
         }
-        yield return new WaitForSeconds(1f);
-        atkCircle.SetActive(true);
-        // defCircle.SetActive(true);
 
+        
+        yield return new WaitForSeconds(1f);
+
+        // Set the circle to active again, and the player to its original rotation
+        atkCircle.SetActive(true);
+        atkObj.transform.rotation = originalAtkRotation;
+
+        // If enemy still alive, set circle to active and roation to original
         if (defObj != null) {
             defCircle.SetActive(true);
             defObj.transform.rotation = originalDefRotation;
         }
+
+        // Activate the cursor again
         playerCurs.gameObject.GetComponent<MeshRenderer>().enabled = true;
-        atkObj.transform.rotation = originalAtkRotation;
-        // foreach (GameObject unit in unitObj) {
-        //     unit.SetActive(true);
-        // }
         
-        // moveCursor.gameObject.SetActive(true);
+        // Switch to main camera again
         SwitchToMainCamera();
 
         
         yield return new WaitForSeconds(3f);
 
+       
+        // Apply the calculated rotation to the camera 
         targetRotation = Quaternion.Euler(22f, 0f, 0f);
-
-        // Apply the calculated rotation to the camera
         combatCam.transform.rotation = targetRotation;
 
+        // If the enemy had an extra helath bar, reset their health
         if (extraHealthBar) {
             yield return StartCoroutine(extraHltUnit.ExtraHealthBar());
         }
 
 
         yield return null;
-
-
     } 
 
 
@@ -768,18 +713,6 @@ public class ExecuteAction : MonoBehaviour
                 angle = (angle + 90f + 360f) % 360f;
             }
         }
-
-
-
-        
-        // else if (angle > 0f && angle < 180f)
-        // {
-        //     angle = (angle - 90f + 360f) % 360f; // Shift by +90 for 0–180 range
-        // }
-        // else
-        // {
-        //     angle = (angle + 90f) % 360f; // Shift by -90 for 180–360 range
-        // }
 
 
 
@@ -851,14 +784,14 @@ public class ExecuteAction : MonoBehaviour
 
 
     public IEnumerator CycleAssist(List<GridTile> UnitsInRange, Faith faithInUse) {
-        // bool playerGridMovement.IsAttacking = false;
+
         int currentIndex = 0;
         UnitManager AttackingUnit = playerGridMovement.GetPlayerCollide().GetPlayer();
         UnitManager DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
         int attackerX = playerGridMovement.GetCurX();
         int attackerZ = playerGridMovement.GetCurZ();
-        int defenderX = UnitsInRange[currentIndex].GetGridX();
-        int defenderZ = UnitsInRange[currentIndex].GetGridZ();
+        // int defenderX = UnitsInRange[currentIndex].GetGridX();
+        // int defenderZ = UnitsInRange[currentIndex].GetGridZ();
         bool weaponChange = false;
 
         int weaponIndex = 0;
@@ -951,9 +884,8 @@ public class ExecuteAction : MonoBehaviour
 
                 Debug.Log("Index Changed");
 
-                defenderX = UnitsInRange[currentIndex].GetGridX();
-                defenderZ = UnitsInRange[currentIndex].GetGridZ();
-                // CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
+                // defenderX = UnitsInRange[currentIndex].GetGridX();
+                // defenderZ = UnitsInRange[currentIndex].GetGridZ();
 
                 
                 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
@@ -979,22 +911,6 @@ public class ExecuteAction : MonoBehaviour
 
                 yield return new WaitForSeconds(0.25f);
             }
-
-
-
-           
-            
-           
-            // Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
-            // playerGridMovement.moveCursor.transform.position = Vector3.MoveTowards(playerGridMovement.moveCursor.transform.position, targetPosition, 30.0f * Time.deltaTime);
-
-            // Move the cursor towards the target position using interpolation
-            // moveGrid.playerGridMovement.moveCursor.position = Vector3.Lerp(moveGrid.playerGridMovement.moveCursor.position, targetPosition, 20.0f * Time.deltaTime);
-            
-            // currentPosition = moveGrid.moveCursor.transform.position;
-            // moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
-            
-
             yield return null;
         }
         if (playerGridMovement.IsAttacking) {

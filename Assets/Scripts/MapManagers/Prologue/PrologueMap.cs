@@ -66,9 +66,11 @@ public class PrologueMap : MonoBehaviour, IMaps
 
     public void Init()
     {
+        //Gets the Difficulty
         string temp = TitleScreen.GetDifficulty();
         if (temp == " ") { Difficulty = "Normal"; }
         else { Difficulty = temp; }
+
         //Calls GenerateGrid.cs to generate the grid based on how big it is, specified by length and width variables
         grid.GenGrid(length, width);
 
@@ -95,6 +97,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     //Reads in the EnemyCSV, stores each of their data, and prints them on the grid
     private void InitEnemies() {
 
+        // Determines what file to read based on the difficulty
         string[] data;
         if (Difficulty == "Hard") {
             data = enemyTextDataHard.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
@@ -303,7 +306,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             for (int i = 31; i < data.Length - 1; i += 31) {
 
                 int eID = int.Parse(data[i]);
-                if (eID < maxEID) {
+                if (eID <= maxEID) {
                     continue;
                 }
                 string cName = data[i + 1];
@@ -428,13 +431,9 @@ public class PrologueMap : MonoBehaviour, IMaps
             }
             mapEnemies = temp;
 
-            Debug.Log("AHHHHHHHHHHHHHHHHHHHHHH " + mapEnemies.Count + " " + queueCou);
-
             // if (!manageTurn.IsEnemyTurn()) {
                 manageTurn.RemoveEnemy(unit);
             // }
-            Debug.Log("AHHHHHHHHHHHHHHHHHHHHHH " + mapEnemies.Count + " " + queueCou);
-
             
             if (playerCursor.enemyRangeActive) {
                 pathFinder.DestroyEnemyRange();
@@ -453,19 +452,29 @@ public class PrologueMap : MonoBehaviour, IMaps
         }
     }
 
+    // Co routine to start the map
     public IEnumerator StartMap() {
+        // Deactivates the hover menu
         combatMenuManager.DeactivateHoverMenu();
         yield return new WaitForSeconds(1f);
+
+        // Moves the cursor to where the boss is
         yield return StartCoroutine(playerCursor.MoveCursor(21, 13, 40f));
+
+        // Deactivate hover menu again
         combatMenuManager.DeactivateHoverMenu();
         yield return new WaitForSeconds(0.5f);
+
+        // Shows the map's victory and defeat condition
         combatMenuManager.ActivateBackground();
-        
         yield return StartCoroutine(combatMenuManager.FadeUpVD(winCondition, loseCondition));
 
+        // Moves the cursor back to the player, simultaneously shows the player phase popup
         StartCoroutine(playerCursor.MoveCursor(playerCursor.getX(), playerCursor.getZ(), 200f));
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
         yield return new WaitForSeconds(0.5f);
+
+        // Starts the game
         playerCursor.startGame = true;
     }
 
@@ -474,6 +483,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     }
 
     public int GetWidth() { return width; }
+    public string GetDifficulty() { return Difficulty; }
 
 
 
