@@ -8,5 +8,5 @@ EnemyID,Enemy Name,Enemy Description,Class,Level,HP,ATK,MAG,DEF,RES,SPD,EVA,LUCK
 7,Whisper,Viscious Creatures,Whipser,4,9,6,3,4,4,8,4,0,4,FALSE,FALSE,FALSE,TRUE,1,Whisper,15,15,AttackInRangeAI,Whisper Claw,NULL,NULL,NULL,NULL,NULL,FALSE,FILLER
 8,Whisper,Viscious Creatures,Whipser,3,8,7,3,5,4,6,3,0,4,FALSE,FALSE,FALSE,TRUE,1,Whisper,18,8,AttackInRangeAI,Whisper Claw,NULL,NULL,NULL,NULL,NULL,FALSE,FILLER
 9,Whisper,Viscious Creatures,Whipser,3,8,7,3,5,4,6,4,0,4,FALSE,FALSE,FALSE,TRUE,1,Whisper,3,13,TrackerAI,Whisper Claw,NULL,NULL,NULL,NULL,NULL,FALSE,FILLER
-10,Whisper,Viscious Creatures,Whipser,4,8,7,3,5,4,6,3,0,5,FALSE,FALSE,FALSE,TRUE,1,Whisper,13,3,TrackerAI,Whisper Claw,NULL,NULL,NULL,NULL,NULL,FALSE,FILLER
-11,Whisper,Viscious Creatures,Whipser,4,8,7,3,5,4,6,4,0,5,FALSE,FALSE,FALSE,TRUE,1,Whisper,13,1,TrackerAI,Whisper Claw,NULL,NULL,NULL,NULL,NULL,FALSE,FILLER
+10,Whisper,Viscious Creatures,Whipser,4,8,7,3,5,4,6,3,0,4,FALSE,FALSE,FALSE,TRUE,1,Whisper,13,3,TrackerAI,Whisper Claw,NULL,NULL,NULL,NULL,NULL,FALSE,FILLER
+11,Whisper,Viscious Creatures,Whipser,4,8,7,3,5,4,6,4,0,4,FALSE,FALSE,FALSE,TRUE,1,Whisper,13,1,TrackerAI,Whisper Claw,NULL,NULL,NULL,NULL,NULL,FALSE,FILLER
