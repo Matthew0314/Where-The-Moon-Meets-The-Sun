@@ -9,36 +9,46 @@ using TMPro;
 
 public class TitleScreen : MonoBehaviour
 {
-    // Start is called before the first frame update
+    // Stores the buttons that can be chosen on each menu state
     [SerializeField] List<Button> startButtons;
     [SerializeField] List<Button> difficultyButtons;
+
+    // Stores the different menus to make active and deactivate later on
     [SerializeField] GameObject diffMenu;
     [SerializeField] GameObject startMenu;
     [SerializeField] GameObject controlMenu;
+
+    // Stores the different difficulty strings that can be chosen
     string[] difficulties = { "Normal", "Hard", "Eclipse" };
+    public static string difficulty = " ";
+
+    // Bools to dictate which menu it is on
     bool inStartMenu = true;
     bool inDiffMenu = false;
+    bool inControlMenu = false;
+
+    // Used to prevent multiple actions from taking place
     bool axisInUse = false;
     bool oneAction = false;
-    bool inControlMenu = false;
-    public static string difficulty = " ";
     int currentIndex = 0;
+    private PlayerInput playerInput; 
 
+    void Start() {
+        // Stores the player input component
+        playerInput = GameObject.Find("GameManager").GetComponent<PlayerInput>();
 
-    Gamepad gamepad;
-    void Start()
-    {
+        // Sets resolution, idk if this actually works
         Screen.SetResolution(1920, 1080, true);
+
+        // Initilizes the first button that the player is on
         startButtons[0].Select();
     }
 
-    // // Update is called once per frame
     void Update()
     {
-        gamepad = Gamepad.current;
-
+        // If player is in the menu that shows the games controlls
         if (inControlMenu) {
-            if ((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) || (Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame))) {
+            if (playerInput.actions["Select"].WasPressedThisFrame() || playerInput.actions["Back"].WasPressedThisFrame()) {
                 inStartMenu = true;
                 inControlMenu = false;
                 DeactivateControlMenu();
@@ -59,23 +69,16 @@ public class TitleScreen : MonoBehaviour
                 if(inStartMenu) {
                     startButtons[currentIndex].OnDeselect(null);
                     currentIndex--;
-                    if (currentIndex < 0) { currentIndex = startButtons.Count - 1; }
+                    if (currentIndex < 0) currentIndex = startButtons.Count - 1;
                     startButtons[currentIndex].Select();
                     axisInUse = true;
                 } else if(diffMenu) {
                     difficultyButtons[currentIndex].OnDeselect(null);
                     currentIndex--;
-                    if (currentIndex < 0) { currentIndex = difficultyButtons.Count - 1; }
+                    if (currentIndex < 0) currentIndex = difficultyButtons.Count - 1;
                     difficultyButtons[currentIndex].Select();
                     axisInUse = true;
                 }
-                // buttons[currentIndex].OnDeselect(null);
-                // // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
-                // currentIndex--;
-                // if (currentIndex < 0) { currentIndex = buttons.Count - 1; }
-                // buttons[currentIndex].Select();
-                // axisInUse = true;
-                // // yield return new WaitForSeconds(0.25f);
             }
             else if (vertical < -0.2f) // Move down
             {
@@ -92,13 +95,6 @@ public class TitleScreen : MonoBehaviour
                     difficultyButtons[currentIndex].Select();
                     axisInUse = true;
                 }
-                // buttons[currentIndex].OnDeselect(null);
-                // // currentIndex = (currentIndex + 1) % buttons.Count;
-                // currentIndex++ ;
-                // if (currentIndex >= buttons.Count) { currentIndex = 0; }
-                // buttons[currentIndex].Select();
-                // axisInUse = true;
-                // // yield return new WaitForSeconds(0.25f);
             }
         }
 
@@ -107,8 +103,7 @@ public class TitleScreen : MonoBehaviour
             axisInUse = false;
         }
 
-        if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
-        {
+        if (oneAction && playerInput.actions["Select"].WasPressedThisFrame()) {
             if(inStartMenu) {
                 if (currentIndex == 0) {
                     ActivateDiffMenu();
@@ -133,35 +128,22 @@ public class TitleScreen : MonoBehaviour
         oneAction = true;
     }
 
-    public void PlayGame() {
-        SceneManager.LoadScene("Prologue");
-    }
+    // Loads prologue screen
+    public void PlayGame() => SceneManager.LoadScene("Prologue");
 
-    void ActivateDiffMenu() {
-        diffMenu.SetActive(true);
-    }
+    // Methods for activating and deactivating menus
+    void ActivateDiffMenu() => diffMenu.SetActive(true);
 
-    void DeactivateDiffMenu() {
-        diffMenu.SetActive(false);
-    }
+    void DeactivateDiffMenu() => diffMenu.SetActive(false);
 
-    void DeactivateStartMenu() {
-        startMenu.SetActive(false);
-    }
+    void DeactivateStartMenu() => startMenu.SetActive(false);
 
-    void ActivateStartMenu() {
-        startMenu.SetActive(true);
-    }
+    void ActivateStartMenu() => startMenu.SetActive(true);
 
-    void ActivateControlMenu() {
-        controlMenu.SetActive(true);
-    }
+    void ActivateControlMenu() => controlMenu.SetActive(true);
 
-    void DeactivateControlMenu() {
-        controlMenu.SetActive(false);
-    }
+    void DeactivateControlMenu() => controlMenu.SetActive(false);
 
-    public static string GetDifficulty() {
-        return difficulty;
-    }
+    // Returns the difficulty
+    public static string GetDifficulty() => difficulty;
 }
