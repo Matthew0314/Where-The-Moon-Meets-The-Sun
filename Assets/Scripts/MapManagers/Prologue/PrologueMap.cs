@@ -68,8 +68,8 @@ public class PrologueMap : MonoBehaviour, IMaps
     {
         //Gets the Difficulty
         string temp = TitleScreen.GetDifficulty();
-        if (temp == " ") { Difficulty = "Normal"; }
-        else { Difficulty = temp; }
+        if (temp == " ") Difficulty = "Normal";
+        else Difficulty = temp;
 
         //Calls GenerateGrid.cs to generate the grid based on how big it is, specified by length and width variables
         grid.GenGrid(length, width);
@@ -112,8 +112,7 @@ public class PrologueMap : MonoBehaviour, IMaps
         
         Type unitType = Type.GetType("EnemyStats");
 
-        for (int i = 31; i < data.Length - 1; i += 31)
-        {
+        for (int i = 31; i < data.Length - 1; i += 31) {
             //Reads in the data from the CSV file
            
             int eID = int.Parse(data[i]);
@@ -157,21 +156,15 @@ public class PrologueMap : MonoBehaviour, IMaps
             UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss);
 
             for (int j = 0; j < 6; j++) {
-                if (data[i + 23 + j] == "NULL") {              
-                    break;
-                }
+                if (data[i + 23 + j] == "NULL") break;
 
                 Weapon tempWeapon = WeaponManager.MakeWeapon(data[i + 23 + j]);
                 eStats.AddWeapon(tempWeapon);
             }
-            Debug.LogWarning("HIIII");
-
-          
            
             //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
             GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
             GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos(), grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
-           
 
             //Ataches an AI script interface depending on the characterististics of the nemy specified in the CSV file
             Type type = Type.GetType(AIenemy);
@@ -181,10 +174,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             UnitManager enemy = newEnemy.GetComponent<UnitManager>();
             
             enemy.stats = eStats;
-            if (enemy.stats.weapons.Count > 0) {
-                enemy.primaryWeapon = enemy.stats.weapons[0];
-
-            }
+            if (enemy.stats.weapons.Count > 0) enemy.primaryWeapon = enemy.stats.weapons[0];
 
             enemy.InitializeUnitData();
             enemy.XPos = enemyX;
@@ -192,7 +182,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             grid.GetGridTile(enemyX, enemyZ).UnitOnTile = enemy;
             mapEnemies.Enqueue(enemy);
 
-            if(eID >= maxEID) { break; }
+            if(eID >= maxEID) break;
                       
 
             
@@ -267,7 +257,7 @@ public class PrologueMap : MonoBehaviour, IMaps
                 if (Input.GetKeyDown(KeyCode.R)) {
                     SceneManager.LoadScene("Prologue");
                 }
-                Debug.Log("DEFEAT");
+
                 yield return null;
             }
             
@@ -292,17 +282,13 @@ public class PrologueMap : MonoBehaviour, IMaps
             
 
             string[] data;
-            if (Difficulty == "Hard") {
-                data = enemyTextDataHard.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
-                // maxEID = 5;
-            } else if (Difficulty == "Eclipse") {
-                data = enemyTextDataEclipse.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
-                // maxEID = 5;
-            } else {
-                data = enemyTextDataNormal.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
-                // maxEID = 5;
-            }
+
+            if (Difficulty == "Hard") data = enemyTextDataHard.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            else if (Difficulty == "Eclipse") data = enemyTextDataEclipse.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            else data = enemyTextDataNormal.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+
             Type unitType = Type.GetType("EnemyStats");
+
             for (int i = 31; i < data.Length - 1; i += 31) {
 
                 int eID = int.Parse(data[i]);
@@ -398,17 +384,7 @@ public class PrologueMap : MonoBehaviour, IMaps
         yield return null;
     }
 
-    public Queue<UnitManager> GetMapEnemies() {
-        return mapEnemies;
-    }
 
-    public List<UnitStats> GetMapUnitStats() {
-        return mapUnits;
-    }
-
-    public List<UnitManager> GetMapUnits() {
-        return mapGameUnits;
-    }
 
     public void RemoveDeadUnit(UnitManager unit, int x, int z) {
 
@@ -478,13 +454,13 @@ public class PrologueMap : MonoBehaviour, IMaps
         playerCursor.startGame = true;
     }
 
-    public int GetLength() {
-        return length;
-    }
+    public int GetLength() => length;
 
-    public int GetWidth() { return width; }
-    public string GetDifficulty() { return Difficulty; }
+    public int GetWidth() => width;
+    public string GetDifficulty() => Difficulty;
+    public Queue<UnitManager> GetMapEnemies() => mapEnemies;
 
+    public List<UnitStats> GetMapUnitStats() => mapUnits;
 
-
+    public List<UnitManager> GetMapUnits() => mapGameUnits;
 }

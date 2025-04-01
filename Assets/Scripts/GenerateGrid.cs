@@ -93,13 +93,14 @@ public class GenerateGrid : MonoBehaviour
 
 
     //Initlize to where we want the cursor to be for each map
-    public void initlizeCursor()
-    {
+    public void initlizeCursor() {
         int x = playerCursor.getX();
         int z = playerCursor.getZ();
         playerCursor.transform.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.15f, grid[x, z].GetZPos());
-        playerCursor.moveCursor.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.30f, grid[x, z].GetZPos());
-        playerCursor.moveCursor.parent = null;
+
+        Transform cursor = GameObject.Find("PlayerMove").transform;
+        cursor.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.30f, grid[x, z].GetZPos());
+        cursor.parent = null;
     }
 
     //Checks to see if a grid position is within the range
