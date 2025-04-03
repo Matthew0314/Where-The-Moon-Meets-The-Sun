@@ -21,7 +21,7 @@ public class CombatMenuManager : MonoBehaviour
     // private int defenderX;
     // private int defenderZ;
 
-    //Action Menu
+    [Header("Action Menu")]
     [SerializeField] GameObject attackButton;
     [SerializeField]  GameObject itemButton;
     [SerializeField]  GameObject waitButton;
@@ -30,6 +30,7 @@ public class CombatMenuManager : MonoBehaviour
 
 
     //hover menu
+    [Header("Hover Menu")]
     private GameObject enemyBar;
     private GameObject playerBar;
     private GameObject hoverMenu;
@@ -41,6 +42,7 @@ public class CombatMenuManager : MonoBehaviour
 
 
     //Expected Menu
+    [Header("Expected Menu")]
     private Image EHealthLost;
     private Image EHealth;
     private Image PHealthLost;
@@ -66,14 +68,13 @@ public class CombatMenuManager : MonoBehaviour
 
     //Experience Menu
 
+    [Header("Experience Menu")]
     private GameObject experienceMenu;
     private Image expBar;
     private TextMeshProUGUI expUnitName;
     private TextMeshProUGUI expNext;
 
     private TextMeshProUGUI expGained;
-
-
     [SerializeField] GameObject HPIndicator;
     GameObject HPplayer;
     GameObject HPenemy;
@@ -82,7 +83,7 @@ public class CombatMenuManager : MonoBehaviour
 
 
     //Level Up Menu
-
+    [Header("Level Up Menu")]
     private GameObject levelUpMenu;
     private TextMeshProUGUI lvName;
     private TextMeshProUGUI lvClass;
@@ -107,12 +108,14 @@ public class CombatMenuManager : MonoBehaviour
 
 
     //Phases
+    [Header("Phases Menu")]
     private Image PlayerPhase;
     private Image EnemyPhase;
 
 
 
     //ItemMenu
+    [Header("Item Menu Menu")]
     private GameObject scrollViewContent;
     [SerializeField] GameObject buttonTemplate;
     private GameObject itemMenu;
@@ -129,6 +132,7 @@ public class CombatMenuManager : MonoBehaviour
 
     bool inItemMenu = false;
 
+    [Header("Victory/Defeated Menu")]
     CanvasGroup victoryBox;
     CanvasGroup defeatBox;
     TextMeshProUGUI defeatText;
@@ -282,6 +286,7 @@ public class CombatMenuManager : MonoBehaviour
         gamepad = Gamepad.current;
     }
 
+    // Sets active a darker background for certain menus
     public void ActivateBackground() {
         background.SetActive(true);
     }
@@ -291,37 +296,45 @@ public class CombatMenuManager : MonoBehaviour
     }
 
     public IEnumerator ActivateActionMenu() {
-        // attackButton.SetActive(true);
-        // waitButton.SetActive(true);
-        // itemButton.SetActive(true);
 
-        // Debug.Log("Start Of Action");
-
+        // Checks if unit can use weapons or faith
         CheckWeapons(moveGrid.GetPlayerCollide().GetPlayer());
         CheckFaith(moveGrid.GetPlayerCollide().GetPlayer());
 
-
+        // Creates a list to store buttons and a string of what action they do
         List<Button> buttons = new List<Button>();
         List<string> Actions = new List<string>();
+
+        // Start position for where we are spawining the buttons
         int startX = 700;
         int startY = 400;
         int ind = 0;
+
+
         GameObject actionMenu = GameObject.Find("Canvas/ActionMenu");
         GameObject tempBtn;
         Button atkBut;
         actionMenuList = new List<GameObject>();
+
+        // If there are usable weapons create an attack button
         if(usableWeapons.Count > 0) {
+            // Instantiate and initialize its parent
             tempBtn = (GameObject)Instantiate(attackButton);
             tempBtn.transform.SetParent(actionMenu.transform, false);
 
+            // Sets its position
             tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
+
+            // Add to list fo later user
             atkBut = tempBtn.GetComponent<Button>();
             buttons.Add(atkBut);
             Actions.Add("Attack");
             actionMenuList.Add(tempBtn);
+
             ind++;
         }
 
+        // If unit can use faith create a faith button
         if(usableFaith.Count > 0) {
             tempBtn = (GameObject)Instantiate(assistButton);
             tempBtn.transform.SetParent(actionMenu.transform, false);
@@ -334,9 +347,9 @@ public class CombatMenuManager : MonoBehaviour
             ind++;
         }
 
+        // Always creates an Item button, update code later if there a re conditions to prevent this
         tempBtn = (GameObject)Instantiate(itemButton);
         tempBtn.transform.SetParent(actionMenu.transform, false);
-
         tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
         atkBut = tempBtn.GetComponent<Button>();
         buttons.Add(atkBut);
@@ -344,6 +357,7 @@ public class CombatMenuManager : MonoBehaviour
         actionMenuList.Add(tempBtn);
         ind++;
 
+        // Always creates a Wait button, update code later if there a re conditions to prevent this
         tempBtn = (GameObject)Instantiate(waitButton);
         tempBtn.transform.SetParent(actionMenu.transform, false);
 
@@ -353,88 +367,62 @@ public class CombatMenuManager : MonoBehaviour
         Actions.Add("Wait");
         actionMenuList.Add(tempBtn);
         ind++;
-        
 
-        // Button attack = attackButton.GetComponent<Button>();
-        // Button wait = waitButton.GetComponent<Button>();
-        // Button item = itemButton.GetComponent<Button>();
-
-        // buttons.Add(attack);
-        // buttons.Add(item);
-        // buttons.Add(wait);
-
-        // Actions.Add("Attack");
-        // Actions.Add("Item");
-        // Actions.Add("Wait");
-
-        bool buttonClicked = false;
-
-        // if(usableWeapons.Count <= 0) {
-        //     buttons.Remove(attack);
-        //     Actions.Remove("Attack");
-        //     attackButton.SetActive(false);
-        // }
-
-
+        // Sets it to index 0
         int currentIndex = 0;
-        Debug.Log(buttons[currentIndex] + " " + Actions[currentIndex]);
         buttons[currentIndex].Select();
+
+        // Used to prevent more than one action per frame
         bool axisInUse = false;
         bool oneAction = false;
 
         while (true) {
-            float vertical = Input.GetAxis("Vertical");
-
-            Debug.Log(buttons[currentIndex]);
-            
+            float vertical = Input.GetAxis("Vertical");            
 
             if (!axisInUse)
             {
                 if (vertical > 0.2f) // Move up
                 {
+                    // If move up sets to next button
                     buttons[currentIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
                     currentIndex--;
-                    if (currentIndex < 0) { currentIndex = buttons.Count - 1; }
+
+                    // If out of range loop around
+                    if (currentIndex < 0) currentIndex = buttons.Count - 1;
+
+                    // Selects new button
                     buttons[currentIndex].Select();
                     axisInUse = true;
-                    // yield return new WaitForSeconds(0.25f);
                 }
                 else if (vertical < -0.2f) // Move down
                 {
+                    // If move down sets to next button
                     buttons[currentIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex + 1) % buttons.Count;
                     currentIndex++ ;
-                    if (currentIndex >= buttons.Count) { currentIndex = 0; }
+
+                    // If out of range loop around
+                    if (currentIndex >= buttons.Count) currentIndex = 0;
+
+                    // Selects new button
                     buttons[currentIndex].Select();
                     axisInUse = true;
-                    // yield return new WaitForSeconds(0.25f);
                 }
             }
 
-            if (Mathf.Abs(vertical) < 0.2f)
+            if (Mathf.Abs(vertical) < 0.2f) axisInUse = false;
+
+            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) // "Submit" button
             {
-                axisInUse = false;
-            }
+                if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack();}
+                else if (Actions[currentIndex] == "Item") { DeactivateActionMenu(); PlayerItem();}
+                else if (Actions[currentIndex] == "Wait") { DeactivateActionMenu(); PlayerWait();}
+                else if (Actions[currentIndex] == "Assist") { DeactivateActionMenu(); PlayerAssist();}
 
-            if (oneAction && !buttonClicked && (Input.GetKeyDown(KeyCode.Space) || gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) // "Submit" button
-            {
-                // buttons[currentIndex].onClick.Invoke();
-                Debug.Log("Start Of Click");
-                // buttonClicked = true;
-
-                if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack(); }
-                if (Actions[currentIndex] == "Item") {  Debug.Log("Start of ITEM CHOSEN"); DeactivateActionMenu(); PlayerItem();  }
-                if (Actions[currentIndex] == "Wait") { Debug.Log("Start of WAIT CHOSEN");  DeactivateActionMenu(); PlayerWait(); }
-                if (Actions[currentIndex] == "Assist") { DeactivateActionMenu(); PlayerAssist();}
-
-                
                 break;
             }
-            // if ((oneAction && gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) { DeactivateActionMenu(); break; }
+
 
             if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
-                // moveGrid.inMenu = false;
                 moveGrid.OutOfMenu();
                 break;
             }
@@ -450,21 +438,13 @@ public class CombatMenuManager : MonoBehaviour
         foreach(GameObject obj in actionMenuList) {
             Destroy(obj);
         }
-        // attackButton.SetActive(false);
-        // waitButton.SetActive(false);
-        // itemButton.SetActive(false);
-        // assistButton.SetActive(false);
     }
 
-
     public void PlayerWait() {
-        
         manageTurn.RemovePlayer(moveGrid.GetPlayerCollide().GetPlayer().stats);
         executeAction.unitWait();
         manageTurn.CheckPhase();
         _currentMap.CheckClearCondition();
-        
-        
     }
 
     public void PlayerAttack() {
@@ -473,42 +453,6 @@ public class CombatMenuManager : MonoBehaviour
         CheckWeapons(unit);
 
         StartCoroutine(WeaponList(unit));
-
-        // GameObject currUnit = moveGrid.GetPlayerCollide().GetPlayerObject();
-        // int attackRangeStat = moveGrid.GetPlayerCollide().GetPlayerAttack();
-
-        // UnitManager temp = moveGrid.GetPlayerCollide().GetPlayer();
-            
-
-        // executeAction.attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), temp.primaryWeapon.Range, temp.primaryWeapon.Range1, temp.primaryWeapon.Range2, temp.primaryWeapon.Range3);
-        // findPath.HighlightAttack(executeAction.attackGrid);
-
-        // Debug.Log("Attack");
-        // moveGrid.isAttacking = true;
-        // List<GridTile> UnitsInRange = new List<GridTile>();
-        
-        
-        // for (int i = 0; i < generateGrid.GetWidth(); i++) {
-        //     for (int j = 0; j < generateGrid.GetLength(); j++) {
-        //         if (executeAction.attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                    
-        //             UnitsInRange.Add(generateGrid.GetGridTile(i,j));
-                    
-        //         }
-        //     }
-        // }
-
-        // if (UnitsInRange.Count == 0) {
-        //     moveGrid.isAttacking = false;
-        //     StartCoroutine(ActivateActionMenu());
-        //     return;
-        // } else {
-           
-        //     DeactivateActionMenu();
-
-        //     StartCoroutine(executeAction.CycleAttackList(UnitsInRange)); 
-        // }
-
     }
 
     // public void CheckWeapons(UnitManager unit) {
@@ -1986,26 +1930,27 @@ public class CombatMenuManager : MonoBehaviour
     }
 
 
-    //------------------------------------------WEapon List----------------------------------------
+    //------------------------------------------Weapon List----------------------------------------
 
 
 
-
+    // This Method checks which weapons have an enemy within its range and adds it to the usable weapons list
     public void CheckWeapons(UnitManager unit) {
         
+        // Gets Weapons that unit has in invintory
         List<Weapon> tempWeap = unit.GetWeapons();
+
+        // Resets the usable and non usable list, nonUsable are for weapons that can't attack anything in range
         usableWeapons.Clear();
         nonUsableWeapons.Clear();
 
+        // For each weapon determine if theres an enemy in the units range, if so add to usable weapon, if not then non usable
         foreach (Weapon wep in tempWeap) {
             bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
             for (int i = 0; i < generateGrid.GetWidth(); i++) {
                 for (int j = 0; j < generateGrid.GetLength(); j++) {
                     if (attackGrid[i,j] && !usableWeapons.Contains(wep) && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                        
-                        // UnitsInRange.Add(generateGrid.GetGridTile(i,j));
-                        usableWeapons.Add(wep);
-                        
+                        usableWeapons.Add(wep); 
                     }
                 }
             }

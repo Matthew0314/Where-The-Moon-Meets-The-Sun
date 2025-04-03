@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Faith
+public abstract class Faith : MonoBehaviour
 {
     public string Name { get; protected set; }
     public bool Range1 { get; protected set; }

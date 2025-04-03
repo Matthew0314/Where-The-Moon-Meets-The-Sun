@@ -20,7 +20,7 @@ public class TitleScreen : MonoBehaviour
 
     // Stores the different difficulty strings that can be chosen
     string[] difficulties = { "Normal", "Hard", "Eclipse" };
-    public static string difficulty = " ";
+    public static string difficulty = "Hard";
 
     // Bools to dictate which menu it is on
     bool inStartMenu = true;

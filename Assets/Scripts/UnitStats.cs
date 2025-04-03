@@ -125,19 +125,15 @@ public class PlayerStats : UnitStats {
 
     public override void SetFaith()
     {
-        Debug.Log("Started Faith");
         faith = new List<Faith>();
         for(int i = 0; i < faithRank; i++) {
-            Debug.Log(Name + " Faith " + faithRankList[i] + " with rank " + faithRank);
             if (faithRankList[i] != "null") {
                 Type faithType = Type.GetType(faithRankList[i]);
                 Faith tempFai = (Faith)Activator.CreateInstance(faithType);
                 if (tempFai != null) {
                     faith.Add(tempFai);
                 }
-                Debug.Log("Added " + tempFai.Name + " Faith");
-            }
-                
+            }     
         }
     }
 }
