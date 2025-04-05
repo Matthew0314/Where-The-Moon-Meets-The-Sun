@@ -7,26 +7,26 @@ using UnityEngine;
 //This class is currently being worked on right now please ignore for now
 public class TurnManager : MonoBehaviour
 {
-    private UnitRosterManager playerList;
-    private IMaps _currentMap;
+    [SerializeField] UnitRosterManager playerList;
+    [SerializeField] IMaps _currentMap;
     private List<UnitStats> currUnits;  // Current player units
     private Queue<UnitManager> currEnemies;
     private int turns = 0;
     private bool playerTurn;
     private bool enemyTurn; //possibly add another one for ally later on
-    private PlayerGridMovement moveGrid;
-    private GenerateGrid grid;
-    private CombatMenuManager combatMenuManager;
+    [SerializeField] PlayerGridMovement moveGrid;
+    [SerializeField] GenerateGrid grid;
+    [SerializeField] CombatMenuManager combatMenuManager;
 
 
     void Start()
     {
         playerTurn = true; enemyTurn = false; turns++;
-        playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
+        // playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
-        moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
-        combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
+        // combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
 
     //Resets Player List after every player turn

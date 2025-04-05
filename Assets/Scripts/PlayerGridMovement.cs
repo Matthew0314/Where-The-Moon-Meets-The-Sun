@@ -213,6 +213,8 @@ public class PlayerGridMovement : MonoBehaviour
     public int GetOrgZ() { return orgZ; }
     public bool isCharSelected() { return charSelected; }
     public CollideWithPlayerUnit GetPlayerCollide() {
+        playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
+        Debug.Log("On " + x + " " + z + " AHHHHHHHHHHHHHHHHHHHHH");
         return playerCollide;
     }
 

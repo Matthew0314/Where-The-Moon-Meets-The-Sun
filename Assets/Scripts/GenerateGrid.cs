@@ -94,6 +94,7 @@ public class GenerateGrid : MonoBehaviour
 
     //Initlize to where we want the cursor to be for each map
     public void initlizeCursor() {
+        playerCursor = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         int x = playerCursor.getX();
         int z = playerCursor.getZ();
         playerCursor.transform.position = new Vector3(grid[x, z].GetXPos(), grid[x, z].GetYPos() + 0.15f, grid[x, z].GetZPos());

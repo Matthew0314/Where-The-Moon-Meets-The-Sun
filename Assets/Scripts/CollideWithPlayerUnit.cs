@@ -6,17 +6,17 @@ using UnityEngine;
 //Purpose of this class is to gather data on the enemy or player unit that the cursor collides with
 public class CollideWithPlayerUnit : MonoBehaviour
 {
+    [SerializeField] PlayerGridMovement movementVars;
+    [SerializeField] CombatMenuManager hoverMenu;
     private PlayerUnit player;
     public UnitManager enemy;
-    private CombatMenuManager hoverMenu;
     public bool collPlayer;
     public bool cantPlace;
     private GameObject currPlayer;
-    private PlayerGridMovement movementVars;
-
+    
     void Start () {
-        movementVars = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        hoverMenu = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+        // movementVars = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // hoverMenu = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
 
     void OnTriggerEnter(Collider other)
@@ -76,7 +76,7 @@ public class CollideWithPlayerUnit : MonoBehaviour
 
     //Returns player unit data that would be needed
     public GameObject GetPlayerObject() {return currPlayer;}
-    public UnitManager GetPlayer() { return player; }
+    public UnitManager GetPlayer() { Debug.Log("GETTING PLAYER"); return player; }
     public int GetPlayerMove() { return player.getMove();  }
     public int GetPlayerAttack() { return player.getAttack(); }
   

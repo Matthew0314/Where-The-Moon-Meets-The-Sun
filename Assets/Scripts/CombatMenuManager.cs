@@ -7,12 +7,12 @@ using TMPro;
 
 public class CombatMenuManager : MonoBehaviour
 {
-    private IMaps _currentMap;
-    private TurnManager manageTurn;    
-    private PlayerGridMovement moveGrid;
-    private GenerateGrid generateGrid;
-    private ExecuteAction executeAction;
-    private FindPath findPath;
+    [SerializeField] IMaps _currentMap;
+    [SerializeField] TurnManager manageTurn;    
+    [SerializeField] PlayerGridMovement moveGrid;
+    [SerializeField] GenerateGrid generateGrid;
+    [SerializeField] ExecuteAction executeAction;
+    [SerializeField] FindPath findPath;
     // private UnitManager DefendingEnemy;
     // private UnitManager AttackingUnit;
     // public Transform moveCursor;
@@ -151,11 +151,11 @@ public class CombatMenuManager : MonoBehaviour
     void Start()
     {
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
-        moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
-        generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
-        executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
-        findPath = GameObject.Find("Player").GetComponent<FindPath>();
+        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
+        // generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
+        // executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
+        // findPath = GameObject.Find("Player").GetComponent<FindPath>();
 
         //Action Menu
         // attackButton = GameObject.Find("Canvas/AttackButton");
@@ -298,6 +298,17 @@ public class CombatMenuManager : MonoBehaviour
     public IEnumerator ActivateActionMenu() {
 
         // Checks if unit can use weapons or faith
+        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // if (moveGrid.GetPlayerCollide() == null) {
+        //     Debug.Log("PLAYER IS NULL OH NOOOOOOO");
+        // }
+        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+         moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        if (moveGrid.GetPlayerCollide() == null) {
+            Debug.Log("PLAYER IS NULL OH NOOOOOOO");
+        } else {
+            Debug.Log("YIPEEEEEEEEEEEEEE");
+        }
         CheckWeapons(moveGrid.GetPlayerCollide().GetPlayer());
         CheckFaith(moveGrid.GetPlayerCollide().GetPlayer());
 
@@ -1946,6 +1957,7 @@ public class CombatMenuManager : MonoBehaviour
 
         // For each weapon determine if theres an enemy in the units range, if so add to usable weapon, if not then non usable
         foreach (Weapon wep in tempWeap) {
+            
             bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
             for (int i = 0; i < generateGrid.GetWidth(); i++) {
                 for (int j = 0; j < generateGrid.GetLength(); j++) {

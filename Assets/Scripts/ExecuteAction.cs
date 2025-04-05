@@ -7,12 +7,12 @@ using Cinemachine;
 public class ExecuteAction : MonoBehaviour
 {
     
-    private PlayerGridMovement playerGridMovement;
-    private CombatMenuManager combatMenuManager;
-    private FindPath findPath;
-    private GenerateGrid generateGrid;
-    private IMaps _currentMap;
-    private TurnManager turnManager;  
+    [SerializeField] PlayerGridMovement playerGridMovement;
+    [SerializeField] CombatMenuManager combatMenuManager;
+    [SerializeField] FindPath findPath;
+    [SerializeField] GenerateGrid generateGrid;
+    [SerializeField] IMaps _currentMap;
+    [SerializeField] TurnManager turnManager;  
     public bool[,] attackGrid;
     private GameObject playerCurs;
     public CinemachineVirtualCamera mainCam;
@@ -21,12 +21,12 @@ public class ExecuteAction : MonoBehaviour
     void Start()
     {
         playerCurs = GameObject.Find("Player");
-        playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
-        findPath = GameObject.Find("Player").GetComponent<FindPath>();
-        generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
+        // playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+        // findPath = GameObject.Find("Player").GetComponent<FindPath>();
+        // generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
-        turnManager = GameObject.Find("GridManager").GetComponent<TurnManager>();
+        // turnManager = GameObject.Find("GridManager").GetComponent<TurnManager>();
     }
 
     // Update is called once per frame
