@@ -32,7 +32,6 @@ public class FindPath : MonoBehaviour
     private int attackRangeStat;
     private GenerateGrid gridTraverse;
     private PlayerGridMovement movementVars;
-    private CollideWithPlayerUnit playerCollide;
     private IMaps _currentMap;
     private GameObject currUnit;
     private GridTile gridCell;
@@ -69,7 +68,6 @@ public class FindPath : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
         gridTraverse = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         movementVars = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();

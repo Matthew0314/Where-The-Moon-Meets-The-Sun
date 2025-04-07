@@ -45,7 +45,7 @@ public class ExecuteAction : MonoBehaviour
         playerGridMovement.charSelected = false;
         playerGridMovement.inMenu = false;         
 
-        playerGridMovement.GetPlayerCollide().removePlayer();
+        // playerGridMovement.GetPlayerCollide().removePlayer();
 
         // If the enemy range is active it will reprint it incase an enemy unit moves or dies
         if (playerGridMovement.enemyRangeActive) {
@@ -66,7 +66,7 @@ public class ExecuteAction : MonoBehaviour
         playerGridMovement.isAttacking = false;
         playerGridMovement.charSelected = false;
         playerGridMovement.inMenu = false; 
-        playerGridMovement.GetPlayerCollide().removePlayer();
+        // playerGridMovement.GetPlayerCollide().removePlayer();
     }
 
     public IEnumerator CycleAttackList(List<GridTile> UnitsInRange, Weapon selectedWeapon) {

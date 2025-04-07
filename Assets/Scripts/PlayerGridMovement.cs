@@ -31,7 +31,7 @@ public class PlayerGridMovement : MonoBehaviour
     public bool enemyRangeActive = false;
 
     public bool charSelected;
-    public CollideWithPlayerUnit playerCollide;
+    // public CollideWithPlayerUnit playerCollide;
     private GameObject currUnit;
 
     private TurnManager manageTurn;   
@@ -46,7 +46,6 @@ public class PlayerGridMovement : MonoBehaviour
     {
         gridControl = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
-        playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
         combatMenu = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
 
@@ -96,7 +95,8 @@ public class PlayerGridMovement : MonoBehaviour
         // else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && playerCollide.collPlayer && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
         else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && gridControl.GetGridTile(x, z).UnitOnTile?.UnitType == "Player" && manageTurn.IsActive((gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit)?.stats)) {
             pathFinder.ResetArea();
-            currUnit = playerCollide.GetPlayerObject();
+            // currUnit = playerCollide.GetPlayerObject();
+            currUnit = gridControl.GetGridTile(x, z).UnitOnTile.gameObject;
        
             // pathFinder.calculateMovement(x, z, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
             pathFinder.calculateMovement(x, z, gridControl.GetGridTile(x, z).UnitOnTile.getMove(), gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit);
@@ -109,7 +109,8 @@ public class PlayerGridMovement : MonoBehaviour
             charSelected = true;
         }
 
-        else if (playerInput.actions["Select"].WasPressedThisFrame() && charSelected && !inMenu && !playerCollide.cantPlace)
+        // else if (playerInput.actions["Select"].WasPressedThisFrame() && charSelected && !inMenu && !playerCollide.cantPlace)
+        else if (playerInput.actions["Select"].WasPressedThisFrame() && charSelected && !inMenu && CanPlace())
         {
             // gridControl.GetGridTile(x, z).UnitOnTile = gridControl.GetGridTile(orgX, orgZ).UnitOnTile;
             // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = null;
@@ -133,9 +134,9 @@ public class PlayerGridMovement : MonoBehaviour
             pathFinder.DestroyArea();
             charSelected = false;
             
-            if (orgX != x || orgZ != z) {
-                playerCollide.removePlayer();
-            }  
+            // if (orgX != x || orgZ != z) {
+            //     playerCollide.removePlayer();
+            // }  
         }
 
         // if (playerInput.actions["Back"].WasPressedThisFrame() && )
@@ -149,6 +150,7 @@ public class PlayerGridMovement : MonoBehaviour
         }
         
     }
+    private bool CanPlace() => gridControl.GetGridTile(x, z).UnitOnTile == null || gridControl.GetGridTile(x, z).UnitOnTile == currUnit.GetComponent<UnitManager>();
     public void OnMove(InputAction.CallbackContext context) => moveInput = context.ReadValue<Vector2>();
 
     private void MoveCursor() {
@@ -222,11 +224,11 @@ public class PlayerGridMovement : MonoBehaviour
     public int GetOrgX() { return orgX; }
     public int GetOrgZ() { return orgZ; }
     public bool isCharSelected() { return charSelected; }
-    public CollideWithPlayerUnit GetPlayerCollide() {
-        playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
-        Debug.Log("On " + x + " " + z + " AHHHHHHHHHHHHHHHHHHHHH");
-        return playerCollide;
-    }
+    // public CollideWithPlayerUnit GetPlayerCollide() {
+    //     playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();
+    //     Debug.Log("On " + x + " " + z + " AHHHHHHHHHHHHHHHHHHHHH");
+    //     return playerCollide;
+    // }
 
     public bool IsAttacking
     {
@@ -246,7 +248,8 @@ public class PlayerGridMovement : MonoBehaviour
         gridControl.GetGridTile(x, z).UnitOnTile = null;
         gridControl.GetGridTile(orgX, orgZ).UnitOnTile = temp;
         // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-        pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+        // pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
+        pathFinder.calculateMovement(orgX, orgZ, gridControl.GetGridTile(orgX, orgZ).UnitOnTile.getMove(), gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
         pathFinder.PrintArea();
         charSelected = true;
         inMenu = false;

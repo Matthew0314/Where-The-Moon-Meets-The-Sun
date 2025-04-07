@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 6550408538817454513}
   - component: {fileID: 5710264274452642086}
   - component: {fileID: 5710264274452642090}
-  - component: {fileID: 5710264274452642091}
   m_Layer: 0
   m_Name: PlayerMove
   m_TagString: Untagged
@@ -77,21 +76,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5710264274452642091
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419334416597808307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57fb4f3393ddf85499e11c33f95ecf4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemy: {fileID: 0}
-  collPlayer: 0
-  cantPlace: 0
 --- !u!1 &881068209014240935
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,7 +186,6 @@ MonoBehaviour:
   isAttacking: 0
   enemyRangeActive: 0
   charSelected: 0
-  playerCollide: {fileID: 0}
   startGame: 0
 --- !u!114 &7055505287403192680
 MonoBehaviour:
@@ -235,6 +218,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd58b46361e0ce8478dbc505363719db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGridMovement: {fileID: 4972786957784785958}
+  combatMenuManager: {fileID: 5710264272583000834}
+  findPath: {fileID: 7055505287403192680}
+  generateGrid: {fileID: 5710264273001482286}
+  turnManager: {fileID: 5710264273001482283}
   mainCam: {fileID: 5710264273124395299}
   combatCam: {fileID: 5710264273887105108}
 --- !u!64 &6340412693378647939
@@ -566,7 +554,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 482.55, y: -0.000061035156}
+  m_AnchoredPosition: {x: 482.55, y: -46.358948}
   m_SizeDelta: {x: -965.1, y: 636.6375}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &5710264272554027172
@@ -1165,11 +1153,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 508e008b3a78c4744b5680c9ab66568d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manageTurn: {fileID: 0}
-  moveGrid: {fileID: 0}
-  generateGrid: {fileID: 0}
-  executeAction: {fileID: 0}
-  findPath: {fileID: 0}
+  manageTurn: {fileID: 5710264273001482283}
+  moveGrid: {fileID: 4972786957784785958}
+  generateGrid: {fileID: 5710264273001482286}
+  executeAction: {fileID: 73700266019298862}
+  findPath: {fileID: 7055505287403192680}
   attackButton: {fileID: 2377793970316353864, guid: 1dfd54a97d44b1445ab4c521559fce70, type: 3}
   itemButton: {fileID: 3441901733424492833, guid: a168898bedd9d0c4ebd9ee1de89ccf99, type: 3}
   waitButton: {fileID: 3123175048766965583, guid: 1221f2fc3e807894e88d03316df1d5e4, type: 3}
@@ -2897,6 +2885,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d656003b83760479dc74dda118d396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerList: {fileID: 5710264273001482281}
+  moveGrid: {fileID: 4972786957784785958}
+  grid: {fileID: 5710264273001482286}
+  combatMenuManager: {fileID: 5710264272583000834}
 --- !u!114 &5710264273001482281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5050,7 +5042,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5710264274149652371}
   m_HandleRect: {fileID: 5710264274149652370}
   m_Direction: 2
-  m_Value: 1.0000836
+  m_Value: 64.42756
   m_Size: 0.99885195
   m_NumberOfSteps: 0
   m_OnValueChanged:
