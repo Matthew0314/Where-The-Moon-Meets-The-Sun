@@ -18,52 +18,36 @@ public class ExecuteAction : MonoBehaviour
     public CinemachineVirtualCamera mainCam;
     public CinemachineVirtualCamera combatCam;
     Gamepad gamepad;
-    void Start()
-    {
+    void Start() {
         playerCurs = GameObject.Find("Player");
-        // playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        // combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
-        // findPath = GameObject.Find("Player").GetComponent<FindPath>();
-        // generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
-        // turnManager = GameObject.Find("GridManager").GetComponent<TurnManager>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         gamepad = Gamepad.current;
     }
 
     public void unitWait() {
+        // Makes sure that the action menu and any path is deactivated
         combatMenuManager.DeactivateActionMenu();
-        
         findPath.DestroyRange();
-        
-        // gridControl.GetGridTile(curX, curZ).UnitOnTile = playerCollide.GetPlayer();
-        // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = null;
 
-        generateGrid.MoveUnit(playerGridMovement.GetPlayerCollide().GetPlayer(), playerGridMovement.GetOrgX(), playerGridMovement.GetOrgZ(), playerGridMovement.GetCurX(), playerGridMovement.GetCurZ());
-        // Debug.Log("Moved Player from " + orgX + " " + orgZ + " to " + curX + " " + curZ);
+        // Calls the MoveUnit function
+        // generateGrid.MoveUnit(playerGridMovement.GetPlayerCollide().GetPlayer(), playerGridMovement.GetOrgX(), playerGridMovement.GetOrgZ(), playerGridMovement.GetCurX(), playerGridMovement.GetCurZ());
+        generateGrid.MoveUnit(generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile, playerGridMovement.GetOrgX(), playerGridMovement.GetOrgZ(), playerGridMovement.GetCurX(), playerGridMovement.GetCurZ());
 
-        UnitManager temp = playerGridMovement.GetPlayerCollide().GetPlayer();
+        // Sets up temporary variables
+        UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
         temp.XPos = playerGridMovement.GetCurX();
         temp.ZPos = playerGridMovement.GetCurZ();
 
-        // List<UnitManager> tempUnits = _currentMap.GetMapUnits();
-
-        // UnitManager tempUnit = tempUnits.Find()
-        
-
-        findPath.DestroyArea();
         playerGridMovement.charSelected = false;
-        playerGridMovement.inMenu = false;       
-
-
-           
+        playerGridMovement.inMenu = false;         
 
         playerGridMovement.GetPlayerCollide().removePlayer();
 
+        // If the enemy range is active it will reprint it incase an enemy unit moves or dies
         if (playerGridMovement.enemyRangeActive) {
             findPath.DestroyEnemyRange();
             findPath.EnemyRange();
@@ -71,6 +55,7 @@ public class ExecuteAction : MonoBehaviour
             
     }
 
+    // Called after every action to reset
     public void ResetAfterAction(UnitManager playerUn) {
         findPath.DestroyRange();
         findPath.DestroyArea();
@@ -87,7 +72,8 @@ public class ExecuteAction : MonoBehaviour
     public IEnumerator CycleAttackList(List<GridTile> UnitsInRange, Weapon selectedWeapon) {
         // bool playerGridMovement.IsAttacking = false;
         int currentIndex = 0;
-        UnitManager AttackingUnit = playerGridMovement.GetPlayerCollide().GetPlayer();
+        // UnitManager AttackingUnit = playerGridMovement.GetPlayerCollide().GetPlayer();
+        UnitManager AttackingUnit = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
         UnitManager DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
         int attackerX = playerGridMovement.GetCurX();
         int attackerZ = playerGridMovement.GetCurZ();
@@ -207,7 +193,7 @@ public class ExecuteAction : MonoBehaviour
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
                 AttackingUnit.primaryWeapon = orgPrimWeapon;
-                StartCoroutine(combatMenuManager.WeaponList(playerGridMovement.GetPlayerCollide().GetPlayer()));
+                StartCoroutine(combatMenuManager.WeaponList(generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile));
 
                 
                 
@@ -316,7 +302,7 @@ public class ExecuteAction : MonoBehaviour
             // AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
             // Debug.Log(AttackingUnit.stats.UnitName);
             playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(attackerX, attackerZ).GetXPos(), generateGrid.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, generateGrid.GetGridTile(attackerX, attackerZ).GetZPos());
-            UnitManager temp = playerGridMovement.GetPlayerCollide().GetPlayer();
+            UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
             turnManager.RemovePlayer(AttackingUnit.stats);
@@ -577,7 +563,7 @@ public class ExecuteAction : MonoBehaviour
         
         
 
-        if (attackingUnit.UnitType == "Player") {
+        if (attackingUnit.UnitType == "Player" && playerUnit.getCurrentHealth() > 0) {
             // Transforms the camera to face the player, but have them slightly to the right
             Vector3 forward = atkObj.transform.forward; 
             Vector3 right = atkObj.transform.right;     
@@ -627,9 +613,11 @@ public class ExecuteAction : MonoBehaviour
         
         yield return new WaitForSeconds(1f);
 
-        // Set the circle to active again, and the player to its original rotation
-        atkCircle.SetActive(true);
-        atkObj.transform.rotation = originalAtkRotation;
+        // Set the circle to active again, and the player to its original rotationb
+        if (atkObj != null) {
+            atkCircle.SetActive(true);
+            atkObj.transform.rotation = originalAtkRotation;
+        }
 
         // If enemy still alive, set circle to active and roation to original
         if (defObj != null) {
@@ -786,7 +774,7 @@ public class ExecuteAction : MonoBehaviour
     public IEnumerator CycleAssist(List<GridTile> UnitsInRange, Faith faithInUse) {
 
         int currentIndex = 0;
-        UnitManager AttackingUnit = playerGridMovement.GetPlayerCollide().GetPlayer();
+        UnitManager AttackingUnit = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
         UnitManager DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
         int attackerX = playerGridMovement.GetCurX();
         int attackerZ = playerGridMovement.GetCurZ();
@@ -921,7 +909,7 @@ public class ExecuteAction : MonoBehaviour
             // combatMenuManager.DeactivateExpectedMenu();
             // Debug.LogWarning("In Thing");
             playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(attackerX, attackerZ).GetXPos(), generateGrid.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, generateGrid.GetGridTile(attackerX, attackerZ).GetZPos());
-            UnitManager temp = playerGridMovement.GetPlayerCollide().GetPlayer();
+            UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
             turnManager.RemovePlayer(AttackingUnit.stats);

@@ -219,7 +219,10 @@ public class PrologueMap : MonoBehaviour, IMaps
             UnitToGrid.ZPos = startGridZ[i];
             // mapUnits.Add(UnitToGrid);
             UnitToGrid.InitializeUnitData();
-            grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = unitPrefab.GetComponent<UnitManager>();
+            // grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = unitPrefab.GetComponent<UnitManager>();
+            grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = UnitToGrid;
+
+            // Debug.LogError("UNIT ADDED " + startGridX[i] + " " + startGridZ[i] + " to " + grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile.stats.UnitName);
             // Debug.LogError(grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile.stats.Name);
             mapGameUnits.Add(unitPrefab.GetComponent<UnitManager>());
 

@@ -180,6 +180,7 @@ public class TurnManager : MonoBehaviour
 
     //Checks if a player hasn't been moved yet
     public bool IsActive(UnitStats player) { 
+        // Debug.LogError(currUnits.Contains(player));
         return currUnits.Contains(player); 
     }
 

@@ -303,14 +303,11 @@ public class CombatMenuManager : MonoBehaviour
         //     Debug.Log("PLAYER IS NULL OH NOOOOOOO");
         // }
         // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-         moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        if (moveGrid.GetPlayerCollide() == null) {
-            Debug.Log("PLAYER IS NULL OH NOOOOOOO");
-        } else {
-            Debug.Log("YIPEEEEEEEEEEEEEE");
-        }
-        CheckWeapons(moveGrid.GetPlayerCollide().GetPlayer());
-        CheckFaith(moveGrid.GetPlayerCollide().GetPlayer());
+        moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // CheckWeapons(moveGrid.GetPlayerCollide().GetPlayer());
+        CheckWeapons(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
+        // CheckFaith(moveGrid.GetPlayerCollide().GetPlayer());
+        CheckFaith(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
 
         // Creates a list to store buttons and a string of what action they do
         List<Button> buttons = new List<Button>();
@@ -452,7 +449,8 @@ public class CombatMenuManager : MonoBehaviour
     }
 
     public void PlayerWait() {
-        manageTurn.RemovePlayer(moveGrid.GetPlayerCollide().GetPlayer().stats);
+        // manageTurn.RemovePlayer(moveGrid.GetPlayerCollide().GetPlayer().stats);
+        manageTurn.RemovePlayer(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile.stats);
         executeAction.unitWait();
         manageTurn.CheckPhase();
         _currentMap.CheckClearCondition();
@@ -460,7 +458,8 @@ public class CombatMenuManager : MonoBehaviour
 
     public void PlayerAttack() {
 
-        UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+        // UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
         CheckWeapons(unit);
 
         StartCoroutine(WeaponList(unit));
@@ -568,7 +567,8 @@ public class CombatMenuManager : MonoBehaviour
 
 
     public void PlayerAssist() {
-        UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+        // UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
         CheckFaith(unit);
 
         
@@ -681,7 +681,7 @@ public class CombatMenuManager : MonoBehaviour
                 // }
                 // if(UnitsInRange.Count <= 0) { continue; }
                 List<GridTile> temp = new List<GridTile>();
-                temp = usableFaith[curAssistIndex].GetUnitsInRange(moveGrid.GetPlayerCollide().GetPlayer());
+                temp = usableFaith[curAssistIndex].GetUnitsInRange(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile);
                 if(temp.Count <= 0) { continue; }
 
                 
@@ -697,7 +697,7 @@ public class CombatMenuManager : MonoBehaviour
     }
 
     void CreateAssistMenu() {
-        UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
         List<Faith> listOfFaith = new List<Faith>();
         listOfFaith.AddRange(usableFaith);
         listOfFaith.AddRange(nonUsableFaith);
@@ -1581,7 +1581,7 @@ public class CombatMenuManager : MonoBehaviour
         // itemMenu.SetActive(true);
         // UnitManager unit = generateGrid.GetGridTile(moveGrid.GetOrgX(), moveGrid.GetOrgZ()).UnitOnTile;
         
-        UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
         
         
         bool axisInUse = false;

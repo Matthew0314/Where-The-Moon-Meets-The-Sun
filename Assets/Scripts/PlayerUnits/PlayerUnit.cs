@@ -155,8 +155,9 @@ public class PlayerUnit : UnitManager
 
     public override void InitializeUnitData()
     {
-        
+        // Debug.LogError(unitName + " AHHHHHHHHHH");
         stats = UnitRosterManager.GetUnitStats(unitName);
+        // Debug.LogError(stats.UnitName + " AHHHHHHHHHHSTATS");
         maxHealth = stats.Health;
         currentHealth = maxHealth;
         UnitType = "Player"; 
