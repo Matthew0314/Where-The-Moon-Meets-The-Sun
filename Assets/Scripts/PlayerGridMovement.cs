@@ -184,6 +184,9 @@ public class PlayerGridMovement : MonoBehaviour
                 }
                 Debug.Log(x + " " + z);
             }
+
+            if (gridControl.GetGridTile(x,z).UnitOnTile != null && startGame) combatMenu.ActivateHoverMenu(gridControl.GetGridTile(x,z).UnitOnTile);
+            else combatMenu.DeactivateHoverMenu();
         }
     }
 

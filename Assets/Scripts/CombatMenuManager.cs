@@ -118,6 +118,8 @@ public class CombatMenuManager : MonoBehaviour
     [Header("Item Menu Menu")]
     private GameObject scrollViewContent;
     [SerializeField] GameObject buttonTemplate;
+    [SerializeField] GameObject itemDivider;
+    List<GameObject> divList = new List<GameObject>();
     private GameObject itemMenu;
     List<Button> itemButtons;
     int currItemIndex = 0;
@@ -144,6 +146,10 @@ public class CombatMenuManager : MonoBehaviour
 
 
     Gamepad gamepad;
+
+    private float sensitivity = 0.2f;
+    private Vector2 moveInput;
+    [SerializeField] PlayerInput playerInput;
 
 
 
@@ -282,29 +288,17 @@ public class CombatMenuManager : MonoBehaviour
 
     }
 
-    void Update() {
-        gamepad = Gamepad.current;
-    }
+    // Gets movement from player input
+    public void OnMove(InputAction.CallbackContext context) => moveInput = context.ReadValue<Vector2>();
 
     // Sets active a darker background for certain menus
-    public void ActivateBackground() {
-        background.SetActive(true);
-    }
+    public void ActivateBackground() => background.SetActive(true);
 
-    public void DeactivateBackground() {
-        background.SetActive(false);
-    }
+    public void DeactivateBackground() => background.SetActive(false);
 
     public IEnumerator ActivateActionMenu() {
 
         // Checks if unit can use weapons or faith
-        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        // if (moveGrid.GetPlayerCollide() == null) {
-        //     Debug.Log("PLAYER IS NULL OH NOOOOOOO");
-        // }
-        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        // CheckWeapons(moveGrid.GetPlayerCollide().GetPlayer());
         CheckWeapons(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
         // CheckFaith(moveGrid.GetPlayerCollide().GetPlayer());
         CheckFaith(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
@@ -318,7 +312,7 @@ public class CombatMenuManager : MonoBehaviour
         int startY = 400;
         int ind = 0;
 
-
+        // Sets up variables to use for the action menu
         GameObject actionMenu = GameObject.Find("Canvas/ActionMenu");
         GameObject tempBtn;
         Button atkBut;
@@ -355,7 +349,7 @@ public class CombatMenuManager : MonoBehaviour
             ind++;
         }
 
-        // Always creates an Item button, update code later if there a re conditions to prevent this
+        // Always creates an Item button, update code later if there are conditions to prevent this
         tempBtn = (GameObject)Instantiate(itemButton);
         tempBtn.transform.SetParent(actionMenu.transform, false);
         tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
@@ -365,10 +359,9 @@ public class CombatMenuManager : MonoBehaviour
         actionMenuList.Add(tempBtn);
         ind++;
 
-        // Always creates a Wait button, update code later if there a re conditions to prevent this
+        // Always creates a Wait button, update code later if there are conditions to prevent this
         tempBtn = (GameObject)Instantiate(waitButton);
         tempBtn.transform.SetParent(actionMenu.transform, false);
-
         tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
         atkBut = tempBtn.GetComponent<Button>();
         buttons.Add(atkBut);
@@ -380,17 +373,18 @@ public class CombatMenuManager : MonoBehaviour
         int currentIndex = 0;
         buttons[currentIndex].Select();
 
-        // Used to prevent more than one action per frame
+        // Used to slow down movement between buttons
         bool axisInUse = false;
         bool oneAction = false;
 
         while (true) {
-            float vertical = Input.GetAxis("Vertical");            
 
-            if (!axisInUse)
-            {
-                if (vertical > 0.2f) // Move up
-                {
+            // Gets Vertical Input
+            float vertical = moveInput.y;         
+
+            if (!axisInUse) {
+                // Move Up
+                if (vertical > sensitivity) {
                     // If move up sets to next button
                     buttons[currentIndex].OnDeselect(null);
                     currentIndex--;
@@ -402,8 +396,8 @@ public class CombatMenuManager : MonoBehaviour
                     buttons[currentIndex].Select();
                     axisInUse = true;
                 }
-                else if (vertical < -0.2f) // Move down
-                {
+                // Move Down
+                else if (vertical < -sensitivity) {
                     // If move down sets to next button
                     buttons[currentIndex].OnDeselect(null);
                     currentIndex++ ;
@@ -417,23 +411,25 @@ public class CombatMenuManager : MonoBehaviour
                 }
             }
 
-            if (Mathf.Abs(vertical) < 0.2f) axisInUse = false;
+            if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
 
-            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) // "Submit" button
-            {
+            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame()) {
+
                 if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack();}
                 else if (Actions[currentIndex] == "Item") { DeactivateActionMenu(); PlayerItem();}
                 else if (Actions[currentIndex] == "Wait") { DeactivateActionMenu(); PlayerWait();}
                 else if (Actions[currentIndex] == "Assist") { DeactivateActionMenu(); PlayerAssist();}
+                else continue;
 
                 break;
             }
 
 
-            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
+            if (oneAction && playerInput.actions["Back"].WasPressedThisFrame()) {
                 moveGrid.OutOfMenu();
                 break;
             }
+
             oneAction = true;
 
             yield return null;
@@ -443,139 +439,230 @@ public class CombatMenuManager : MonoBehaviour
     }
 
     public void DeactivateActionMenu() {
-        foreach(GameObject obj in actionMenuList) {
-            Destroy(obj);
-        }
+        foreach(GameObject obj in actionMenuList) Destroy(obj);
     }
 
     public void PlayerWait() {
-        // manageTurn.RemovePlayer(moveGrid.GetPlayerCollide().GetPlayer().stats);
+        // Removes player from actives list
         manageTurn.RemovePlayer(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile.stats);
+
+        // Calls the unit wait function
         executeAction.unitWait();
+
+        // Checks the phase and clear condition and if it has been met
         manageTurn.CheckPhase();
         _currentMap.CheckClearCondition();
     }
 
-    public void PlayerAttack() {
+//^-------------------------------------------------------ATTACK---------------------------------------------------------------------
+    public void PlayerAttack() => StartCoroutine(WeaponList(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile));
 
-        // UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
-        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
+    // This Method checks which weapons have an enemy within its range and adds it to the usable weapons list
+    public void CheckWeapons(UnitManager unit) {
+        
+        // Gets Weapons that unit has in invintory
+        List<Weapon> tempWeap = unit.GetWeapons();
+
+        // Resets the usable and non usable list, nonUsable are for weapons that can't attack anything in range
+        usableWeapons.Clear();
+        nonUsableWeapons.Clear();
+
+        // For each weapon determine if theres an enemy in the units range, if so add to usable weapon, if not then non usable
+        foreach (Weapon wep in tempWeap) { 
+            bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
+            for (int i = 0; i < generateGrid.GetWidth(); i++) {
+                for (int j = 0; j < generateGrid.GetLength(); j++) {
+                    if (attackGrid[i,j] && !usableWeapons.Contains(wep) && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
+                        usableWeapons.Add(wep); 
+                    }
+                }
+            }
+
+            if(!usableWeapons.Contains(wep)) {
+                nonUsableWeapons.Add(wep);
+            }
+        }
+    }
+
+    public IEnumerator WeaponList(UnitManager unit) {
+        // Checks which weapons are avaliable
         CheckWeapons(unit);
 
-        StartCoroutine(WeaponList(unit));
-    }
+        // Creates the weapon menu
+        CreateWeaponMenu(unit);
 
-    // public void CheckWeapons(UnitManager unit) {
         
-    //     List<Weapon> tempWeap = unit.GetWeapons();
+        bool axisInUse = false;
+        bool oneAction = false;
 
-    //     foreach (Weapon wep in tempWeap) {
-    //         bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
-    //         for (int i = 0; i < generateGrid.GetWidth(); i++) {
-    //             for (int j = 0; j < generateGrid.GetLength(); j++) {
-    //                 if (attackGrid[i,j] && !usableWeapons.Contains(wep) && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                        
-    //                     // UnitsInRange.Add(generateGrid.GetGridTile(i,j));
-    //                     usableWeapons.Add(wep);
-                        
-    //                 }
-    //             }
-    //         }
+        currWeapIndex = 0;
 
-    //         if(!usableWeapons.Contains(wep)) {
-    //             nonUsableWeapons.Add(wep);
-    //         }
-    //     }
-    // }
+        int maxIndex;
 
-    // public IEnumerator WeaponList(UnitManager unit) {
-    //     int weapIndex = 0;
+        moveGrid.isAttacking = false;
 
-    //     bool axisInUse = false;
-    //     bool oneAction = false;
+        
 
-    //     while (true) {
-    //         float vertical = -Input.GetAxis("Vertical");
+        itemButtons[currWeapIndex].Select();
 
-    //         Debug.Log(buttons[currentIndex]);
+        findPath.DestroyRange();
+
+        // Highlights attack for first weapon
+        bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
+        findPath.HighlightAttack(attackGrid);
+
+
+        while (true) {
+            // Gets the max index
+            maxIndex = usableWeapons.Count + nonUsableWeapons.Count - 1;
+
+            float vertical = moveInput.y; 
+
+            if (playerInput.actions["Back"].WasPressedThisFrame() && oneAction) {
+                // Destroys path and sends it back to the action menu
+                findPath.DestroyRange();
+                StartCoroutine(ActivateActionMenu());
+                DeactivateItemMenu();
+                break;
+            }
+
+            if (maxIndex < 0) {
+                yield return null;
+                continue;
+            }
             
 
-    //         if (!axisInUse)
-    //         {
-    //             if (vertical > 0.2f) // Move up
-    //             {
-    //                 buttons[currentIndex].OnDeselect(null);
-    //                 // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
-    //                 currentIndex--;
-    //                 if (currentIndex < 0) { currentIndex = buttons.Count - 1; }
-    //                 buttons[currentIndex].Select();
-    //                 axisInUse = true;
-    //                 // yield return new WaitForSeconds(0.25f);
-    //             }
-    //             else if (vertical < -0.2f) // Move down
-    //             {
-    //                 buttons[currentIndex].OnDeselect(null);
-    //                 // currentIndex = (currentIndex + 1) % buttons.Count;
-    //                 currentIndex++ ;
-    //                 if (currentIndex >= buttons.Count) { currentIndex = 0; }
-    //                 buttons[currentIndex].Select();
-    //                 axisInUse = true;
-    //                 // yield return new WaitForSeconds(0.25f);
-    //             }
-    //         }
+            if (!axisInUse)
+            {
+                if (vertical > sensitivity) {
+                    // Deselects old button
+                    itemButtons[currWeapIndex].OnDeselect(null);
 
-    //         if (Mathf.Abs(vertical) < 0.2f)
-    //         {
-    //             axisInUse = false;
-    //         }
+                    // Change index and select button
+                    currWeapIndex--;
+                    if (currWeapIndex < 0) { currWeapIndex = maxIndex; }
+                    itemButtons[currWeapIndex].Select();
 
-    //         if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
-    //         {
-    //             buttons[currentIndex].onClick.Invoke();
-    //             break;
-    //         }
-    //         if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
-    //             // moveGrid.inMenu = false;
-    //             moveGrid.OutOfMenu();
-    //             break;
-    //         }
-    //         oneAction = true;
+                    // Creates a new attack range for the next weapon
+                    findPath.DestroyRange();
+                    attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
+                    findPath.HighlightAttack(attackGrid);
 
-    //         yield return null;
-    //     }
+                    axisInUse = true;
+                }
+                else if (vertical < -sensitivity) {
+                    // Deselects old button
+                    itemButtons[currWeapIndex].OnDeselect(null);
 
-    //     yield return null;
+                    // Change index and select button
+                    currWeapIndex++ ;
+                    if (currWeapIndex > maxIndex) { currWeapIndex = 0; }
+                    itemButtons[currWeapIndex].Select();
 
-    // }
+                    // Creates a new attack range for the next weapon
+                    findPath.DestroyRange();
+                    attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
+                    findPath.HighlightAttack(attackGrid);
 
-    public void PlayerItem() {
-        Debug.Log("Start of Item");
-        // if (inItemMenu) { return; }
-        // inItemMenu = true;
-        // UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
+                    axisInUse = true;
+                }
+            }
 
-        // Item temp = unit.GetStats().GetItemAt(0);
+            if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
 
-        // if (temp != null) {
-        //     temp.Use(unit);
-        // }
+            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame()) {
+                oneAction = false;
 
-        // executeAction.ResetAfterAction(unit);
-        ActivateItemMenu();
-        StartCoroutine(ItemMenu());
+                // Gets all enemies in range and begins the cycle attack method
+                List<GridTile> UnitsInRange = new List<GridTile>();
+                for (int i = 0; i < generateGrid.GetWidth(); i++) {
+                    for (int j = 0; j < generateGrid.GetLength(); j++) {
+                        if (attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
+                            UnitsInRange.Add(generateGrid.GetGridTile(i,j));  
+                        }
+                    }
+                }
+
+                if(UnitsInRange.Count <= 0) continue;
+
+                DeactivateItemMenu();
+                StartCoroutine(executeAction.CycleAttackList(UnitsInRange, listOfWeapons[currWeapIndex]));
+
+                break;
+            }
+            
+            oneAction = true;
+
+            yield return null;
+        }
+
+        yield return null;
     }
 
+    // Creates the Weapon Menu
+    // TODO: Add dividers for Magic when you eventually get that running
+    public void CreateWeaponMenu(UnitManager user) {
 
-    public void PlayerAssist() {
-        // UnitManager unit = moveGrid.GetPlayerCollide().GetPlayer();
-        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
-        CheckFaith(unit);
-
-        
+        // Activates the Item menu background
         ActivateItemMenu();
-        StartCoroutine(AssistMenu());
+
+        // Adds the full list of weapons, making sure that nonUsable is at the bottom
+        listOfWeapons = new List<Weapon>();
+        listOfWeapons.AddRange(usableWeapons);
+        listOfWeapons.AddRange(nonUsableWeapons);
+
+        // Destroys previous buttons and dividers
+        foreach (Button btn in itemButtons) Destroy(btn.gameObject);
+        foreach (GameObject obj in divList) Destroy(obj);
+
+        // Creates a new list of item buttons
+        itemButtons = new List<Button>();
+
+        GameObject tempBtn;
+        int count = 0;
+
+        if (listOfWeapons.Count > 0) {
+            for (int i = 0; i < listOfWeapons.Count; i++) {
+                // Instantiates weapon button on the menu
+                tempBtn = (GameObject)Instantiate(buttonTemplate);
+                tempBtn.transform.SetParent(scrollViewContent.transform, false);
+
+                // Sets its position under the rpevious one
+                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
+                count++;
+
+                // Sets text to weapon name, adds (E) if its equipped
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = listOfWeapons[i].WeaponName;
+                if(listOfWeapons[i] == user.GetPrimaryWeapon()) {
+                    texts[0].text += " (E)";
+                }
+
+                // Sets the current uses and max uses
+                if (listOfWeapons[i].MaxUses > 0) {
+                    texts[1].text = listOfWeapons[i].Uses + "/" + listOfWeapons[i].MaxUses;
+                } else {
+                    texts[1].text = "";
+                }
+
+                // Adds to item button list
+                itemButtons.Add(tempBtn.GetComponent<Button>());
+
+                // If the weapon can't be used make buton uninteractable
+                if (nonUsableWeapons.Contains(listOfWeapons[i])) {
+                    itemButtons[i].interactable = false;
+                }
+            }
+        }
     }
 
+//^-------------------------------------------------------------ITEMS------------------------------------------------
+    
+
+
+    public void PlayerAssist() => StartCoroutine(AssistMenu());
+
+    // Checks which faiths can be used
     void CheckFaith(UnitManager unit) {
         List<Faith> checking =  unit.GetFaithList();
         usableFaith = new List<Faith>();
@@ -590,29 +677,35 @@ public class CombatMenuManager : MonoBehaviour
         }
     }
 
+
     public IEnumerator AssistMenu() {
+        // checks which faiths can be used
+        CheckFaith(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile);
+
+        // activates the item menu
+        ActivateItemMenu();
+
+        // creates an assist menu
         CreateAssistMenu();
+
+        // instantiates max index and cur assist index
         int maxIndex = usableFaith.Count + nonUsableFaith.Count - 1;
         int curAssistIndex = 0;
+
         bool axisInUse = false;
         bool oneAction = false;
-        // currWeapIndex = 0;
-        // int maxIndex;
+
         moveGrid.isAttacking = false;
 
-        // bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
-
         itemButtons[curAssistIndex].Select();
+
         while(true) {
 
-            
-            
-            // maxIndex = 100;
-            float vertical = Input.GetAxis("Vertical");
+            float vertical = moveInput.y;
 
             // Debug.Log(buttons[currentIndex]);
 
-            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
+            if (playerInput.actions["Back"].WasPressedThisFrame() && oneAction) {
                 StartCoroutine(ActivateActionMenu());
                 DeactivateItemMenu();
                 break;
@@ -624,65 +717,33 @@ public class CombatMenuManager : MonoBehaviour
             }
             
 
-            if (!axisInUse)
-            {
-                if (vertical > 0.2f) // Move up
-                {
+            if (!axisInUse) {
+                if (vertical > sensitivity) {
                     itemButtons[curAssistIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
                     curAssistIndex--;
-                    if (currWeapIndex < 0) { curAssistIndex = maxIndex; }
-                    // if (currItemIndex < 0) { currItemIndex = 0; }
+                    if (curAssistIndex < 0) curAssistIndex = maxIndex;
                     itemButtons[curAssistIndex].Select();
-                    // EnsureButtonVisible(currWeapIndex);
                     axisInUse = true;
-                    // findPath.DestroyRange();
-                    // attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[curAssistIndex].Range, listOfWeapons[curAssistIndex].Range1, listOfWeapons[curAssistIndex].Range2, listOfWeapons[curAssistIndex].Range3);
-                    // findPath.HighlightAttack( attackGrid);
-
-                    // yield return new WaitForSeconds(0.25f);
                 }
-                else if (vertical < -0.2f) // Move down
-                {
+                else if (vertical < -sensitivity) {
                     itemButtons[curAssistIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex + 1) % buttons.Count;
                     curAssistIndex++ ;
-                    if (currWeapIndex > maxIndex) { curAssistIndex = 0; }
-                    // if (currItemIndex > maxIndex) { currItemIndex = maxIndex; }
+                    if (curAssistIndex > maxIndex) curAssistIndex = 0;
                     itemButtons[curAssistIndex].Select();
-                    // EnsureButtonVisible(currWeapIndex);
                     axisInUse = true;
-                    // findPath.DestroyRange();
-                    // attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
-                    // findPath.HighlightAttack( attackGrid);
-
-                    // yield return new WaitForSeconds(0.25f);
                 }
             }
 
-            if (Mathf.Abs(vertical) < 0.2f)
-            {
-                axisInUse = false;
-            }
+            if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
+            
 
-            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame)) && curAssistIndex < usableFaith.Count) // "Submit" button
+            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame() && curAssistIndex < usableFaith.Count) // "Submit" button
             {
-                // itemButtons[currItemIndex].onClick.Invoke();
                 oneAction = false;
-                // List<GridTile> UnitsInRange = new List<GridTile>();
-                // for (int i = 0; i < generateGrid.GetWidth(); i++) {
-                //     for (int j = 0; j < generateGrid.GetLength(); j++) {
-                //         if (attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                            
-                //             UnitsInRange.Add(generateGrid.GetGridTile(i,j));
-                            
-                //         }
-                //     }
-                // }
-                // if(UnitsInRange.Count <= 0) { continue; }
                 List<GridTile> temp = new List<GridTile>();
                 temp = usableFaith[curAssistIndex].GetUnitsInRange(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile);
-                if(temp.Count <= 0) { continue; }
+
+                if(temp.Count <= 0) continue;
 
                 
                 DeactivateItemMenu();
@@ -697,52 +758,334 @@ public class CombatMenuManager : MonoBehaviour
     }
 
     void CreateAssistMenu() {
-        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
         List<Faith> listOfFaith = new List<Faith>();
         listOfFaith.AddRange(usableFaith);
         listOfFaith.AddRange(nonUsableFaith);
-        // List<Item> items = user.GetItems();
 
-        foreach (Button btn in itemButtons) {
-            Destroy(btn.gameObject);
-        }
+        foreach (Button btn in itemButtons) Destroy(btn.gameObject);
+        foreach (GameObject obj in divList) Destroy(obj);
+
         itemButtons = new List<Button>();
 
         GameObject tempBtn;
 
         int count = 0;
 
-        // Debug.Log(listOfFaith.Count);
-
         if (listOfFaith.Count > 0) {
             for (int i = 0; i < listOfFaith.Count; i++) {
                 tempBtn = (GameObject)Instantiate(buttonTemplate);
                 tempBtn.transform.SetParent(scrollViewContent.transform, false);
-                // tempBtn.transform.position
 
                 tempBtn.transform.position += new Vector3(0, -count * 45, 0);
-                // itemButton
                 count++;
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
                 texts[0].text = listOfFaith[i].Name;
 
-
-                
-
                 texts[1].text = listOfFaith[i].Uses + "/" + listOfFaith[i].MaxUses;
                 itemButtons.Add(tempBtn.GetComponent<Button>());
 
-                if (nonUsableFaith.Contains(listOfFaith[i])) {
-                    itemButtons[i].interactable = false;
-                }
-
-                
-                
-                // itemButtons.Add(tempBtn.GetComponent<Button>());
+                if (nonUsableFaith.Contains(listOfFaith[i])) itemButtons[i].interactable = false;
             }
         }
     }
 
+//^------------------------------------ITEM---------------------------------------------------------------------
+    public void PlayerItem() => StartCoroutine(ItemMenu());
+    
+    public void DeactivateItemMenu() => itemMenu.SetActive(false);
+
+    public void ActivateItemMenu() {
+        itemMenu.SetActive(true);
+        currItemIndex = 0;
+        currWeapIndex = 0;
+        foreach (Button btn in itemButtons) Destroy(btn.gameObject);
+        foreach (GameObject obj in divList) Destroy(obj);
+        itemButtons.Clear();
+    }
+
+    public IEnumerator ItemMenu() {
+        ActivateItemMenu();
+
+        
+        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
+        
+        
+        bool axisInUse = false;
+        bool oneAction = false;
+        
+        CreateMenu(unit);
+        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count - 1 ;
+
+        if (maxIndex >= 0) itemButtons[currItemIndex].Select();
+
+        while (true) {
+            maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.stats.faith.Count - 1 ;
+            float vertical = moveInput.y;
+
+            if (playerInput.actions["Back"].WasPressedThisFrame() && oneAction) {
+                inItemMenu = false;
+                StartCoroutine(ActivateActionMenu());
+                DeactivateItemMenu();
+                
+                break;
+            }
+
+            if (!axisInUse) {
+                if (vertical > 0.2f) {
+                    itemButtons[currItemIndex].OnDeselect(null);
+                    currItemIndex--;
+                    if (currItemIndex < 0) currItemIndex = maxIndex;
+                    itemButtons[currItemIndex].Select();
+                    axisInUse = true;
+                    
+                }
+                else if (vertical < -0.2f) {
+                    itemButtons[currItemIndex].OnDeselect(null);
+                    currItemIndex++;
+                    if (currItemIndex > maxIndex) currItemIndex = 0;
+                    itemButtons[currItemIndex].Select();
+                    axisInUse = true;
+                }
+            }
+
+            if (Mathf.Abs(vertical) < 0.2f) axisInUse = false;
+
+
+            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame()) {
+                StartCoroutine(ItemMenuOptionSelect(unit, itemButtons[currItemIndex]));
+                break;
+            }
+            
+            oneAction = true;
+
+            yield return null;
+        }
+
+        yield return null;
+    }
+
+    public void CreateMenu(UnitManager user) {
+        List<Weapon> weapons = user.GetWeapons();
+        List<Item> items = user.GetItems();
+        List<Faith> faith = user.stats.faith;
+
+        foreach (Button btn in itemButtons) Destroy(btn.gameObject);
+        foreach (GameObject obj in divList) Destroy(obj);
+
+        itemButtons = new List<Button>();
+        divList = new List<GameObject>();
+
+        GameObject tempBtn;
+        int count = 0;
+
+        if (weapons.Count > 0) {
+            GameObject tempDiv = (GameObject)Instantiate(itemDivider);
+            tempDiv.transform.SetParent(scrollViewContent.transform, false);
+            tempDiv.transform.position += new Vector3(0, -count * 45, 0);
+            count++;
+            tempDiv.GetComponent<TextMeshProUGUI>().text = "Weapons";
+            divList.Add(tempDiv);
+            for (int i = 0; i < weapons.Count; i++) {
+                tempBtn = (GameObject)Instantiate(buttonTemplate);
+                tempBtn.transform.SetParent(scrollViewContent.transform, false);
+
+                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
+                count++;
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = weapons[i].WeaponName;
+
+                if(weapons[i] == user.GetPrimaryWeapon()) texts[0].text += " (E)";
+                texts[1].text = weapons[i].Uses + "/" + weapons[i].MaxUses;
+
+                itemButtons.Add(tempBtn.GetComponent<Button>());
+
+            }
+        }
+
+        if (faith.Count > 0) {
+            GameObject tempDiv = (GameObject)Instantiate(itemDivider);
+            tempDiv.transform.SetParent(scrollViewContent.transform, false);
+            tempDiv.transform.position += new Vector3(0, -count * 45, 0);
+            count++;
+            tempDiv.GetComponent<TextMeshProUGUI>().text = "Faith";
+            divList.Add(tempDiv);
+            for (int i = 0; i < faith.Count; i++) {
+                tempBtn = (GameObject)Instantiate(buttonTemplate);
+                tempBtn.transform.SetParent(scrollViewContent.transform, false);
+
+                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
+                count++;
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = faith[i].Name;
+                texts[1].text = faith[i].Uses + "/" + faith[i].MaxUses;
+                itemButtons.Add(tempBtn.GetComponent<Button>());
+            }
+        }
+
+        if (items.Count > 0) {
+            GameObject tempDiv = (GameObject)Instantiate(itemDivider);
+            tempDiv.transform.SetParent(scrollViewContent.transform, false);
+            tempDiv.transform.position += new Vector3(0, -count * 45, 0);
+            count++;
+            tempDiv.GetComponent<TextMeshProUGUI>().text = "Items";
+            divList.Add(tempDiv);
+            for (int i = 0; i < items.Count; i++) {
+                tempBtn = (GameObject)Instantiate(buttonTemplate);
+                tempBtn.transform.SetParent(scrollViewContent.transform, false);
+
+                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
+                count++;
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = items[i].Name;
+                texts[1].text = items[i].Uses + "/" + items[i].MaxUses;
+                itemButtons.Add(tempBtn.GetComponent<Button>());
+
+            }
+        }
+    }
+
+    private IEnumerator ItemMenuOptionSelect(UnitManager user, Button button) {
+        int ind = currItemIndex;
+
+        List<Button> optionButtons = new List<Button>();
+        List<string> options = new List<string>();
+        GameObject tempBtn;
+        bool isWeapon = false;
+        bool isItem = false;
+        
+
+        if (ind < user.GetWeapons().Count) {
+            tempBtn = (GameObject)Instantiate(buttonItemOption);
+            tempBtn.transform.SetParent(button.transform, false);
+            optionButtons.Add(tempBtn.GetComponent<Button>());
+            List<Weapon> weps = user.GetWeapons();
+            if (weps[ind] == user.primaryWeapon) {
+                options.Add("Unequip");
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = "Unequip";
+            } else {
+                options.Add("Equip");
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = "Equip";
+            }
+            
+        }
+        else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
+            if (user.GetItems()[ind - user.GetWeapons().Count].CanUse(user)) {
+                tempBtn = (GameObject)Instantiate(buttonItemOption);
+                tempBtn.transform.SetParent(button.transform, false);
+                optionButtons.Add(tempBtn.GetComponent<Button>());
+                options.Add("Use");
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = "Use";
+            }
+        }
+        int index = 0;
+
+        if (optionButtons.Count <= 0) {
+            StartCoroutine(ItemMenu());
+        } else {
+            optionButtons[index].Select();
+        }
+
+        
+
+        bool axisInUse = false;
+        bool oneAction = false;
+        
+
+        while (optionButtons.Count > 0) {
+            float vertical = Input.GetAxis("Vertical");
+
+            // Debug.Log(buttons[currentIndex]);
+
+            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
+
+                StartCoroutine(ItemMenu());
+
+                foreach (Button btn in optionButtons) {
+                    Destroy(btn.gameObject);
+                }
+                break;
+            }
+
+            if (!axisInUse && optionButtons.Count > 1)
+            {
+                if (vertical < -0.2f) // Move up
+                {
+                    // Debug.Log("UPPPPPPP");
+                    optionButtons[index].OnDeselect(null);
+                    // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
+                    index--;
+                    if (index < 0) { index = optionButtons.Count - 1; }
+                    optionButtons[index].Select();
+                    // EnsureButtonVisible(index);
+                    axisInUse = true;
+                    // yield return new WaitForSeconds(0.25f);
+                }
+                else if (vertical > 0.2f) // Move down
+                {
+                    // Debug.Log("DOWNNNNNNNNN");
+                    optionButtons[index].OnDeselect(null);
+                    // currentIndex = (currentIndex + 1) % buttons.Count;
+                    index++ ;
+                    if (index >= optionButtons.Count) { index = 0; }
+                    optionButtons[index].Select();
+                    // EnsureButtonVisible(index);
+                    axisInUse = true;
+                    // yield return new WaitForSeconds(0.25f);
+                }
+            }
+
+            if (Mathf.Abs(vertical) < 0.2f)
+            {
+                axisInUse = false;
+            }
+
+            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
+            {
+                if(ind < user.GetWeapons().Count) {
+                    if (options[index] == "Equip") {
+                        
+                        List<Weapon> tempWeap = user.GetWeapons();
+                        user.primaryWeapon = tempWeap[ind];
+                        foreach (Button btn in optionButtons) {
+                            Destroy(btn.gameObject);
+                        }
+                        StartCoroutine(ItemMenu());
+                    } else if (options[index] == "Unequip") {
+                        user.primaryWeapon = null;
+                        foreach (Button btn in optionButtons) {
+                            Destroy(btn.gameObject);
+                        }
+                        StartCoroutine(ItemMenu());
+                    }
+                } else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
+                    if (options[index] == "Use") {
+                        List<Item> tempItems = user.GetItems();
+                        DeactivateItemMenu();
+                        yield return StartCoroutine(tempItems[ind - user.GetWeapons().Count].Use(user));
+
+                        if(tempItems[ind - user.GetWeapons().Count].Uses <= 0) {
+                            user.GetItems().Remove(tempItems[ind - user.GetWeapons().Count]);
+                        }
+                        
+                        PlayerWait(); //Might have to change if wait abilities are implemented
+                    }
+                }
+                break;
+            }
+            
+            oneAction = true;
+
+            yield return null;
+        }
+
+
+        yield return null;
+
+
+    }
 
 //---------------------------------------Hover Menu---------------------------------------------------//
 
@@ -1563,575 +1906,40 @@ public class CombatMenuManager : MonoBehaviour
     }
 
 
-    public void DeactivateItemMenu() {
-        itemMenu.SetActive(false);
-    }
 
-    public void ActivateItemMenu() {
-        itemMenu.SetActive(true);
-        currItemIndex = 0;
-        currWeapIndex = 0;
-        foreach (Button btn in itemButtons) {
-            Destroy(btn.gameObject);
-        }
-        itemButtons.Clear();
-    }
+    // private void EnsureButtonVisible(int currentIndex) {
+    //     RectTransform buttonRect = itemButtons[currentIndex].GetComponent<RectTransform>();
+    //     RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
+    //     RectTransform viewportRect = GameObject.Find("Canvas/ItemMenu/ScrollView").GetComponent<ScrollRect>().viewport;
 
-    public IEnumerator ItemMenu() {
-        // itemMenu.SetActive(true);
-        // UnitManager unit = generateGrid.GetGridTile(moveGrid.GetOrgX(), moveGrid.GetOrgZ()).UnitOnTile;
-        
-        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
-        
-        
-        bool axisInUse = false;
-        bool oneAction = false;
-        
-        CreateMenu(unit);
-        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count - 1 ;
-        // int maxIndex = 100;
-        // axisInUse = false;
-        if (maxIndex >= 0) {
-            itemButtons[currItemIndex].Select();
-        }
+    //     // Convert the button's position to the viewport's local space
+    //     Vector3[] buttonCorners = new Vector3[4];
+    //     buttonRect.GetWorldCorners(buttonCorners);
 
-        while (true) {
-            Debug.Log(maxIndex + " MAX Cureent" + currItemIndex);
-            maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.stats.faith.Count - 1 ;
-            // maxIndex = 100;
-            float vertical = Input.GetAxis("Vertical");
-            // if (gamepad != null) {
-            //     vertical = gamepad.leftStick.y.ReadValue();
-            // } else {
-            //     vertical = Input.GetAxis("Vertical");
-            // }
+    //     Vector3[] viewportCorners = new Vector3[4];
+    //     viewportRect.GetWorldCorners(viewportCorners);
 
-            // Debug.Log(buttons[currentIndex]);
-
-            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
-                inItemMenu = false;
-                StartCoroutine(ActivateActionMenu());
-                DeactivateItemMenu();
-                
-                break;
-            }
-
-            // if (maxIndex < 0) {
-            //     yield return null;
-            //     continue;
-            // }
-
-           
+    //     // Check if the button is out of view
+    //     if (buttonCorners[0].y < viewportCorners[0].y + 45 || buttonCorners[1].y > viewportCorners[1].y - 45) {
+    //         // Calculate the offset to move the button into view
+    //         Vector2 viewportLocalPosition = viewportRect.InverseTransformPoint(buttonCorners[0]);
+    //         Vector2 contentLocalPosition = contentRect.anchoredPosition;
+    //         if (buttonCorners[0].y < viewportCorners[0].y + 45) {
+    //             contentLocalPosition.y += 45;
+    //         } else if (buttonCorners[1].y > viewportCorners[1].y - 45) {
+    //             contentLocalPosition.y -= 45;
+    //         }
             
-
-            if (!axisInUse)
-            {
-                Debug.Log("AXIS NOT IN USE");
-                if (vertical > 0.2f) // Move up
-                {
-                    Debug.Log("UPPPPPPP");
-                    itemButtons[currItemIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
-                    currItemIndex--;
-                    if (currItemIndex < 0) { currItemIndex = maxIndex; }
-                    // if (currItemIndex < 0) { currItemIndex = 0; }
-                    itemButtons[currItemIndex].Select();
-                    // EnsureButtonVisible(currItemIndex);
-                    axisInUse = true;
-                    yield return new WaitForSeconds(0.1f);
-                    
-                }
-                else if (vertical < -0.2f) // Move down
-                {
-                    Debug.Log("DOWNNNNNNNNN");
-                    itemButtons[currItemIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex + 1) % buttons.Count;
-                    currItemIndex++;
-                    if (currItemIndex > maxIndex) { currItemIndex = 0; }
-                    // if (currItemIndex > maxIndex) { currItemIndex = maxIndex; }
-                    itemButtons[currItemIndex].Select();
-                    // EnsureButtonVisible(currItemIndex);
-                    axisInUse = true;
-                    yield return new WaitForSeconds(0.1f);
-                    
-                }
-
-                // axisInUse = true; 
-                
-            }
-             if (Mathf.Abs(vertical) < 0.2f)
-            {
-                Debug.Log("RESET " + vertical);
-                axisInUse = false;
-            }
-
-            
-
-            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
-            {
-                // itemButtons[currItemIndex].onClick.Invoke();
-                oneAction = false;
-                StartCoroutine(ItemMenuOptionSelect(unit, itemButtons[currItemIndex]));
-                break;
-            }
-            
-            oneAction = true;
-
-            yield return null;
-        }
-
-        yield return null;
-        Debug.Log(unit);
-        // yield return null;
-    }
-
-    public void CreateMenu(UnitManager user) {
-        List<Weapon> weapons = user.GetWeapons();
-        List<Item> items = user.GetItems();
-        List<Faith> faith = user.stats.faith;
-
-        foreach (Button btn in itemButtons) {
-            Destroy(btn.gameObject);
-        }
-        itemButtons = new List<Button>();
-
-        GameObject tempBtn;
-
-        int count = 0;
-
-        if (weapons.Count > 0) {
-            for (int i = 0; i < weapons.Count; i++) {
-                tempBtn = (GameObject)Instantiate(buttonTemplate);
-                tempBtn.transform.SetParent(scrollViewContent.transform, false);
-                // tempBtn.transform.position
-
-                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
-                count++;
-                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-                texts[0].text = weapons[i].WeaponName;
-
-                if(weapons[i] == user.GetPrimaryWeapon()) {
-                    texts[0].text += " (E)";
-                }
-
-                texts[1].text = weapons[i].Uses + "/" + weapons[i].MaxUses;
-
-                
-
-                itemButtons.Add(tempBtn.GetComponent<Button>());
-
-                // Update the text of the first and second TextMeshPro components
-                // if (texts.Length >= 2) {
-                //     texts[0].text = weapons[i].WeaponName;        // Set the first text
-                //     texts[1].text = weapons[i].description; // Set the second text
-                // } else {
-                //     Debug.LogWarning("Not enough TextMeshPro components found on button prefab.");
-                // }
-            }
-        }
-
-        if (items.Count > 0) {
-            for (int i = 0; i < items.Count; i++) {
-                tempBtn = (GameObject)Instantiate(buttonTemplate);
-                tempBtn.transform.SetParent(scrollViewContent.transform, false);
-
-                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
-                count++;
-                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-                texts[0].text = items[i].Name;
-                texts[1].text = items[i].Uses + "/" + items[i].MaxUses;
-                itemButtons.Add(tempBtn.GetComponent<Button>());
-
-            }
-        }
-
-        if (faith.Count > 0) {
-            for (int i = 0; i < faith.Count; i++) {
-                tempBtn = (GameObject)Instantiate(buttonTemplate);
-                tempBtn.transform.SetParent(scrollViewContent.transform, false);
-
-                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
-                count++;
-                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-                texts[0].text = faith[i].Name;
-                texts[1].text = faith[i].Uses + "/" + faith[i].MaxUses;
-                itemButtons.Add(tempBtn.GetComponent<Button>());
-            }
-        }
-
-        // for (int i = 0; i < 100; i++) {
-        //     tempBtn = (GameObject)Instantiate(buttonTemplate);
-        //     tempBtn.transform.SetParent(scrollViewContent.transform, false);
-
-        //     tempBtn.transform.position += new Vector3(0, -count * 45, 0);
-        //         count++;
-        //         itemButtons.Add(tempBtn.GetComponent<Button>());
-        // }
-
-    }
-
-    private IEnumerator ItemMenuOptionSelect(UnitManager user, Button button) {
-        int ind = currItemIndex;
-
-        List<Button> optionButtons = new List<Button>();
-        List<string> options = new List<string>();
-        GameObject tempBtn;
-        bool isWeapon = false;
-        bool isItem = false;
-        
-
-        if (ind < user.GetWeapons().Count) {
-            tempBtn = (GameObject)Instantiate(buttonItemOption);
-            tempBtn.transform.SetParent(button.transform, false);
-            optionButtons.Add(tempBtn.GetComponent<Button>());
-            List<Weapon> weps = user.GetWeapons();
-            if (weps[ind] == user.primaryWeapon) {
-                options.Add("Unequip");
-                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-                texts[0].text = "Unequip";
-            } else {
-                options.Add("Equip");
-                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-                texts[0].text = "Equip";
-            }
-            
-        }
-        else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
-            if (user.GetItems()[ind - user.GetWeapons().Count].CanUse(user)) {
-                tempBtn = (GameObject)Instantiate(buttonItemOption);
-                tempBtn.transform.SetParent(button.transform, false);
-                optionButtons.Add(tempBtn.GetComponent<Button>());
-                options.Add("Use");
-                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-                texts[0].text = "Use";
-            }
-        }
-        int index = 0;
-
-        if (optionButtons.Count <= 0) {
-            StartCoroutine(ItemMenu());
-        } else {
-            optionButtons[index].Select();
-        }
-
-        
-
-        bool axisInUse = false;
-        bool oneAction = false;
-        
-
-        while (optionButtons.Count > 0) {
-            float vertical = Input.GetAxis("Vertical");
-
-            // Debug.Log(buttons[currentIndex]);
-
-            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
-
-                StartCoroutine(ItemMenu());
-
-                foreach (Button btn in optionButtons) {
-                    Destroy(btn.gameObject);
-                }
-                break;
-            }
-
-            if (!axisInUse && optionButtons.Count > 1)
-            {
-                if (vertical < -0.2f) // Move up
-                {
-                    // Debug.Log("UPPPPPPP");
-                    optionButtons[index].OnDeselect(null);
-                    // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
-                    index--;
-                    if (index < 0) { index = optionButtons.Count - 1; }
-                    optionButtons[index].Select();
-                    // EnsureButtonVisible(index);
-                    axisInUse = true;
-                    // yield return new WaitForSeconds(0.25f);
-                }
-                else if (vertical > 0.2f) // Move down
-                {
-                    // Debug.Log("DOWNNNNNNNNN");
-                    optionButtons[index].OnDeselect(null);
-                    // currentIndex = (currentIndex + 1) % buttons.Count;
-                    index++ ;
-                    if (index >= optionButtons.Count) { index = 0; }
-                    optionButtons[index].Select();
-                    // EnsureButtonVisible(index);
-                    axisInUse = true;
-                    // yield return new WaitForSeconds(0.25f);
-                }
-            }
-
-            if (Mathf.Abs(vertical) < 0.2f)
-            {
-                axisInUse = false;
-            }
-
-            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
-            {
-                if(ind < user.GetWeapons().Count) {
-                    if (options[index] == "Equip") {
-                        
-                        List<Weapon> tempWeap = user.GetWeapons();
-                        user.primaryWeapon = tempWeap[ind];
-                        foreach (Button btn in optionButtons) {
-                            Destroy(btn.gameObject);
-                        }
-                        StartCoroutine(ItemMenu());
-                    } else if (options[index] == "Unequip") {
-                        user.primaryWeapon = null;
-                        foreach (Button btn in optionButtons) {
-                            Destroy(btn.gameObject);
-                        }
-                        StartCoroutine(ItemMenu());
-                    }
-                } else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
-                    if (options[index] == "Use") {
-                        List<Item> tempItems = user.GetItems();
-                        DeactivateItemMenu();
-                        yield return StartCoroutine(tempItems[ind - user.GetWeapons().Count].Use(user));
-
-                        if(tempItems[ind - user.GetWeapons().Count].Uses <= 0) {
-                            user.GetItems().Remove(tempItems[ind - user.GetWeapons().Count]);
-                        }
-                        
-                        PlayerWait(); //Might have to change if wait abilities are implemented
-                    }
-                }
-                break;
-            }
-            
-            oneAction = true;
-
-            yield return null;
-        }
-
-
-        yield return null;
-
-
-    }
-
-    private void EnsureButtonVisible(int currentIndex) {
-        RectTransform buttonRect = itemButtons[currentIndex].GetComponent<RectTransform>();
-        RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-        RectTransform viewportRect = GameObject.Find("Canvas/ItemMenu/ScrollView").GetComponent<ScrollRect>().viewport;
-
-        // Convert the button's position to the viewport's local space
-        Vector3[] buttonCorners = new Vector3[4];
-        buttonRect.GetWorldCorners(buttonCorners);
-
-        Vector3[] viewportCorners = new Vector3[4];
-        viewportRect.GetWorldCorners(viewportCorners);
-
-        // Check if the button is out of view
-        if (buttonCorners[0].y < viewportCorners[0].y + 45 || buttonCorners[1].y > viewportCorners[1].y - 45) {
-            // Calculate the offset to move the button into view
-            Vector2 viewportLocalPosition = viewportRect.InverseTransformPoint(buttonCorners[0]);
-            Vector2 contentLocalPosition = contentRect.anchoredPosition;
-            if (buttonCorners[0].y < viewportCorners[0].y + 45) {
-                contentLocalPosition.y += 45;
-            } else if (buttonCorners[1].y > viewportCorners[1].y - 45) {
-                contentLocalPosition.y -= 45;
-            }
-            
-            contentRect.anchoredPosition = contentLocalPosition;
-        }
-    }
+    //         contentRect.anchoredPosition = contentLocalPosition;
+    //     }
+    // }
 
 
     //------------------------------------------Weapon List----------------------------------------
 
 
 
-    // This Method checks which weapons have an enemy within its range and adds it to the usable weapons list
-    public void CheckWeapons(UnitManager unit) {
-        
-        // Gets Weapons that unit has in invintory
-        List<Weapon> tempWeap = unit.GetWeapons();
 
-        // Resets the usable and non usable list, nonUsable are for weapons that can't attack anything in range
-        usableWeapons.Clear();
-        nonUsableWeapons.Clear();
-
-        // For each weapon determine if theres an enemy in the units range, if so add to usable weapon, if not then non usable
-        foreach (Weapon wep in tempWeap) {
-            
-            bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
-            for (int i = 0; i < generateGrid.GetWidth(); i++) {
-                for (int j = 0; j < generateGrid.GetLength(); j++) {
-                    if (attackGrid[i,j] && !usableWeapons.Contains(wep) && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                        usableWeapons.Add(wep); 
-                    }
-                }
-            }
-
-            if(!usableWeapons.Contains(wep)) {
-                nonUsableWeapons.Add(wep);
-            }
-        }
-    }
-
-    public IEnumerator WeaponList(UnitManager unit) {
-        CheckWeapons(unit);
-        ActivateItemMenu();
-        CreateWeaponMenu(unit);
-
-        int weapIndex = 0;
-
-        bool axisInUse = false;
-        bool oneAction = false;
-        currWeapIndex = 0;
-        int maxIndex;
-        moveGrid.isAttacking = false;
-
-        bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
-
-        itemButtons[currWeapIndex].Select();
-
-        findPath.DestroyRange();
-        attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
-        findPath.HighlightAttack( attackGrid);
-
-
-        while (true) {
-            maxIndex = usableWeapons.Count + nonUsableWeapons.Count - 1;
-            // maxIndex = 100;
-            float vertical = Input.GetAxis("Vertical");
-
-            // Debug.Log(buttons[currentIndex]);
-
-            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame)) && oneAction) {
-                StartCoroutine(ActivateActionMenu());
-                DeactivateItemMenu();
-                break;
-            }
-
-            if (maxIndex < 0) {
-                yield return null;
-                continue;
-            }
-            
-
-            if (!axisInUse)
-            {
-                if (vertical > 0.2f) // Move up
-                {
-                    itemButtons[currWeapIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
-                    currWeapIndex--;
-                    if (currWeapIndex < 0) { currWeapIndex = maxIndex; }
-                    // if (currItemIndex < 0) { currItemIndex = 0; }
-                    itemButtons[currWeapIndex].Select();
-                    // EnsureButtonVisible(currWeapIndex);
-                    axisInUse = true;
-                    findPath.DestroyRange();
-                    attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
-                    findPath.HighlightAttack( attackGrid);
-
-                    // yield return new WaitForSeconds(0.25f);
-                }
-                else if (vertical < -0.2f) // Move down
-                {
-                    itemButtons[currWeapIndex].OnDeselect(null);
-                    // currentIndex = (currentIndex + 1) % buttons.Count;
-                    currWeapIndex++ ;
-                    if (currWeapIndex > maxIndex) { currWeapIndex = 0; }
-                    // if (currItemIndex > maxIndex) { currItemIndex = maxIndex; }
-                    itemButtons[currWeapIndex].Select();
-                    // EnsureButtonVisible(currWeapIndex);
-                    axisInUse = true;
-                    findPath.DestroyRange();
-                    attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), listOfWeapons[currWeapIndex].Range, listOfWeapons[currWeapIndex].Range1, listOfWeapons[currWeapIndex].Range2, listOfWeapons[currWeapIndex].Range3);
-                    findPath.HighlightAttack( attackGrid);
-
-                    // yield return new WaitForSeconds(0.25f);
-                }
-            }
-
-            if (Mathf.Abs(vertical) < 0.2f)
-            {
-                axisInUse = false;
-            }
-
-            if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
-            {
-                // itemButtons[currItemIndex].onClick.Invoke();
-                oneAction = false;
-                List<GridTile> UnitsInRange = new List<GridTile>();
-                for (int i = 0; i < generateGrid.GetWidth(); i++) {
-                    for (int j = 0; j < generateGrid.GetLength(); j++) {
-                        if (attackGrid[i,j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                            
-                            UnitsInRange.Add(generateGrid.GetGridTile(i,j));
-                            
-                        }
-                    }
-                }
-                if(UnitsInRange.Count <= 0) { continue; }
-                DeactivateItemMenu();
-                StartCoroutine(executeAction.CycleAttackList(UnitsInRange, listOfWeapons[currWeapIndex]));
-                break;
-            }
-            
-            oneAction = true;
-
-            yield return null;
-        }
-
-        yield return null;
-
-    }
-
-    public void CreateWeaponMenu(UnitManager user) {
-        // List<Weapon> weapons = user.GetWeapons();
-        listOfWeapons = new List<Weapon>();
-        listOfWeapons.AddRange(usableWeapons);
-        listOfWeapons.AddRange(nonUsableWeapons);
-        // List<Item> items = user.GetItems();
-
-        foreach (Button btn in itemButtons) {
-            Destroy(btn.gameObject);
-        }
-        itemButtons = new List<Button>();
-
-        GameObject tempBtn;
-
-        int count = 0;
-
-        Debug.Log(listOfWeapons.Count);
-
-        if (listOfWeapons.Count > 0) {
-            for (int i = 0; i < listOfWeapons.Count; i++) {
-                tempBtn = (GameObject)Instantiate(buttonTemplate);
-                tempBtn.transform.SetParent(scrollViewContent.transform, false);
-                // tempBtn.transform.position
-
-                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
-                // itemButton
-                count++;
-                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-                texts[0].text = listOfWeapons[i].WeaponName;
-
-
-                if(listOfWeapons[i] == user.GetPrimaryWeapon()) {
-                    texts[0].text += " (E)";
-                }
-
-                texts[1].text = listOfWeapons[i].Uses + "/" + listOfWeapons[i].MaxUses;
-                itemButtons.Add(tempBtn.GetComponent<Button>());
-
-                if (nonUsableWeapons.Contains(listOfWeapons[i])) {
-                    itemButtons[i].interactable = false;
-                }
-
-                
-                
-                // itemButtons.Add(tempBtn.GetComponent<Button>());
-            }
-        }
-    }
 
 
 
@@ -2212,352 +2020,203 @@ public class CombatMenuManager : MonoBehaviour
 
     public IEnumerator BattleMenu(UnitManager left, UnitManager right, int expectedLeftHP, int expectedRightHP, int lDamage, int rDamage, int numLHits, int numRHits, Weapon leftWeap, Weapon rightWeap) {
 
-    Image lBar;
-    Image rBar;
-    Image lLostBar;
-    Image rLostBar;
-
-    lLostBar = PHealthLost;
-    rLostBar = EHealthLost;
-
-    if (left.UnitType == "Player") {
-        lBar = PHealth;
-        PHealth.gameObject.SetActive(true);
-        PHealthSwapped.gameObject.SetActive(false);
-    } else {
-        lBar = PHealthSwapped;
-        PHealthSwapped.gameObject.SetActive(true);
-        PHealth.gameObject.SetActive(false);
-    }
-
-    if (right.UnitType == "Player") {
-        rBar = EHealthSwapped;
-        EHealthSwapped.gameObject.SetActive(true);
-        EHealth.gameObject.SetActive(false);
-    } else {
-        rBar = EHealth;
-        EHealth.gameObject.SetActive(true);
-        EHealthSwapped.gameObject.SetActive(false);
-    }
-    
-    if (expectedLeftHP < 0) { expectedLeftHP = 0; }
-    if (expectedRightHP < 0) { expectedRightHP = 0; }
-
-    // Use left and right units directly instead of re-assigning them
-    UnitManager leftUnit = left;
-    UnitManager rightUnit = right;
-
-    // Calculate hit and crit rates for both units
-    int leftHit = -1;
-    int rightHit = -1;
-    int leftCrit = -1;
-    int rightCrit = -1;
-    PlayerWeapon.text = "";
-    EnemyWeapon.text = "";
-    if (leftWeap != null) {
-        leftHit = leftWeap.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
-        leftCrit = leftWeap.CritRate + (int)(leftUnit.stats.Luck / 2);
-        PlayerWeapon.text = leftWeap.WeaponName;
-    } 
-    if (rightWeap != null) {
-        rightHit = rightWeap.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
-        rightCrit = rightWeap.CritRate + (int)(rightUnit.stats.Luck / 2);
-        EnemyWeapon.text = rightWeap.WeaponName;
-    }
-    
-
-    // Clamp hit and crit rates between 0 and 100
-    leftHit = Mathf.Clamp(leftHit, 0, 100);
-    leftCrit = Mathf.Clamp(leftCrit, 0, 100);
-    rightHit = Mathf.Clamp(rightHit, 0, 100);
-    rightCrit = Mathf.Clamp(rightCrit, 0, 100);
-
-    // Set the left unit (player or enemy) info
-    PlayerName.text = leftUnit.stats.Name;
-
-    if (numLHits > 1) {
-        PlayerDamage.text = $"{lDamage} x {numLHits}";
-        PlayerHit.text = $"{leftHit}%";
-        PlayerCrit.text = $"{leftCrit}%";
-    } else if (numLHits == 0) {
-        PlayerDamage.text = "-";
-        PlayerHit.text = "-";
-        PlayerCrit.text = "-";
-    } else {
-        PlayerDamage.text = $"{lDamage}";
-        PlayerHit.text = $"{leftHit}%";
-        PlayerCrit.text = $"{leftCrit}%";
-    }
-    PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-
-    // Update health bars and positions
-    float leftCurrFill = (float)(expectedLeftHP) / leftUnit.stats.Health;
-    float leftLostFill = (float)leftUnit.getCurrentHealth() / leftUnit.stats.Health;
-    lBar.fillAmount = leftCurrFill;
-    lLostBar.fillAmount = leftLostFill;
-
-    // Destroy any previous HP indicator for the player
-    Destroy(HPplayer);
-
-    // Set position for the player's health bar
-    float pXPos = (290.0f * (1.0f - leftLostFill)) - 217.0f ;
-    HPplayer = Instantiate(HPIndicator, new Vector3(pXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
-
-    GameObject plaChild = HPplayer.transform.GetChild(0).gameObject;
-    TextMeshProUGUI plaText = plaChild.GetComponent<TextMeshProUGUI>();
-    // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-    plaText.text = $"{expectedLeftHP}";
-    // if(playerOnLeft) {
-    //     plaText.text = $"{expectedPlayerHP}";
-    //     // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-    // } else {
-    //     plaText.text = $"{expectedEnemyHP}";
-    //     // PlayerCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
-    // }
-    
-
-    // Set the right unit (enemy or player) info
-    EnemyName.text = rightUnit.stats.Name;
-
-
-    
-    if (numRHits > 1) {
-        EnemyDamage.text = $"{rDamage} x {numRHits}";
-        EnemyHit.text = $"{rightHit}%";
-        EnemyCrit.text = $"{rightCrit}%";
-    } else if (numRHits == 0) {
-        EnemyDamage.text = "-";
-        EnemyHit.text = "-";
-        EnemyCrit.text = "-";
-    } else {
-        EnemyDamage.text = $"{rDamage}";
-        EnemyHit.text = $"{rightHit}%";
-        EnemyCrit.text = $"{rightCrit}%";
-    }
-    EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
-
-    // Update health bars and positions
-    float rightCurrFill = (float)(expectedRightHP) / rightUnit.stats.Health;
-    float rightLostFill = (float)rightUnit.getCurrentHealth() / rightUnit.stats.Health;
-    rBar.fillAmount = rightCurrFill;
-    rLostBar.fillAmount = rightLostFill;
-
-    // Destroy any previous HP indicator for the enemy
-    Destroy(HPenemy);
-
-    // Set position for the enemy's health bar
-    float eXPos = (291.0f * rightLostFill) + 140.0f ;
-    HPenemy = Instantiate(HPIndicator, new Vector3(eXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
-
-    GameObject eneChild = HPenemy.transform.GetChild(0).gameObject;
-    TextMeshProUGUI eneText = eneChild.GetComponent<TextMeshProUGUI>();
-
-    eneText.text = $"{expectedRightHP}";
-
-    // if(playerOnLeft) {
-    //     eneText.text = $"{expectedEnemyHP}";
-    //     // EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
-    // } else {
-    //     eneText.text = $"{expectedPlayerHP}";
-    //     // EnemyCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-    // }
-
-
-    // Activate the menu
-    Menu.SetActive(true);
-
-    yield return null;
-    // yield return new WaitForSeconds(1f);
-}
-
-
-
-
-
-
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- /*public IEnumerator CycleAttackList() {
-        bool isAttacking = false;
-        int currentIndex = 0;
-        AttackingUnit = moveGrid.playerCollide.GetPlayer();
-        attackerX = moveGrid.GetCurX();
-        attackerZ = moveGrid.GetCurZ();
-
-        while(true) {
-
-            Vector3 currentPosition = moveGrid.moveCursor.transform.position;
-            moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
-
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
-                
-                isAttacking = true;
-                defenderX = UnitsInRange[currentIndex].GetGridX();
-                defenderZ = UnitsInRange[currentIndex].GetGridZ();
-                Debug.Log("Hello");
-                //Go to another IEnumerator to show attacking stats
-                break;
-            }
-
-            if (Input.GetKeyDown(KeyCode.B)) {
-                Debug.Log("Hello");
-                break;
-            }
-
-            if (Mathf.Abs(Input.GetAxis("Horizontal")) >= .15) {
-                float rawHorizontalInput = Input.GetAxis("Horizontal");
-
-                // Determine the sign of the input
-                float horizontalSign = Mathf.Sign(rawHorizontalInput);
-
-                // Round down to -1 if negative, round up to 1 if positive
-                int horizontalInput = (int)Mathf.Ceil(horizontalSign);
-
-                // Move through the list based on the horizontal input
-                if (horizontalInput > 0)
-                {
-                    // Move up in the list
-                    currentIndex++;
-                
-                    if (currentIndex >= UnitsInRange.Count)
-                    {
-                        currentIndex = 0; // Wrap around to the start
-                        
-                    }
-                    
-                }
-                else if (horizontalInput < 0)
-                {
-                    // Move down in the list
-                    currentIndex--;
-                    if (currentIndex < 0)
-                    {
-                        currentIndex = UnitsInRange.Count - 1; // Wrap around to the end
-                    }
-                    
-                
-                }
-
-                Debug.Log("Index Changed");
-
-                currentPosition = moveGrid.moveCursor.transform.position;
-                moveGrid.moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
-
-
-                yield return new WaitForSeconds(0.5f);
-            }
-            
-           
-            // Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
-            // moveCursor.transform.position = Vector3.MoveTowards(moveCursor.transform.position, targetPosition, 30.0f * Time.deltaTime);
-
-            // Move the cursor towards the target position using interpolation
-            // moveGrid.moveCursor.position = Vector3.Lerp(moveGrid.moveCursor.position, targetPosition, 20.0f * Time.deltaTime);
-            
-            // currentPosition = moveGrid.moveCursor.transform.position;
-            // moveGrid.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
-            
-
-            yield return null;
+        Image lBar;
+        Image rBar;
+        Image lLostBar;
+        Image rLostBar;
+
+        lLostBar = PHealthLost;
+        rLostBar = EHealthLost;
+
+        if (left.UnitType == "Player") {
+            lBar = PHealth;
+            PHealth.gameObject.SetActive(true);
+            PHealthSwapped.gameObject.SetActive(false);
+        } else {
+            lBar = PHealthSwapped;
+            PHealthSwapped.gameObject.SetActive(true);
+            PHealth.gameObject.SetActive(false);
         }
 
-        Debug.Log("Broke Free");
-
-        if (isAttacking) {
-            //Start Attacking based on primary weapons
-            Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
-            Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
-            AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
-            AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, attackerX, attackerZ, defenderX, defenderZ);
-            Debug.Log(AttackingUnit.stats.UnitName);
-            moveGrid.moveCursor.position = new Vector3(generateGrid.GetGridTile(attackerX, attackerZ).GetXPos(), generateGrid.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, generateGrid.GetGridTile(attackerX, attackerZ).GetZPos());
-            manageTurn.RemovePlayer(AttackingUnit.stats);
-            moveGrid.ResetAfterAction(AttackingUnit);
-            manageTurn.CheckPhase();
-            _currentMap.CheckClearCondition();
+        if (right.UnitType == "Player") {
+            rBar = EHealthSwapped;
+            EHealthSwapped.gameObject.SetActive(true);
+            EHealth.gameObject.SetActive(false);
+        } else {
+            rBar = EHealth;
+            EHealth.gameObject.SetActive(true);
+            EHealthSwapped.gameObject.SetActive(false);
         }
+        
+        if (expectedLeftHP < 0) { expectedLeftHP = 0; }
+        if (expectedRightHP < 0) { expectedRightHP = 0; }
 
-        moveGrid.isAttacking = false;
+        // Use left and right units directly instead of re-assigning them
+        UnitManager leftUnit = left;
+        UnitManager rightUnit = right;
+
+        // Calculate hit and crit rates for both units
+        int leftHit = -1;
+        int rightHit = -1;
+        int leftCrit = -1;
+        int rightCrit = -1;
+        PlayerWeapon.text = "";
+        EnemyWeapon.text = "";
+        if (leftWeap != null) {
+            leftHit = leftWeap.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
+            leftCrit = leftWeap.CritRate + (int)(leftUnit.stats.Luck / 2);
+            PlayerWeapon.text = leftWeap.WeaponName;
+        } 
+        if (rightWeap != null) {
+            rightHit = rightWeap.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
+            rightCrit = rightWeap.CritRate + (int)(rightUnit.stats.Luck / 2);
+            EnemyWeapon.text = rightWeap.WeaponName;
+        }
+        
+
+        // Clamp hit and crit rates between 0 and 100
+        leftHit = Mathf.Clamp(leftHit, 0, 100);
+        leftCrit = Mathf.Clamp(leftCrit, 0, 100);
+        rightHit = Mathf.Clamp(rightHit, 0, 100);
+        rightCrit = Mathf.Clamp(rightCrit, 0, 100);
+
+        // Set the left unit (player or enemy) info
+        PlayerName.text = leftUnit.stats.Name;
+
+        if (numLHits > 1) {
+            PlayerDamage.text = $"{lDamage} x {numLHits}";
+            PlayerHit.text = $"{leftHit}%";
+            PlayerCrit.text = $"{leftCrit}%";
+        } else if (numLHits == 0) {
+            PlayerDamage.text = "-";
+            PlayerHit.text = "-";
+            PlayerCrit.text = "-";
+        } else {
+            PlayerDamage.text = $"{lDamage}";
+            PlayerHit.text = $"{leftHit}%";
+            PlayerCrit.text = $"{leftCrit}%";
+        }
+        PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+
+        // Update health bars and positions
+        float leftCurrFill = (float)(expectedLeftHP) / leftUnit.stats.Health;
+        float leftLostFill = (float)leftUnit.getCurrentHealth() / leftUnit.stats.Health;
+        lBar.fillAmount = leftCurrFill;
+        lLostBar.fillAmount = leftLostFill;
+
+        // Destroy any previous HP indicator for the player
+        Destroy(HPplayer);
+
+        // Set position for the player's health bar
+        float pXPos = (290.0f * (1.0f - leftLostFill)) - 217.0f ;
+        HPplayer = Instantiate(HPIndicator, new Vector3(pXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
+
+        GameObject plaChild = HPplayer.transform.GetChild(0).gameObject;
+        TextMeshProUGUI plaText = plaChild.GetComponent<TextMeshProUGUI>();
+        // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+        plaText.text = $"{expectedLeftHP}";
+        // if(playerOnLeft) {
+        //     plaText.text = $"{expectedPlayerHP}";
+        //     // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+        // } else {
+        //     plaText.text = $"{expectedEnemyHP}";
+        //     // PlayerCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+        // }
+        
+
+        // Set the right unit (enemy or player) info
+        EnemyName.text = rightUnit.stats.Name;
+
+
+        
+        if (numRHits > 1) {
+            EnemyDamage.text = $"{rDamage} x {numRHits}";
+            EnemyHit.text = $"{rightHit}%";
+            EnemyCrit.text = $"{rightCrit}%";
+        } else if (numRHits == 0) {
+            EnemyDamage.text = "-";
+            EnemyHit.text = "-";
+            EnemyCrit.text = "-";
+        } else {
+            EnemyDamage.text = $"{rDamage}";
+            EnemyHit.text = $"{rightHit}%";
+            EnemyCrit.text = $"{rightCrit}%";
+        }
+        EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+
+        // Update health bars and positions
+        float rightCurrFill = (float)(expectedRightHP) / rightUnit.stats.Health;
+        float rightLostFill = (float)rightUnit.getCurrentHealth() / rightUnit.stats.Health;
+        rBar.fillAmount = rightCurrFill;
+        rLostBar.fillAmount = rightLostFill;
+
+        // Destroy any previous HP indicator for the enemy
+        Destroy(HPenemy);
+
+        // Set position for the enemy's health bar
+        float eXPos = (291.0f * rightLostFill) + 140.0f ;
+        HPenemy = Instantiate(HPIndicator, new Vector3(eXPos + 960f, 540f, 0f), Quaternion.identity, Menu.transform);
+
+        GameObject eneChild = HPenemy.transform.GetChild(0).gameObject;
+        TextMeshProUGUI eneText = eneChild.GetComponent<TextMeshProUGUI>();
+
+        eneText.text = $"{expectedRightHP}";
+
+        // if(playerOnLeft) {
+        //     eneText.text = $"{expectedEnemyHP}";
+        //     // EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+        // } else {
+        //     eneText.text = $"{expectedPlayerHP}";
+        //     // EnemyCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+        // }
+
+
+        // Activate the menu
+        Menu.SetActive(true);
 
         yield return null;
-    }*/
+        // yield return new WaitForSeconds(1f);
+    }
 
 
-    // public void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending) {
-    //     int queueSize = attacking.Count;
-    //     for (int i = 0; i < queueSize; i++) {
-    //         UnitManager atk = attacking.Dequeue();
-    //         UnitManager def = defending.Dequeue();
 
-    //         int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
 
-    //         float multiplier = 1;
 
-    //         if (def.stats.Mounted) {
-    //             multiplier += atk.primaryWeapon.MultMounted - 1; 
-    //         }
-    //         if (def.stats.AirBorn) {
-    //             multiplier += atk.primaryWeapon.MultAirBorn - 1; 
-    //         }
-    //         if (def.stats.Armored) {
-    //             multiplier += atk.primaryWeapon.MultArmored - 1; 
-    //         }
-    //         if (def.stats.Whisper) {
-    //             multiplier += atk.primaryWeapon.MultWhisper - 1; 
-    //         }
 
-    //         Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
 
-    //         damage = (int)(damage * multiplier);
 
-    //         Debug.Log(atk.stats.UnitName + " Did" + damage + " damage to " + def.stats.UnitName);
 
-    //         def.currentHealth -= damage;
 
-    //         Debug.Log("defender current health " + def.currentHealth + " " + def.stats.Health);
+}
 
-    //         if (def.currentHealth <= 0) {
-    //             Debug.Log(def.stats.UnitName + "Has died");
-    //             break;
-    //         }
-    //     }
 
-    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -7,13 +7,12 @@ using System;
 
 public class UnitRosterManager : MonoBehaviour
 {
-    private UnitStats stats;
     [SerializeField] TextAsset statTextData;
     [SerializeField] TextAsset faithTextData;
     private static Dictionary<string, UnitStats> fullRoster = new Dictionary<string, UnitStats>();
     // public static Dictionary<string, UnitStats> playableRoster = new Dictionary<string, UnitStats>();
-    public static Dictionary<string, UnitStats> MapRoster = new Dictionary<string, UnitStats>();
-    public static List<UnitStats> playableList = new List<UnitStats>();
+    // private static Dictionary<string, UnitStats> MapRoster = new Dictionary<string, UnitStats>();
+    private static List<UnitStats> playableList = new List<UnitStats>();
     private List<UnitStats> mapList = new List<UnitStats>();
  
 
@@ -22,16 +21,14 @@ public class UnitRosterManager : MonoBehaviour
 
 
     //Reads the data from the csv file and constructs a new UnitStats object
-    //MAKE SURE TO NEVER CALL THIS AFTER THE FIRST MAP
-    public void ReadCSV()
-    {
+    // ! MAKE SURE TO NEVER CALL THIS AFTER THE FIRST MAP
+    public void ReadCSV() {
         string[] data = statTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         string[] faithData = faithTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("PlayerStats");
         int faithInd = 0;
         
-        for (int i = 30; i < data.Length - 1; i += 30)
-        {
+        for (int i = 30; i < data.Length - 1; i += 30) {
             faithInd += 11;
             string chrName = data[i];
             string dName = data[i + 1];
@@ -109,7 +106,6 @@ public class UnitRosterManager : MonoBehaviour
 
 
             fullRoster.Add(chrName, stats);
-
         }
     }
 

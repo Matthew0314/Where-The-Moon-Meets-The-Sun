@@ -98,8 +98,8 @@ public class Heal : Faith {
 
     public override IEnumerator Use(UnitManager user, UnitManager reciever) {
         Uses--;
-        reciever.HealUnit(10);
-        // yield return StartCoroutine(reciever.Heal(10));
+        // reciever.HealUnit(10);
+        yield return reciever.StartCoroutine(reciever.Heal(10));
         yield return null;
     }
 

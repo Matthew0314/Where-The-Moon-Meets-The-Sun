@@ -11,7 +11,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     
     private UnitRosterManager unitRos;
     private WeaponManager manageWeapons;
-    private UnitStats stats;
+    // private UnitStats stats;
     private PlayerClassManager classRos;
     private PlayerGridMovement playerCursor;
     private FindPath pathFinder;
@@ -38,7 +38,6 @@ public class PrologueMap : MonoBehaviour, IMaps
     int maxEID;
     private ExecuteAction executeAction;
   
-    // Start is called before the first frame update
     void Start()
     {
         //Stores componenets that will be used later 
@@ -53,7 +52,7 @@ public class PrologueMap : MonoBehaviour, IMaps
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
 
         //Reads in data for weapons, all units in the game, and all player classes
-        //THESE WILL NEVER BE CALLED AGAIN AFTER THE PROLOGUE MAP
+        // ! THESE WILL NEVER BE CALLED AGAIN AFTER THE PROLOGUE MAP
         manageWeapons.ReadCSV();
         classRos.Init();
         unitRos.ReadCSV();
@@ -95,6 +94,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     }
 
     //Reads in the EnemyCSV, stores each of their data, and prints them on the grid
+    // TODO: Move the enemy init into another script so I don't have to keep copy and pasting
     private void InitEnemies() {
 
         // Determines what file to read based on the difficulty
@@ -190,45 +190,38 @@ public class PrologueMap : MonoBehaviour, IMaps
     }
 
     //Adds Young Felix and Young Lilith to the players roster
-    public void AddNewPlayers()
-    {
-        for (int i = 0; i < newUnits.Length; i++)
-        {
+    public void AddNewPlayers() {
+        for (int i = 0; i < newUnits.Length; i++) {
             unitRos.AddPlayableUnit(newUnits[i]);
         }
-
-        
     }
 
-    public void PrintCharacters()
-    {
+    public void PrintCharacters() {
         //Gets a copy of the map units
         mapUnits = unitRos.getMapUnits();
 
         //For the amount of units that is allowed for this map
-        for (int i=0; i < unitNum; i++)
-        {
+        for (int i=0; i < unitNum; i++) {
             //Loads the prefab based on the units class and instantiates it on one of the positions specified by StartGrid
-            stats = mapUnits[i];
+            UnitStats stats = mapUnits[i];
             GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
+
+            //Instantiates unit at certain position
             GameObject gridUnit = Instantiate(unitPrefab, new Vector3(grid.GetGridTile(startGridX[i], startGridZ[i]).GetXPos(), grid.GetGridTile(startGridX[i], startGridZ[i]).GetYPos() + 0.005f, grid.GetGridTile(startGridX[i], startGridZ[i]).GetZPos()), Quaternion.identity);
             PlayerUnit UnitToGrid = gridUnit.GetComponent<PlayerUnit>();
             
-            // UnitToGrid.stats = stats;
+            // Assignes the X and Y position to the UnitManager assigned to the unit prefab
             UnitToGrid.XPos = startGridX[i];
             UnitToGrid.ZPos = startGridZ[i];
-            // mapUnits.Add(UnitToGrid);
+
+            // Initializes Unit data
             UnitToGrid.InitializeUnitData();
-            // grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = unitPrefab.GetComponent<UnitManager>();
+
+            // Assignes the UnitManager to the grid tile
             grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile = UnitToGrid;
 
-            // Debug.LogError("UNIT ADDED " + startGridX[i] + " " + startGridZ[i] + " to " + grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile.stats.UnitName);
-            // Debug.LogError(grid.GetGridTile(startGridX[i], startGridZ[i]).UnitOnTile.stats.Name);
+            // Adds it to map game units list
             mapGameUnits.Add(unitPrefab.GetComponent<UnitManager>());
-
-            // Debug.Log("Assigned to Tile")
-            // Type typePUnit = Type.GetType("PlayerUnit");
-            // UnitManager enemyUnit = unitPrefab.AddComponent(typePUnit) as UnitManager;
         }
     }
 
@@ -236,7 +229,6 @@ public class PrologueMap : MonoBehaviour, IMaps
     //The clear condition for the prologue is routing all the enemies 
     public IEnumerator CheckClearCondition()
     {
-        // if (mapEnemies.Count == 0) {
         if (!mapEnemies.Any(unit => unit.stats.EnemyID == 5)) {
             yield return StartCoroutine(combatMenuManager.VicDefText("Victory"));
             playerCursor.startGame = false;
