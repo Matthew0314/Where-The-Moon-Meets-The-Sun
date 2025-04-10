@@ -814,7 +814,7 @@ public class CombatMenuManager : MonoBehaviour
         bool oneAction = false;
         
         CreateMenu(unit);
-        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count - 1 ;
+        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.GetMagic().Count - 1 ;
 
         if (maxIndex >= 0) itemButtons[currItemIndex].Select();
 
@@ -868,6 +868,7 @@ public class CombatMenuManager : MonoBehaviour
         List<Weapon> weapons = user.GetWeapons();
         List<Item> items = user.GetItems();
         List<Faith> faith = user.stats.faith;
+        List<Weapon> magic = user.GetMagic();
 
         foreach (Button btn in itemButtons) Destroy(btn.gameObject);
         foreach (GameObject obj in divList) Destroy(obj);
@@ -901,6 +902,30 @@ public class CombatMenuManager : MonoBehaviour
 
             }
         }
+
+        // if (magic.Count > 0) {
+        //     GameObject tempDiv = (GameObject)Instantiate(itemDivider);
+        //     tempDiv.transform.SetParent(scrollViewContent.transform, false);
+        //     tempDiv.transform.position += new Vector3(0, -count * 45, 0);
+        //     count++;
+        //     tempDiv.GetComponent<TextMeshProUGUI>().text = "Magic";
+        //     divList.Add(tempDiv);
+        //     for (int i = 0; i < magic.Count; i++) {
+        //         tempBtn = (GameObject)Instantiate(buttonTemplate);
+        //         tempBtn.transform.SetParent(scrollViewContent.transform, false);
+
+        //         tempBtn.transform.position += new Vector3(0, -count * 45, 0);
+        //         count++;
+        //         TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+        //         texts[0].text = magic[i].WeaponName;
+
+        //         if(magic[i] == user.GetPrimaryWeapon()) texts[0].text += " (E)";
+        //         texts[1].text = magic[i].Uses + "/" + magic[i].MaxUses;
+
+        //         itemButtons.Add(tempBtn.GetComponent<Button>());
+
+        //     }
+        // }
 
         if (faith.Count > 0) {
             GameObject tempDiv = (GameObject)Instantiate(itemDivider);
@@ -968,6 +993,15 @@ public class CombatMenuManager : MonoBehaviour
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
                 texts[0].text = "Equip";
             }
+            // if (weps[ind].WeaponType != "Magic" || weps[ind].WeaponType != "Faith") {
+            //     tempBtn.transform.position = new Vector3(tempBtn.transform.position.x, tempBtn.transform.position.y + 45, tempBtn.transform.position.z);
+            //     tempBtn = (GameObject)Instantiate(buttonItemOption);
+            //     tempBtn.transform.SetParent(button.transform, false);
+            //     optionButtons.Add(tempBtn.GetComponent<Button>());
+            //     options.Add("Discard");
+            //     TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+            //     texts[0].text = "Discard";
+            // }
             
         }
         else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
@@ -1055,6 +1089,11 @@ public class CombatMenuManager : MonoBehaviour
                         StartCoroutine(ItemMenu());
                     } else if (options[index] == "Unequip") {
                         user.primaryWeapon = null;
+                        foreach (Button btn in optionButtons) {
+                            Destroy(btn.gameObject);
+                        }
+                        StartCoroutine(ItemMenu());
+                    } else if (options[index] == "Discard") {
                         foreach (Button btn in optionButtons) {
                             Destroy(btn.gameObject);
                         }

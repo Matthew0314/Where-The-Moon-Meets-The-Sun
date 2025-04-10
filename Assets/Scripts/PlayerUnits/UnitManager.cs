@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class UnitManager : MonoBehaviour
 {
@@ -72,8 +73,10 @@ public class UnitManager : MonoBehaviour
 
     public virtual UnitStats GetStats() { return stats; }
 
-    public virtual List<Weapon> GetWeapons() { return stats.weapons; }
+    // public virtual List<Weapon> GetWeapons() { return stats.weapons; }
+    public virtual List<Weapon> GetWeapons() => stats.weapons.Concat(stats.magic).ToList();
     public virtual List<Item> GetItems() { return stats.items; }
+    public virtual List<Weapon> GetMagic() { return stats.magic; }
 
     public virtual Weapon GetPrimaryWeapon() { return primaryWeapon; }
     public virtual List<Faith> GetFaithList() { return stats.faith; }

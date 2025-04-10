@@ -33,10 +33,14 @@ public abstract class UnitStats
     public int Experience {get; set;}
 
     public List<Weapon> weapons;
+    public List<Weapon> magic;
     public List<Item> items;
     public List<Faith> faith;
     public int faithRank {get; set;}
+    public int magicRank {get; set;}
     public string[] faithRankList = new string[10];
+    public string[] MagicRankList = new string[10];
+
 
 
     public UnitStats(string uName, string dName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
@@ -57,6 +61,7 @@ public abstract class UnitStats
         Movement = MOV;
 
         weapons = new List<Weapon>();
+        magic = new List<Weapon>();
         items = new List<Item>();
         faith = new List<Faith>();
 
@@ -94,7 +99,7 @@ public class PlayerStats : UnitStats {
     private PlayerClass ClassStats;
 
 
-    public PlayerStats(string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass, int faiRank) : base(uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
+    public PlayerStats(string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass, int faiRank, int magRank) : base(uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
 
         Experience = 0;
         HealthGR = HLTGR;
@@ -116,6 +121,7 @@ public class PlayerStats : UnitStats {
 
         HealthBars = 1;
         faithRank = faiRank;
+        magicRank = magRank;
 
     }
 
@@ -126,14 +132,42 @@ public class PlayerStats : UnitStats {
     public override void SetFaith()
     {
         faith = new List<Faith>();
+        magic = new List<Weapon>();
         for(int i = 0; i < faithRank; i++) {
+            // if (faithRankList[i] != "null") {
+            //     Type faithType = Type.GetType(faithRankList[i]);
+            //     Faith tempFai = (Faith)Activator.CreateInstance(faithType);
+            //     if (tempFai != null) {
+            //         faith.Add(tempFai);
+            //     }
+            // }    
             if (faithRankList[i] != "null") {
-                Type faithType = Type.GetType(faithRankList[i]);
-                Faith tempFai = (Faith)Activator.CreateInstance(faithType);
-                if (tempFai != null) {
-                    faith.Add(tempFai);
+                Faith tempFai = null;
+                
+                try {
+                    Type faithType = Type.GetType(faithRankList[i]);
+                    tempFai = (Faith)Activator.CreateInstance(faithType);
+                    if (tempFai != null) {
+                        faith.Add(tempFai);
+                    }
                 }
-            }     
+                catch (Exception ex)
+                {
+                    Weapon temp = WeaponManager.MakeWeapon(faithRankList[i]);
+                    if (temp != null) {
+                        magic.Add(temp);
+                        // weapons.Add(temp);
+                    }
+                } 
+            }
+        }
+
+        
+        for(int i = 0; i < magicRank; i++) {
+            if (MagicRankList[i] != "null") {
+                Weapon temp = WeaponManager.MakeWeapon(MagicRankList[i]);
+                magic.Add(temp);
+            }
         }
     }
 }

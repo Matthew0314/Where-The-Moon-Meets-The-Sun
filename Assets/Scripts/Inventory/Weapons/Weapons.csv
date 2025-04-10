@@ -4,3 +4,5 @@ NormalWeapon,Iron Bow,Basic Bow,Bow,NULL,E,6,85,0,6,40,FALSE,TRUE,FALSE,2,1,1.5,
 NormalWeapon,Whisper Claw,Claw of A Whisper,Fist,NULL,E,3,95,0,1,40,TRUE,FALSE,FALSE,1,1,1,1,1,1,2,TRUE,FILLER
 NormalWeapon,Long Bow,Shoot Farther Distance,Bow,NULL,E,3,95,0,1,40,TRUE,TRUE,TRUE,4,1,1.5,1,1,1,1,TRUE,FILLER
 NormalWeapon,Steel Sword,Basic Sword,Sword,NULL,E,7,80,0,6,30,TRUE,FALSE,FALSE,1,1,1,1,1,1,1,TRUE,FILLER
+NormalWeapon,Fire,Basic Magic,Magic,Fire,E,6,90,0,6,5,TRUE,TRUE,FALSE,2,1,1,1.5,1,1,1,TRUE,FILLER
+NormalWeapon,Nosferatu,Basic Magic,Faith,Fire,E,6,90,0,6,5,TRUE,TRUE,FALSE,2,1,1,1.5,1,1,1,TRUE,FILLER

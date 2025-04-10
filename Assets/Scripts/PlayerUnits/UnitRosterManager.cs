@@ -9,6 +9,7 @@ public class UnitRosterManager : MonoBehaviour
 {
     [SerializeField] TextAsset statTextData;
     [SerializeField] TextAsset faithTextData;
+    [SerializeField] TextAsset magicTextData;
     private static Dictionary<string, UnitStats> fullRoster = new Dictionary<string, UnitStats>();
     // public static Dictionary<string, UnitStats> playableRoster = new Dictionary<string, UnitStats>();
     // private static Dictionary<string, UnitStats> MapRoster = new Dictionary<string, UnitStats>();
@@ -25,10 +26,11 @@ public class UnitRosterManager : MonoBehaviour
     public void ReadCSV() {
         string[] data = statTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         string[] faithData = faithTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+        string[] magicData = magicTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
         Type unitType = Type.GetType("PlayerStats");
         int faithInd = 0;
         
-        for (int i = 30; i < data.Length - 1; i += 30) {
+        for (int i = 31; i < data.Length - 1; i += 31) {
             faithInd += 11;
             string chrName = data[i];
             string dName = data[i + 1];
@@ -59,6 +61,7 @@ public class UnitRosterManager : MonoBehaviour
             string item5 = data[i + 26];
             string item6 = data[i + 27];
             int faithRank = int.Parse(data[i + 28]);
+            int magicRank = int.Parse(data[i + 29]);
 
             Debug.Log(chrName);
             Debug.Log(chrDesc);
@@ -66,7 +69,7 @@ public class UnitRosterManager : MonoBehaviour
             Debug.Log("MOV: " + MOV);
 
             
-            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass, faithRank);
+            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass, faithRank, magicRank);
             // stats = new UnitStats(chrName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass);
            
             Debug.Log("Name: " + stats.UnitName);
@@ -94,12 +97,21 @@ public class UnitRosterManager : MonoBehaviour
 
             int ind = 0;
 
+            for (int j = faithInd; j < faithInd + 10; j++) {
+                stats.MagicRankList[ind] = magicData[j+1];
+                ind++;
+            }
+
+            ind = 0;
+
             for(int j = faithInd; j < faithInd + 10; j++) {
                 Debug.Log("Faith Created " + faithData[j+1]);
                 stats.faithRankList[ind] = faithData[j+1];
                 ind++;
             }
 
+
+           
             
 
 

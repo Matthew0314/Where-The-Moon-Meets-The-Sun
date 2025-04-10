@@ -83,7 +83,7 @@ public class ExecuteAction : MonoBehaviour
 
         int weaponIndex = 0;
         Weapon orgPrimWeapon = AttackingUnit.primaryWeapon;
-        List<Weapon> playerWeapons = AttackingUnit.stats.weapons;
+        List<Weapon> playerWeapons = AttackingUnit.GetWeapons();
         List<GridTile> newEnemies = new List<GridTile>();
         AttackingUnit.primaryWeapon = selectedWeapon;
     
@@ -517,12 +517,12 @@ public class ExecuteAction : MonoBehaviour
                 DefendingQueue = newDefendingQueue;
 
                 // Makes the primary weapon the next one in the list, if none then set it to null
-                atk.stats.weapons.Remove(atk.primaryWeapon);
-                if (atk.stats.weapons.Count >= 1) {
-                    atk.primaryWeapon = atk.stats.weapons[0];
-                } else {
-                    atk.primaryWeapon = null;
-                }
+                // atk.stats.weapons.Remove(atk.primaryWeapon);
+                // if (atk.stats.weapons.Count >= 1) {
+                //     atk.primaryWeapon = atk.stats.weapons[0];
+                // } else {
+                //     atk.primaryWeapon = null;
+                // }
             }
 
 
