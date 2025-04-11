@@ -27,7 +27,9 @@ public abstract class Weapon
     public float MultInfantry {get; set;}
     public int NumHits {get; set;}
     public bool CanCounter {get; set;}
+    public bool UseMagic { get; set; }
     public string WeaponClass {get;}
+    
 
     public Queue<UnitManager> AttackingQueue {get; set;}
     public Queue<UnitManager> DefendingQueue {get; set;}
@@ -41,7 +43,7 @@ public abstract class Weapon
     private FindPath pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
 
     //Constructor
-    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, string weapClass) {
+    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass) {
         WeaponName = name;
         WeaponDescription = desc;
         WeaponType = Wtype;
@@ -63,6 +65,7 @@ public abstract class Weapon
         MultInfantry = MInf;
         NumHits = nHit;
         CanCounter = counter;
+        UseMagic = useMagic;
         WeaponClass = weapClass;
 
         AttackingQueue = new Queue<UnitManager>();
@@ -226,7 +229,7 @@ public abstract class Weapon
 //Class for all weapons without a special ability
 public class NormalWeapon : Weapon
 {
-    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, weapClass) {}
+    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, weapClass) {}
     
     
     public override void SpecialAbility() {}

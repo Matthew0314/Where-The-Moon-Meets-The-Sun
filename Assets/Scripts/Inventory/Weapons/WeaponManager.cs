@@ -12,7 +12,7 @@ public class WeaponManager : MonoBehaviour
     public void ReadCSV() {
         string[] data = weaponTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
 
-        for(int i = 23; i < data.Length - 1; i += 23) {
+        for(int i = 24; i < data.Length - 1; i += 24) {
             //Stores data
             string weaponClass = data[i];
             string name = data[i + 1];
@@ -36,22 +36,23 @@ public class WeaponManager : MonoBehaviour
             float MultInfantry = float.Parse(data[i + 19]);
             int numHits = int.Parse(data[i + 20]);
             bool canCounter = bool.Parse(data[i + 21]);
+            bool useMagic = bool.Parse(data[i + 22]);
 
             //Calles CreateWeapon to determine which type to store in Weapon weapon
-            Weapon weapon = CreateWeapon(weaponClass, name, description, type, tomeType, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter);
+            Weapon weapon = CreateWeapon(weaponClass, name, description, type, tomeType, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter, useMagic);
 
             //Stores in a dictionary with the name of the wepaon as the key
             Weapons[name] = weapon;
         }
     }
 
-    Weapon CreateWeapon(string weaponClass, string name, string description, string type, string tomeType, char rank, int attack, int hit, int crit, int weight, int uses, bool range1, bool range2, bool range3, int range, float MultMounted, float MultAirBorn, float MultArmored, float MultWhisper,float MultInfantry, int numHits, bool canCounter) {
+    Weapon CreateWeapon(string weaponClass, string name, string description, string type, string tomeType, char rank, int attack, int hit, int crit, int weight, int uses, bool range1, bool range2, bool range3, int range, float MultMounted, float MultAirBorn, float MultArmored, float MultWhisper,float MultInfantry, int numHits, bool canCounter, bool useMagic) {
 
         //Determines which child class to instantiate it ass
         Type weaponType = Type.GetType(weaponClass);
 
         //Returns the new child object
-        return (Weapon)Activator.CreateInstance(weaponType, name, description, type, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter, weaponClass);
+        return (Weapon)Activator.CreateInstance(weaponType, name, description, type, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter, useMagic, weaponClass);
     }
 
     public static Weapon GetWeaponData(string WeaponName) {
@@ -69,6 +70,6 @@ public class WeaponManager : MonoBehaviour
 
         Type weaponType = Type.GetType(temp.WeaponClass);
 
-        return (Weapon)Activator.CreateInstance(weaponType, temp.WeaponName, temp.WeaponDescription, temp.WeaponType, temp.WeaponRank, temp.Attack, temp.HitRate, temp.CritRate, temp.Weight, temp.MaxUses, temp.Range1, temp.Range2, temp.Range3, temp.Range, temp.MultMounted, temp.MultAirBorn, temp.MultArmored, temp.MultWhisper, temp.MultInfantry, temp.NumHits, temp.CanCounter, temp.WeaponClass);
+        return (Weapon)Activator.CreateInstance(weaponType, temp.WeaponName, temp.WeaponDescription, temp.WeaponType, temp.WeaponRank, temp.Attack, temp.HitRate, temp.CritRate, temp.Weight, temp.MaxUses, temp.Range1, temp.Range2, temp.Range3, temp.Range, temp.MultMounted, temp.MultAirBorn, temp.MultArmored, temp.MultWhisper, temp.MultInfantry, temp.NumHits, temp.CanCounter, temp.UseMagic, temp.WeaponClass);
     }
 }

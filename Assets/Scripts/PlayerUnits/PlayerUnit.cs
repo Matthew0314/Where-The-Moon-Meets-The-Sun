@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerUnit : UnitManager
 {
-    // private Image healthBar;
     private Material originalMaterial;
     private TurnManager turnManager;
     [SerializeField] private Material grayscaleMaterial;
@@ -41,9 +40,7 @@ public class PlayerUnit : UnitManager
     }
 
     public override IEnumerator ExperienceGain(int experience) {
-        
 
-        Debug.Log("Now has " + stats.Experience + " experience");
         PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
 
         yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience));
@@ -54,14 +51,7 @@ public class PlayerUnit : UnitManager
         
 
         while (stats.Experience >= 100) {
-            Debug.Log("LEVEL UP");
 
-            
-
-            // PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
-            // if (unitClass == null) {
-            //     return;
-            // }
             int hlt = 0;
             int atk = 0;
             int mag = 0;
@@ -80,56 +70,16 @@ public class PlayerUnit : UnitManager
                 eva = 0;
                 luk = 0;
                 spd = 0;
-                if (Random.Range(0, 101) <= unitClass.Health + pStats.HealthGR) {
-                    Debug.Log("Health Level Up");
-                    hlt++;
-                }
+                if (Random.Range(0, 101) <= unitClass.Health + pStats.HealthGR) hlt++;
+                if (Random.Range(0, 101) <= unitClass.Attack + pStats.AttackGR) atk++;
+                if (Random.Range(0, 101) <= unitClass.Magic + pStats.MagicGR) mag++;
+                if (Random.Range(0, 101) <= unitClass.Defense + pStats.DefenseGR) def++;
+                if (Random.Range(0, 101) <= unitClass.Resistance + pStats.ResistanceGR) res++;
+                if (Random.Range(0, 101) <= unitClass.Evasion + pStats.EvasionGR) eva++;
+                if (Random.Range(0, 101) <= unitClass.Luck + pStats.LuckGR) luk++;
+                if (Random.Range(0, 101) <= unitClass.Speed + pStats.SpeedGR) spd++;
 
-                if (Random.Range(0, 101) <= unitClass.Attack + pStats.AttackGR) {
-                    Debug.Log("Attack Level Up");
-                    // stats.Attack++;
-                    atk++;
-                }
-
-                if (Random.Range(0, 101) <= unitClass.Magic + pStats.MagicGR) {
-                    Debug.Log("Magic Level Up");
-                    // stats.Magic++;
-                    mag++;
-                }
-
-                if (Random.Range(0, 101) <= unitClass.Defense + pStats.DefenseGR) {
-                    Debug.Log("Defense Level Up");
-                    // stats.Defense++;
-                    def++;
-                }
-
-                if (Random.Range(0, 101) <= unitClass.Resistance + pStats.ResistanceGR) {
-                    Debug.Log("Resistance Level Up");
-                    // stats.Resistance++;
-                    res++;
-                }
-
-                if (Random.Range(0, 101) <= unitClass.Evasion + pStats.EvasionGR) {
-                    Debug.Log("Evasion Level Up");
-                    // stats.Evasion++;
-                    eva++;
-                }
-
-                if (Random.Range(0, 101) <= unitClass.Luck + pStats.LuckGR) {
-                    Debug.Log("Luck Level Up");
-                    // stats.Luck++;
-                    luk++;
-                }
-
-                if (Random.Range(0, 101) <= unitClass.Speed + pStats.SpeedGR) {
-                    Debug.Log("Speed Level Up");
-                    // stats.Speed++;
-                    spd++;
-                }
-
-                if (hlt + atk + mag + def + res + eva + luk + spd >= 2) {
-                    break;
-                }
+                if (hlt + atk + mag + def + res + eva + luk + spd >= 2) break;
 
             }
 
@@ -155,33 +105,20 @@ public class PlayerUnit : UnitManager
 
     public override void InitializeUnitData()
     {
-        // Debug.LogError(unitName + " AHHHHHHHHHH");
         stats = UnitRosterManager.GetUnitStats(unitName);
-        // Debug.LogError(stats.UnitName + " AHHHHHHHHHHSTATS");
         maxHealth = stats.Health;
         currentHealth = maxHealth;
         UnitType = "Player"; 
         primaryWeapon = stats.GetWeaponAt(0);
-        Debug.Log(stats.UnitName + " Has been initlialized");
-
     }
 
-    public override int getMove() { return stats.getClass().Movement + stats.Movement; }
-    public override int getAttack() { 
-        if (primaryWeapon != null) {
-            return primaryWeapon.Range;
-        } else { return 0;}
-    }
+    public override int getMove() { return stats.getClass().Movement + base.getMove(); }
+
 
     
 
     public override int getCurrentHealth() { return currentHealth; }
-    public override int getMaxHealth() { 
-        if (stats == null){
-            Debug.LogError("HELP THERES NO STATS!");
-        }
-        return stats.Health; 
-        }
+    public override int getMaxHealth() => stats.Health; 
     public override void setCurrentHealth(int health) { currentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 
