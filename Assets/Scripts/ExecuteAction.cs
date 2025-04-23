@@ -34,7 +34,6 @@ public class ExecuteAction : MonoBehaviour
         findPath.DestroyRange();
 
         // Calls the MoveUnit function
-        // generateGrid.MoveUnit(playerGridMovement.GetPlayerCollide().GetPlayer(), playerGridMovement.GetOrgX(), playerGridMovement.GetOrgZ(), playerGridMovement.GetCurX(), playerGridMovement.GetCurZ());
         generateGrid.MoveUnit(generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile, playerGridMovement.GetOrgX(), playerGridMovement.GetOrgZ(), playerGridMovement.GetCurX(), playerGridMovement.GetCurZ());
 
         // Sets up temporary variables
@@ -344,7 +343,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager atk = AttackingQueue.Dequeue();
             UnitManager def = DefendingQueue.Dequeue();
 
-            int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
+            int damage = atk.GetAttack() - def.stats.Defense;
 
             float multiplier = 1;
 
@@ -460,14 +459,14 @@ public class ExecuteAction : MonoBehaviour
         
         // Calculates Expected Attack for both defender and attacker that will be used in the battle menu
         int defAttack = 0;
-        int atkAttack = attackingUnit.stats.Attack + attackingUnit.primaryWeapon.Attack - defendingUnit.stats.Defense;
+        int atkAttack = attackingUnit.GetAttack() - defendingUnit.stats.Defense;
         if (defendingUnit.primaryWeapon != null)
         {
-            defAttack = defendingUnit.stats.Attack + defendingUnit.primaryWeapon.Attack - attackingUnit.stats.Defense;
+            defAttack = defendingUnit.GetAttack() - attackingUnit.stats.Defense;
         }
             
-        if (atkAttack < 0) {atkAttack = 0;}
-        if(defAttack < 0) {defAttack = 0;}
+        if (atkAttack < 0) atkAttack = 0;
+        if(defAttack < 0) defAttack = 0;
 
         // Opens battle menu and switches to combat cam with a 3f transition
         yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));

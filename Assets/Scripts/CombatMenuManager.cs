@@ -664,7 +664,7 @@ public class CombatMenuManager : MonoBehaviour
 
     // Checks which faiths can be used
     void CheckFaith(UnitManager unit) {
-        List<Faith> checking =  unit.GetFaithList();
+        List<Faith> checking =  unit.GetFaith();
         usableFaith = new List<Faith>();
         nonUsableFaith = new List<Faith>();
 
@@ -814,7 +814,7 @@ public class CombatMenuManager : MonoBehaviour
         bool oneAction = false;
         
         CreateMenu(unit);
-        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.GetMagic().Count - 1 ;
+        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.GetMagic().Count + unit.GetFaith().Count - 1 ;
 
         if (maxIndex >= 0) itemButtons[currItemIndex].Select();
 
@@ -1004,8 +1004,9 @@ public class CombatMenuManager : MonoBehaviour
             // }
             
         }
-        else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
-            if (user.GetItems()[ind - user.GetWeapons().Count].CanUse(user)) {
+        else if (ind < user.GetItems().Count + user.GetFaith().Count + user.GetWeapons().Count) {
+            if (user.GetItems().Count > 0 && user.GetItems()[ind - user.GetWeapons().Count - user.GetFaith().Count].CanUse(user)) {
+                Debug.LogError("USEEE");
                 tempBtn = (GameObject)Instantiate(buttonItemOption);
                 tempBtn.transform.SetParent(button.transform, false);
                 optionButtons.Add(tempBtn.GetComponent<Button>());
@@ -1099,14 +1100,16 @@ public class CombatMenuManager : MonoBehaviour
                         }
                         StartCoroutine(ItemMenu());
                     }
-                } else if (ind < user.GetItems().Count + user.GetWeapons().Count) {
+                } else if (ind < user.GetItems().Count + user.GetWeapons().Count + user.GetFaith().Count) {
                     if (options[index] == "Use") {
+                        Debug.LogError("USEEE");
                         List<Item> tempItems = user.GetItems();
                         DeactivateItemMenu();
-                        yield return StartCoroutine(tempItems[ind - user.GetWeapons().Count].Use(user));
+                        yield return StartCoroutine(tempItems[ind - user.GetWeapons().Count - user.GetFaith().Count].Use(user));
 
-                        if(tempItems[ind - user.GetWeapons().Count].Uses <= 0) {
-                            user.GetItems().Remove(tempItems[ind - user.GetWeapons().Count]);
+                        if(tempItems[ind - user.GetWeapons().Count - user.GetFaith().Count].Uses <= 0) {
+                            user.GetItems().Remove(tempItems[ind - user.GetWeapons().Count - user.GetFaith().Count]);
+                            Debug.LogError("AHHHHHHH " + user.GetItems().Count);
                         }
                         
                         PlayerWait(); //Might have to change if wait abilities are implemented

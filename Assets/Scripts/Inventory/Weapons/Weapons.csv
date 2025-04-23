@@ -1,8 +1,8 @@
-Class,Name,Description,Type,TomeType,Rank,Attack,Hit,Crit,Weight,Uses,Range1,Range2,Range3,Range,MultMounted,MultAirBorn,MultArmored,MultWhisper,MultInfantry,NumHits,CanCounter,FILLER
-NormalWeapon,Iron Sword,Basic Sword,Sword,NULL,E,5,90,0,5,40,TRUE,FALSE,FALSE,1,1,1,1,1,1,1,TRUE,FILLER
-NormalWeapon,Iron Bow,Basic Bow,Bow,NULL,E,6,85,0,6,40,FALSE,TRUE,FALSE,2,1,1.5,1,1,1,1,TRUE,FILLER
-NormalWeapon,Whisper Claw,Claw of A Whisper,Fist,NULL,E,3,95,0,1,40,TRUE,FALSE,FALSE,1,1,1,1,1,1,2,TRUE,FILLER
-NormalWeapon,Long Bow,Shoot Farther Distance,Bow,NULL,E,3,95,0,1,40,TRUE,TRUE,TRUE,4,1,1.5,1,1,1,1,TRUE,FILLER
-NormalWeapon,Steel Sword,Basic Sword,Sword,NULL,E,7,80,0,6,30,TRUE,FALSE,FALSE,1,1,1,1,1,1,1,TRUE,FILLER
-NormalWeapon,Fire,Basic Magic,Magic,Fire,E,6,90,0,6,5,TRUE,TRUE,FALSE,2,1,1,1.5,1,1,1,TRUE,FILLER
-NormalWeapon,Nosferatu,Basic Magic,Faith,Fire,E,6,90,0,6,5,TRUE,TRUE,FALSE,2,1,1,1.5,1,1,1,TRUE,FILLER
+Class,Name,Description,Type,TomeType,Rank,Attack,Hit,Crit,Weight,Uses,Range1,Range2,Range3,Range,MultMounted,MultAirBorn,MultArmored,MultWhisper,MultInfantry,NumHits,CanCounter,UseMagic,FILLER
+NormalWeapon,Iron Sword,Basic Sword,Sword,NULL,E,5,90,0,5,40,TRUE,FALSE,FALSE,1,1,1,1,1,1,1,TRUE,FALSE,FILLER
+NormalWeapon,Iron Bow,Basic Bow,Bow,NULL,E,6,85,0,6,40,FALSE,TRUE,FALSE,2,1,1.5,1,1,1,1,TRUE,FALSE,FILLER
+NormalWeapon,Whisper Claw,Claw of A Whisper,Fist,NULL,E,3,95,0,1,40,TRUE,FALSE,FALSE,1,1,1,1,1,1,2,TRUE,FALSE,FILLER
+NormalWeapon,Long Bow,Shoot Farther Distance,Bow,NULL,E,3,95,0,1,40,TRUE,TRUE,TRUE,4,1,1.5,1,1,1,1,TRUE,FALSE,FILLER
+NormalWeapon,Steel Sword,Basic Sword,Sword,NULL,E,7,80,0,6,30,TRUE,FALSE,FALSE,1,1,1,1,1,1,1,TRUE,FALSE,FILLER
+NormalWeapon,Fire,Basic Magic,Magic,Fire,E,6,90,0,6,5,TRUE,TRUE,FALSE,2,1,1,1.5,1,1,1,TRUE,TRUE,FILLER
+NormalWeapon,Nosferatu,Basic Magic,Faith,Fire,E,6,90,0,6,5,TRUE,TRUE,FALSE,2,1,1,1.5,1,1,1,TRUE,TRUE,FILLER

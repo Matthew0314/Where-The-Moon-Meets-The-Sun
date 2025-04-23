@@ -27,12 +27,12 @@ public abstract class Weapon
     public float MultInfantry {get; set;}
     public int NumHits {get; set;}
     public bool CanCounter {get; set;}
+    public bool UseMagic { get; set; }
     public string WeaponClass {get;}
+    
 
     public Queue<UnitManager> AttackingQueue {get; set;}
     public Queue<UnitManager> DefendingQueue {get; set;}
-    public int AttackerCurrentHealth {get; set;}
-    public int DefenderCurrentHealth {get; set;}
     bool miss;
     bool critical;
 
@@ -41,7 +41,7 @@ public abstract class Weapon
     private FindPath pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
 
     //Constructor
-    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, string weapClass) {
+    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass) {
         WeaponName = name;
         WeaponDescription = desc;
         WeaponType = Wtype;
@@ -63,65 +63,12 @@ public abstract class Weapon
         MultInfantry = MInf;
         NumHits = nHit;
         CanCounter = counter;
+        UseMagic = useMagic;
         WeaponClass = weapClass;
 
         AttackingQueue = new Queue<UnitManager>();
         DefendingQueue = new Queue<UnitManager>();
         
-    }
-
-    //If theres a special ability this function will be called
-    public virtual void unitAttack(Queue<UnitManager> attacking, Queue<UnitManager> defending, UnitManager defender, int attackerX, int attackerZ, int defenderX, int defenderZ) {
-        
-        int queueSize = attacking.Count;
-        for (int i = 0; i < queueSize; i++) {
-            UnitManager atk = attacking.Dequeue();
-            UnitManager def = defending.Dequeue();
-
-            int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
-
-            float multiplier = 1;
-
-            if (def.stats.Mounted) {
-                multiplier += atk.primaryWeapon.MultMounted - 1; 
-            }
-            if (def.stats.AirBorn) {
-                multiplier += atk.primaryWeapon.MultAirBorn - 1; 
-            }
-            if (def.stats.Armored) {
-                multiplier += atk.primaryWeapon.MultArmored - 1; 
-            }
-            if (def.stats.Whisper) {
-                multiplier += atk.primaryWeapon.MultWhisper - 1; 
-            }
-
-            Debug.Log("defender current health " + def.getCurrentHealth() + " " + def.stats.Health);
-
-            damage = (int)(damage * multiplier);
-
-            Debug.Log(atk.stats.UnitName + " Did" + damage + " damage to " + def.stats.UnitName);
-
-            def.TakeDamage(damage);
-
-            Debug.Log("defender current health " + def.getCurrentHealth() + " " + def.stats.Health);
-
-            if (def.getCurrentHealth() <= 0) {
-
-                
-                if (defender.stats.UnitName == def.stats.UnitName) {
-                    Debug.Log(def.stats.UnitName + "Has died");
-                    _currentMap.RemoveDeadUnit(def, defenderX, defenderZ);
-                    
-                } else {
-                    
-                    _currentMap.RemoveDeadUnit(def, attackerX, attackerZ);
-                }
-                
-                
-                break;
-            }
-        }
-
     }
 
     public virtual int UnitAttack(UnitManager atk, UnitManager def, bool ignoreRates) {
@@ -157,11 +104,11 @@ public abstract class Weapon
             int rand = Random.Range(0, 101);
             if (hit <= rand) {
                 miss = true;
-                Debug.Log("miss" + miss);
+                Debug.Log("miss " + miss);
                 return 0;
             } else if (crit >= rand) {
                 critical = true;
-                Debug.Log("critical" + critical);
+                Debug.Log("critical " + critical);
                 return damage * 3;
             }
         }
@@ -216,7 +163,7 @@ public abstract class Weapon
 
     public virtual void DecrementUses() { Uses--; }
 
-    public abstract void SpecialAbility();
+    public virtual void SpecialAbility() {}
 
 
 
@@ -226,8 +173,10 @@ public abstract class Weapon
 //Class for all weapons without a special ability
 public class NormalWeapon : Weapon
 {
-    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, weapClass) {}
+    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, weapClass) {}
     
-    
-    public override void SpecialAbility() {}
+}
+
+public class PoisonWeapon : Weapon {
+    public PoisonWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, weapClass) {}
 }

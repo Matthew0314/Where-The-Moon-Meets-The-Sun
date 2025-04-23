@@ -22,22 +22,33 @@ public class UnitManager : MonoBehaviour
     public Image healthBar;
 
     public Image extraHealth1;
+    private List<StatusAilments> statusAilments = new List<StatusAilments>();
 
-    protected virtual void Start()
-    {
-        // classList = GameObject.Find("GridManager").GetComponent<PlayerClassManager>();
-        // InitializeUnitData();
+    protected virtual void Start() {
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
-        
-        
-        // Debug.Log("Start");
     }
 
     public virtual void InitializeUnitData() {}
 
 
-    public virtual int getMove() {return 0;}
-    public virtual int getAttack() {return 0;}
+    public virtual int getMove() {return stats.Movement;}
+
+    // Returns Attack if regular weapon or magic if other
+    public virtual int GetAttack() {
+        if (primaryWeapon.UseMagic) {
+            return stats.Magic + primaryWeapon.Attack;
+        } else {
+            return stats.Attack + primaryWeapon.Attack;
+        }
+
+        
+    }
+
+    public virtual int GetDefense() {
+        return stats.Defense + primaryWeapon.Attack;
+    }
+
+
     public virtual int getCurrentHealth() { return currentHealth; }
     public virtual int getMaxHealth() { return stats.Health; }
     public virtual void setCurrentHealth(int health) {}
@@ -77,9 +88,10 @@ public class UnitManager : MonoBehaviour
     public virtual List<Weapon> GetWeapons() => stats.weapons.Concat(stats.magic).ToList();
     public virtual List<Item> GetItems() { return stats.items; }
     public virtual List<Weapon> GetMagic() { return stats.magic; }
+    public virtual List<Faith> GetFaith() => stats.faith;
 
     public virtual Weapon GetPrimaryWeapon() { return primaryWeapon; }
-    public virtual List<Faith> GetFaithList() { return stats.faith; }
+    // public virtual List<Faith> GetFaith() { return stats.faith; }
 
     public virtual IEnumerator ExtraHealthBar() {
         stats.HealthBars--;
