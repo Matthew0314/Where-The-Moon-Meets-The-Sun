@@ -7,7 +7,7 @@ using System.Linq;
 public class UnitManager : MonoBehaviour
 {
     protected int maxHealth;
-    protected int currentHealth = 2;
+    protected int currentHealth;
     public UnitStats stats;
     public string UnitType;
     // protected PlayerClassManager classList;
@@ -45,7 +45,11 @@ public class UnitManager : MonoBehaviour
     }
 
     public virtual int GetDefense() {
-        return stats.Defense + primaryWeapon.Attack;
+        return stats.Defense; //+ primaryWeapon.Attack;
+    }
+
+    public virtual int GetResistance() {
+        return stats.Resistance;
     }
 
 
@@ -57,6 +61,8 @@ public class UnitManager : MonoBehaviour
         currentHealth -= health;
         if (currentHealth < 0) { currentHealth = 0; }
     }
+
+
     public virtual string GetUnitType() { return UnitType; }
 
 
@@ -155,10 +161,5 @@ public class UnitManager : MonoBehaviour
 
         HealUnit(hlt);
     }
-
-
-
-
-   
 }
 

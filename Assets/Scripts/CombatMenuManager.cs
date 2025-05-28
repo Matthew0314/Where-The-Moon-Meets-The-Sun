@@ -79,9 +79,6 @@ public class CombatMenuManager : MonoBehaviour
     GameObject HPplayer;
     GameObject HPenemy;
 
-
-
-
     //Level Up Menu
     [Header("Level Up Menu")]
     private GameObject levelUpMenu;

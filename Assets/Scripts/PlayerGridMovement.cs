@@ -71,7 +71,6 @@ public class PlayerGridMovement : MonoBehaviour
         if (isAttacking || manageTurn.IsEnemyTurn()) {}
 
         else if(playerInput.actions["Select"].WasPressedThisFrame() && gridControl.GetGridTile(x,z).UnitOnTile != null && gridControl.GetGridTile(x,z).UnitOnTile.UnitType == "Enemy" && !pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x,z).UnitOnTile)) {
-
             pathFinder.SpecificEnemyRange(gridControl.GetGridTile(x,z).UnitOnTile);
         }
 

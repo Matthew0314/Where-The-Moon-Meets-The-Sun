@@ -343,7 +343,16 @@ public class ExecuteAction : MonoBehaviour
             UnitManager atk = AttackingQueue.Dequeue();
             UnitManager def = DefendingQueue.Dequeue();
 
-            int damage = atk.GetAttack() - def.stats.Defense;
+            int damage = 0;
+            if (atk.primaryWeapon.UseMagic) {
+                
+                damage = atk.GetAttack() - def.GetResistance();
+                Debug.LogError("USING MAGIC AHHHHHHHH  " + damage);
+
+            } else {
+                damage = atk.GetAttack() - def.GetDefense();
+
+            }
 
             float multiplier = 1;
 
@@ -459,10 +468,21 @@ public class ExecuteAction : MonoBehaviour
         
         // Calculates Expected Attack for both defender and attacker that will be used in the battle menu
         int defAttack = 0;
-        int atkAttack = attackingUnit.GetAttack() - defendingUnit.stats.Defense;
+        int atkAttack = 0;
+        if (attackingUnit.primaryWeapon.UseMagic) {
+            atkAttack = attackingUnit.GetAttack() - defendingUnit.GetResistance();
+        } else {
+            atkAttack = attackingUnit.GetAttack() - defendingUnit.GetDefense();
+        }
+
+        
         if (defendingUnit.primaryWeapon != null)
         {
-            defAttack = defendingUnit.GetAttack() - attackingUnit.stats.Defense;
+            if (defendingUnit.primaryWeapon.UseMagic) {
+                defAttack = defendingUnit.GetAttack() - attackingUnit.GetResistance();
+            } else {
+                defAttack = defendingUnit.GetAttack() - attackingUnit.GetDefense();
+            }
         }
             
         if (atkAttack < 0) atkAttack = 0;

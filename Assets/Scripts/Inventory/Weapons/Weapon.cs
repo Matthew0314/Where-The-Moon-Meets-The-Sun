@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -72,7 +71,13 @@ public abstract class Weapon
     }
 
     public virtual int UnitAttack(UnitManager atk, UnitManager def, bool ignoreRates) {
-        int damage = atk.stats.Attack + atk.primaryWeapon.Attack - def.stats.Defense;
+
+        int damage = 0;
+        if (UseMagic) {
+            damage = atk.GetAttack() - def.GetResistance();
+        } else {
+            damage = atk.GetAttack() - def.GetDefense();
+        }
 
         float multiplier = 1;
 

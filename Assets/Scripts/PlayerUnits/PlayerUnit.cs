@@ -18,7 +18,7 @@ public class PlayerUnit : UnitManager
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
         originalMaterial = healthBar.material;
         turnManager = GameObject.Find("GridManager").GetComponent<TurnManager>();
-        currentHealth = 2;
+        // currentHealth = 2;
 
     }
 
