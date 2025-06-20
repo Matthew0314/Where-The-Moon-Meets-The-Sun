@@ -35,18 +35,21 @@ public class GridTile
     }
 
     //Returns the values of all variables for this class
-    public bool GetPassable() { return passable; }
-    public int GetMovementCost() { return movementCost; }
-    public int GetAttackCost() { return attackCost; }
-    public float GetXPos() { return xPos; }
-    public float GetYPos() { return yPos; }
-    public float GetZPos() { return zPos; }
-    public int GetGridX() { return gridX; }
-    public int GetGridZ() { return gridZ; }
-    public bool GetTallObstacle() { return tallObstacle; }
-    public int GetTileNum() { return tileNum; }
+    public bool GetPassable() => passable;
+    public int GetMovementCost() => movementCost; 
+    public int GetAttackCost() => attackCost;
+    public float GetXPos() => xPos;
+    public float GetYPos() => yPos; 
+    public float GetZPos() => zPos;
+    public int GetGridX() => gridX;
+    public int GetGridZ() => gridZ;
+    public bool GetTallObstacle() => tallObstacle;
+    public int GetTileNum() => tileNum;
+
+    public Vector3 GetGridPos => new Vector3(xPos, yPos, zPos);
     
-    public UnitManager UnitOnTile {
+    public UnitManager UnitOnTile
+    {
         get { return unitOnTile; }
         set { unitOnTile = value; }
     }

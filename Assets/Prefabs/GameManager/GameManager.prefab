@@ -4465,6 +4465,7 @@ GameObject:
   - component: {fileID: 5710264273001482281}
   - component: {fileID: 5710264273001482282}
   - component: {fileID: 5710264273001482276}
+  - component: {fileID: 1293990988}
   m_Layer: 0
   m_Name: GridManager
   m_TagString: Untagged
@@ -4514,6 +4515,7 @@ MonoBehaviour:
   enemyTextDataNormal: {fileID: 4900000, guid: d857066bc020a0643acaab6dc062f0f6, type: 3}
   enemyTextDataHard: {fileID: 4900000, guid: 23ed6c837e1c31b43981560e9aa77f72, type: 3}
   enemyTextDataEclipse: {fileID: 4900000, guid: 68464ef6b49fd7140acebd22c7cda689, type: 3}
+  enemyInitializer: {fileID: 1293990988}
 --- !u!114 &5710264273001482283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4571,6 +4573,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponTextData: {fileID: 4900000, guid: 59ce0a5ecf960894fa016b0c0c818003, type: 3}
+--- !u!114 &1293990988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5710264273001482284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd5b95408e62ff243be013b4b919c306, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5710264273017548726
 GameObject:
   m_ObjectHideFlags: 0

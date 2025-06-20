@@ -972,20 +972,22 @@ public class CombatMenuManager : MonoBehaviour
         List<Button> optionButtons = new List<Button>();
         List<string> options = new List<string>();
         GameObject tempBtn;
-        bool isWeapon = false;
-        bool isItem = false;
-        
 
-        if (ind < user.GetWeapons().Count) {
+
+        if (ind < user.GetWeapons().Count)
+        {
             tempBtn = (GameObject)Instantiate(buttonItemOption);
             tempBtn.transform.SetParent(button.transform, false);
             optionButtons.Add(tempBtn.GetComponent<Button>());
             List<Weapon> weps = user.GetWeapons();
-            if (weps[ind] == user.primaryWeapon) {
+            if (weps[ind] == user.primaryWeapon)
+            {
                 options.Add("Unequip");
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
                 texts[0].text = "Unequip";
-            } else {
+            }
+            else
+            {
                 options.Add("Equip");
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
                 texts[0].text = "Equip";
@@ -999,10 +1001,12 @@ public class CombatMenuManager : MonoBehaviour
             //     TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
             //     texts[0].text = "Discard";
             // }
-            
+
         }
-        else if (ind < user.GetItems().Count + user.GetFaith().Count + user.GetWeapons().Count) {
-            if (user.GetItems().Count > 0 && user.GetItems()[ind - user.GetWeapons().Count - user.GetFaith().Count].CanUse(user)) {
+        else if (ind < user.GetItems().Count + user.GetFaith().Count + user.GetWeapons().Count)
+        {
+            if (user.GetItems().Count > 0 && user.GetItems()[ind - user.GetWeapons().Count - user.GetFaith().Count].CanUse(user))
+            {
                 Debug.LogError("USEEE");
                 tempBtn = (GameObject)Instantiate(buttonItemOption);
                 tempBtn.transform.SetParent(button.transform, false);
@@ -1011,6 +1015,8 @@ public class CombatMenuManager : MonoBehaviour
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
                 texts[0].text = "Use";
             }
+            
+            
         }
         int index = 0;
 

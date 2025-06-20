@@ -76724,6 +76724,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5710264272551525691, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264272582542377, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264272582542377, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264272582542377, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264272584237824, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264272877955018, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -35
+      objectReference: {fileID: 0}
     - target: {fileID: 5710264272964587493, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
       propertyPath: m_Name
       value: GameManager
@@ -76771,6 +76795,18 @@ PrefabInstance:
     - target: {fileID: 5710264272964587494, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264274149652370, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264274149652370, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264274426458151, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -35
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}

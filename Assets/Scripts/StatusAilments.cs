@@ -43,11 +43,18 @@ public abstract class StatusAilments
     }
 }
 
+public class NormalAliment : StatusAilments
+{
+    public NormalAliment(string n, string t, UnitManager u, int a, int m, int d, int r, int s, int e, int l, int mov, bool tsd, int turns) : base(n, t, u, a, m, d, r, s, e, l, mov, tsd, turns) { }
+    
+}
 
-public class Poison : StatusAilments {
+public class Poison : StatusAilments
+{
 
-    public Poison(string n, string t, UnitManager u, int a, int m, int d, int r, int s, int e, int l, int mov, bool tsd, int turns) : base(n, t, u, a, m, d, r, s, e, l, mov, tsd, turns) {}
-    public override IEnumerator StartOfTurn() {
+    public Poison(string n, string t, UnitManager u, int a, int m, int d, int r, int s, int e, int l, int mov, bool tsd, int turns) : base(n, t, u, a, m, d, r, s, e, l, mov, tsd, turns) { }
+    public override IEnumerator StartOfTurn()
+    {
         if (Unit != null) Unit.TakeDamage(3);
         yield return null;
     }

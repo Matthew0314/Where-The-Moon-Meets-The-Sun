@@ -29,6 +29,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     [SerializeField] TextAsset enemyTextDataNormal;
     [SerializeField] TextAsset enemyTextDataHard;
     [SerializeField] TextAsset enemyTextDataEclipse;
+    [SerializeField] EnemyInitializer enemyInitializer;
     private Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
     private string winCondition = "Defeat the boss.";
     private string loseCondition = "<color=#3160BC>Felix</color> or <color=#3160BC>Lilith</color> falls in battle.";
@@ -93,105 +94,6 @@ public class PrologueMap : MonoBehaviour, IMaps
         StartCoroutine(StartMap());
     }
 
-    //Reads in the EnemyCSV, stores each of their data, and prints them on the grid
-    // TODO: Move the enemy init into another script so I don't have to keep copy and pasting
-    // private void InitEnemies() {
-
-    //     // Determines what file to read based on the difficulty
-    //     string[] lines;
-    //     if (Difficulty == "Hard") {
-    //         lines = enemyTextDataHard.text.Split('\n');
-    //         maxEID = 5;
-    //     } else if (Difficulty == "Eclipse") {
-    //         lines = enemyTextDataEclipse.text.Split('\n');
-    //         maxEID = 8;
-    //     } else {
-    //         lines = enemyTextDataNormal.text.Split('\n');
-    //         maxEID = 5;
-    //     }
-
-        
-    //     Type unitType = Type.GetType("EnemyStats");
-
-    //     foreach (string line in lines.Skip(1)) // skip header
-    //     {
-    //         if (string.IsNullOrWhiteSpace(line)) continue;
-
-    //         string[] fields = line.Trim().Split(',');
-
-    //         int index = 0;
-    //         Debug.LogError(fields[index]);
-    //         int eID = int.Parse(fields[index++]);
-    //         string cName = fields[index++];
-    //         string cDesc = fields[index++];
-    //         string cType = fields[index++];
-
-    //         int level = int.Parse(fields[index++]);
-    //         int HP = int.Parse(fields[index++]);
-    //         int ATK = int.Parse(fields[index++]);
-    //         int MAG = int.Parse(fields[index++]);
-    //         int DEF = int.Parse(fields[index++]);
-    //         int RES = int.Parse(fields[index++]);
-    //         int SPD = int.Parse(fields[index++]);
-    //         int EVA = int.Parse(fields[index++]);
-    //         int LUCK = int.Parse(fields[index++]);
-    //         int MOVE = int.Parse(fields[index++]);
-
-    //         bool air = bool.Parse(fields[index++]);
-    //         bool mount = bool.Parse(fields[index++]);
-    //         bool armored = bool.Parse(fields[index++]);
-    //         bool whisp = bool.Parse(fields[index++]);
-    //         int healthBars = int.Parse(fields[index++]);
-
-    //         string loadPrefab = fields[index++];
-    //         int enemyX = int.Parse(fields[index++]);
-    //         int enemyZ = int.Parse(fields[index++]);
-    //         string AIenemy = fields[index++];
-
-    //         string[] items = new string[6];
-    //         for (int j = 0; j < 6; j++) items[j] = fields[index++];
-
-    //         bool boss = bool.Parse(fields[index++]);
-
-    //         UnitStats eStats = (UnitStats)Activator.CreateInstance(
-    //             unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss);
-
-    //         foreach (string item in items)
-    //         {
-    //             if (item == "NULL") break;
-    //             Weapon tempWeapon = WeaponManager.MakeWeapon(item);
-    //             eStats.AddWeapon(tempWeapon);
-    //         }
-           
-    //         //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
-    //         GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
-    //         GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos(), grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
-
-    //         //Ataches an AI script interface depending on the characterististics of the nemy specified in the CSV file
-    //         Type type = Type.GetType(AIenemy);
-    //         IEnemyAI enemyAI = newEnemy.AddComponent(type) as IEnemyAI;
-            
-    //         //Stores the enemy stats in the EnemyUnit object and stores in a queue
-    //         UnitManager enemy = newEnemy.GetComponent<UnitManager>();
-            
-    //         enemy.stats = eStats;
-    //         if (enemy.stats.weapons.Count > 0) enemy.primaryWeapon = enemy.stats.weapons[0];
-
-    //         enemy.InitializeUnitData();
-    //         enemy.XPos = enemyX;
-    //         enemy.ZPos = enemyZ;
-    //         grid.GetGridTile(enemyX, enemyZ).UnitOnTile = enemy;
-    //         mapEnemies.Enqueue(enemy);
-
-    //         if(eID >= maxEID) break;
-                      
-
-            
-    //     }
-
-
-    // }
-
     private void InitEnemies() {
 
         // Determines what file to read based on the difficulty
@@ -207,7 +109,7 @@ public class PrologueMap : MonoBehaviour, IMaps
             maxEID = 5;
         }
 
-        Queue<UnitManager> temp = EnemyInitializer.InitEnemies(lines, 1, maxEID, grid);
+        Queue<UnitManager> temp = enemyInitializer.InitEnemies(lines, 1, maxEID, grid);
 
         foreach (UnitManager t in temp) {
             mapEnemies.Enqueue(t);
@@ -299,104 +201,16 @@ public class PrologueMap : MonoBehaviour, IMaps
             }
         }
         if (!calledReinforcements && callNewEnemies && manageTurn.IsEnemyTurn() && Difficulty != "Normal") {
-            
 
             string[] data;
 
-            if (Difficulty == "Hard") data = enemyTextDataHard.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
-            else if (Difficulty == "Eclipse") data = enemyTextDataEclipse.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
-            else data = enemyTextDataNormal.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
+            if (Difficulty == "Hard") data = enemyTextDataHard.text.Split('\n');
+            else if (Difficulty == "Eclipse") data = enemyTextDataEclipse.text.Split('\n');
+            else data = enemyTextDataNormal.text.Split('\n');
 
             Type unitType = Type.GetType("EnemyStats");
 
-            for (int i = 31; i < data.Length - 1; i += 31) {
-
-                int eID = int.Parse(data[i]);
-                if (eID <= maxEID) {
-                    continue;
-                }
-                string cName = data[i + 1];
-                string cDesc = data[i + 2];
-                string cType = data[i + 3];
-                
-                int level = int.Parse(data[i + 4]);
-                int HP = int.Parse(data[i + 5]);
-                int ATK = int.Parse(data[i + 6]);  
-                int MAG = int.Parse(data[i + 7]);
-                int DEF = int.Parse(data[i + 8]);
-                int RES = int.Parse(data[i + 9]);
-                int SPD = int.Parse(data[i + 10]);   
-                int EVA = int.Parse(data[i + 11]);
-                int LUCK = int.Parse(data[i + 12]);
-                int MOVE = int.Parse(data[i + 13]);
-                
-                bool air = bool.Parse(data[i + 14]);
-                bool mount = bool.Parse(data[i + 15]);
-                bool armored = bool.Parse(data[i + 16]);
-                bool whisp = bool.Parse(data[i + 17]);
-                int healthBars = int.Parse(data[i + 18]);
-
-                string loadPrefab = data[i + 19];
-                int enemyX = int.Parse(data[i + 20]);
-                int enemyZ = int.Parse(data[i + 21]);
-                string AIenemy = data[i + 22];
-
-                string item1 = data[i + 23];
-                string item2 = data[i + 24];
-                string item3 = data[i + 25];
-                string item4 = data[i + 26];
-                string item5 = data[i + 27];
-                string item6 = data[i + 28];
-
-                bool boss = bool.Parse(data[i + 29]);
-        
-                
-                //Stores Necessary data in EnemyStats
-                UnitStats eStats = (UnitStats)Activator.CreateInstance(unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss);
-
-                for (int j = 0; j < 6; j++) {
-                    if (data[i + 23 + j] == "NULL") {              
-                        break;
-                    }
-
-                    Weapon tempWeapon = WeaponManager.MakeWeapon(data[i + 23 + j]);
-                    eStats.AddWeapon(tempWeapon);
-                }
-
-                yield return StartCoroutine(playerCursor.MoveCursor(enemyX,enemyZ, 100f));
-
-               
-            
-                //Loads the enemies prefab and instantiates it on the grid tile that is specified in the CSV
-                GameObject enemyPrefab = Resources.Load("Enemies/" + loadPrefab) as GameObject;
-                GameObject newEnemy = Instantiate(enemyPrefab, new Vector3(grid.GetGridTile(enemyX, enemyZ).GetXPos(), grid.GetGridTile(enemyX, enemyZ).GetYPos() + 0.005f, grid.GetGridTile(enemyX, enemyZ).GetZPos()), Quaternion.identity);
-            
-
-                //Ataches an AI script interface depending on the characterististics of the nemy specified in the CSV file
-                Type type = Type.GetType(AIenemy);
-                IEnemyAI enemyAI = newEnemy.AddComponent(type) as IEnemyAI;
-                
-                //Stores the enemy stats in the EnemyUnit object and stores in a queue
-                UnitManager enemy = newEnemy.GetComponent<UnitManager>();
-                
-                enemy.stats = eStats;
-
-                enemy.InitializeUnitData();
-                enemy.XPos = enemyX;
-                enemy.ZPos = enemyZ;
-                grid.GetGridTile(enemyX, enemyZ).UnitOnTile = enemy;
-                mapEnemies.Enqueue(enemy);
-                manageTurn.AddEnemy(enemy);
-
-                if (playerCursor.enemyRangeActive) {
-                    pathFinder.DestroyEnemyRange();
-                    pathFinder.EnemyRange();
-                }
-
-                yield return new WaitForSeconds(1f);
-
-                
-            }
+            yield return StartCoroutine(enemyInitializer.SpawnReinforcements(data, maxEID, 99, grid, playerCursor, pathFinder, manageTurn, mapEnemies));
 
             calledReinforcements = true;
         }

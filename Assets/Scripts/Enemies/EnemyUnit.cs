@@ -17,14 +17,14 @@ public class EnemyUnit : UnitManager
 
     protected void Update() {
        
-        healthBar.fillAmount = (float)currentHealth / (float)getMaxHealth(); 
+        healthBar.fillAmount = (float)stats.CurrentHealth / (float)getMaxHealth(); 
         
     }
 
     public override void InitializeUnitData()
     {
-        maxHealth = stats.Health;
-        currentHealth = maxHealth;
+        // maxHealth = stats.Health;
+        // currentHealth = maxHealth;
         primaryWeapon = stats.GetWeaponAt(0);
         Debug.LogWarning(stats.Name);
         extraHealth1 = transform.Find("EnemyCircle/Canvas/UnitCircle/ExtraHealth1").GetComponent<Image>();
@@ -33,13 +33,12 @@ public class EnemyUnit : UnitManager
             extraHealth1.gameObject.GetComponent<CanvasGroup>().alpha = 0;
         }
         UnitType = "Enemy";
-        Debug.Log(stats.UnitName + " Has been initlialized");
     }
 
     // public override int getMove() { return stats.Movement; }
 
     public override int getMaxHealth() { return stats.Health; }
-    public override void setCurrentHealth(int health) { currentHealth = health; }
+    public override void setCurrentHealth(int health) { stats.CurrentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 
     // Additional Enemy-specific methods here
