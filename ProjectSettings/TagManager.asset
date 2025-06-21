@@ -6,6 +6,9 @@ TagManager:
   tags:
   - PlayerUnit
   - EnemyUnit
+  - TallObstacle
+  - Obstacle
+  - Slow
   layers:
   - Default
   - TransparentFX
