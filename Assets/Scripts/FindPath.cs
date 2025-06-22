@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+
 
 public class PathTile {
 
@@ -179,8 +181,8 @@ public class FindPath : MonoBehaviour
             if (moveVisited[currX, currZ]) { continue; }
 
             moveVisited[currX, currZ] = true;
-            if (unit.primaryWeapon != null) {
-                discard = CalculateAttack(currX, currZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
+            if (unit.GetPrimaryWeapon() != null) {
+                discard = CalculateAttack(currX, currZ, unit.GetPrimaryWeapon().Range, unit.GetPrimaryWeapon().Range1, unit.GetPrimaryWeapon().Range2, unit.GetPrimaryWeapon().Range3);
             } else {
                 discard = CalculateAttack(currX, currZ, 0, false, false, false);
             }
@@ -388,7 +390,12 @@ public class FindPath : MonoBehaviour
 
         Queue<UnitManager> currEnemies = new Queue<UnitManager>();
 
-        Queue<UnitManager> temp = _currentMap.GetMapEnemies();
+        Queue<UnitManager> temp = new Queue<UnitManager>(
+            (_currentMap.GetMapEnemies1() ?? Enumerable.Empty<UnitManager>())
+                .Concat(_currentMap.GetMapEnemies2() ?? Enumerable.Empty<UnitManager>())
+        );
+
+
 
         foreach(UnitManager element in temp) {
             currEnemies.Enqueue(element);

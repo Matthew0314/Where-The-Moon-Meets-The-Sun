@@ -104,6 +104,18 @@ public class GenerateGrid : MonoBehaviour
                 float zPosition = transform.position.z + (z * cellSize);
                 Vector3 WorldPos = new Vector3(xPosition, transform.position.y, zPosition);
 
+
+                // Use later if you have ground that is not flat
+                // // Raycast down to find ground height
+                // Vector3 rayOrigin = new Vector3(xPosition, transform.position.y + 10f, zPosition);
+                // if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 20f))
+                // {
+                //     if (hit.collider.CompareTag("Ground"))
+                //     {
+                //         yPosition = hit.point.y + (cellSize / 2); // Adjust so tile centers above ground
+                //     }
+                // }
+
                 Collider[] hitColliders = Physics.OverlapBox(WorldPos, Vector3.one / 2 * cellSize, Quaternion.identity);
                 bool isSet = false;
 

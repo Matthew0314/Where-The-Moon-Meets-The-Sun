@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Linq;
 
 public abstract class UnitManager : MonoBehaviour
@@ -15,9 +16,7 @@ public abstract class UnitManager : MonoBehaviour
     public string UnitType { get; set; }
 
     [SerializeField] protected string unitName;
-    public int movement;
-    public int attackRange;
-    public Weapon primaryWeapon;
+    protected Weapon primaryWeapon;
 
     public int XPos { get; set; }
     public int ZPos { get; set; }
@@ -173,6 +172,24 @@ public abstract class UnitManager : MonoBehaviour
         HealUnit(hlt);
     }
 
+    public void AddStatusAliment(string n, string t, int a, int m, int d, int r, int s, int e, int l, int mov, bool tsd, int turns)
+    {
+        if (tsd)
+        {
+
+            foreach (StatusAilments sta in statusAilments)
+            {
+                if (sta.TurnStartDamage) return;
+            }
+        }
+
+        Type staTemp = Type.GetType(t);
+
+        StatusAilments tempStatus = (StatusAilments)Activator.CreateInstance(staTemp, n, t, a, m, d, r, s, e, l, mov, tsd, turns);
+
+        statusAilments.Add(tempStatus);
+    }
+
 
     public virtual UnitStats GetStats() => stats;
 
@@ -182,6 +199,17 @@ public abstract class UnitManager : MonoBehaviour
     public virtual List<Weapon> GetMagic() => stats.magic;
     public virtual List<Faith> GetFaith() => stats.faith;
     public virtual Weapon GetPrimaryWeapon() => primaryWeapon;
+    public virtual void SetPrimaryWeapon(Weapon temp)
+    {
+        primaryWeapon = temp;
+
+        if (primaryWeapon == null) return;
+
+        stats.weapons.Remove(primaryWeapon);
+        stats.weapons.Insert(0, primaryWeapon);
+
+
+    }
     
 }
 

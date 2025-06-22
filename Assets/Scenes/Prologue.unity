@@ -1180,6 +1180,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9e07c491d47a4b34aac40157f36d2e0f, type: 3}
   m_PrefabInstance: {fileID: 639738588}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &226937387 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1622778106, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+  m_PrefabInstance: {fileID: 5710264273505147228}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &233391888 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9e07c491d47a4b34aac40157f36d2e0f, type: 3}
@@ -3703,6 +3714,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2607205114401763834, guid: aee1a131377204a4d8fa8b0a0177a714, type: 3}
   m_PrefabInstance: {fileID: 1908183655}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &699982187 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5710264272543151146, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+  m_PrefabInstance: {fileID: 5710264273505147228}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &702526247 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6ea51ac6c788bf249b279d5066a54773, type: 3}
@@ -12181,6 +12203,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 73700266019298862, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: brain
+      value: 
+      objectReference: {fileID: 699982187}
+    - target: {fileID: 73700266019298862, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: playerInput
+      value: 
+      objectReference: {fileID: 226937387}
+    - target: {fileID: 5710264272543151146, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_UpdateMethod
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710264272543151146, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
+      propertyPath: m_BlendUpdateMethod
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5710264272551525691, guid: 5b2f13a8518357241853e95312bae2a3, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0

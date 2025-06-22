@@ -138,7 +138,7 @@ public class EnemyInitializer : MonoBehaviour
         UnitManager enemy = newEnemy.GetComponent<UnitManager>();
 
         enemy.stats = eStats;
-        if (enemy.stats.weapons.Count > 0) enemy.primaryWeapon = enemy.stats.weapons[0];
+        if (enemy.stats.weapons.Count > 0) enemy.SetPrimaryWeapon(enemy.stats.weapons[0]);
 
         enemy.InitializeUnitData();
         enemy.XPos = enemyX;

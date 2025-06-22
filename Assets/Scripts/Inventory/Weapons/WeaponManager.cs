@@ -38,21 +38,14 @@ public class WeaponManager : MonoBehaviour
             bool canCounter = bool.Parse(data[i + 21]);
             bool useMagic = bool.Parse(data[i + 22]);
 
+            Type weaponType = Type.GetType(weaponClass);
+
             //Calles CreateWeapon to determine which type to store in Weapon weapon
-            Weapon weapon = CreateWeapon(weaponClass, name, description, type, tomeType, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter, useMagic);
+            Weapon weapon = (Weapon)Activator.CreateInstance(weaponType, name, description, type, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter, useMagic, weaponClass);
 
             //Stores in a dictionary with the name of the wepaon as the key
             Weapons[name] = weapon;
         }
-    }
-
-    Weapon CreateWeapon(string weaponClass, string name, string description, string type, string tomeType, char rank, int attack, int hit, int crit, int weight, int uses, bool range1, bool range2, bool range3, int range, float MultMounted, float MultAirBorn, float MultArmored, float MultWhisper,float MultInfantry, int numHits, bool canCounter, bool useMagic) {
-
-        //Determines which child class to instantiate it ass
-        Type weaponType = Type.GetType(weaponClass);
-
-        //Returns the new child object
-        return (Weapon)Activator.CreateInstance(weaponType, name, description, type, rank, attack, hit, crit, weight, uses, range1, range2, range3, range, MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry, numHits, canCounter, useMagic, weaponClass);
     }
 
     public static Weapon GetWeaponData(string WeaponName) {

@@ -57,9 +57,9 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
                 int enemyDamage = enemyUnit.getCurrentHealth();
                 int defDamage = tempUnit.getCurrentHealth();
 
-                enemyUnit.primaryWeapon.InitiateQueues(enemyUnit, tempUnit, enemyUnit.XPos, enemyUnit.ZPos, tempUnit.XPos, tempUnit.ZPos);
-                Queue<UnitManager> AttackingQueue = enemyUnit.primaryWeapon.AttackingQueue;
-                Queue<UnitManager> DefendingQueue = enemyUnit.primaryWeapon.DefendingQueue;
+                enemyUnit.GetPrimaryWeapon().InitiateQueues(enemyUnit, tempUnit, enemyUnit.XPos, enemyUnit.ZPos, tempUnit.XPos, tempUnit.ZPos);
+                Queue<UnitManager> AttackingQueue = enemyUnit.GetPrimaryWeapon().AttackingQueue;
+                Queue<UnitManager> DefendingQueue = enemyUnit.GetPrimaryWeapon().DefendingQueue;
 
                 int coun = AttackingQueue.Count;
 
@@ -129,7 +129,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
             Vector3 currentPosition = enemy.transform.position;
             // enemy.transform.position = new Vector3(generateGrid.GetGridTile(moveX, moveZ).GetXPos(), currentPosition.y, generateGrid.GetGridTile(moveX, moveZ).GetZPos());
 
-            enemyUnit.primaryWeapon = UnitToAtk.weaponUsed;
+            enemyUnit.SetPrimaryWeapon(UnitToAtk.weaponUsed);
 
             List<PathTile> shortestPath = findPath.FindShortestPath(enemyUnit.XPos, enemyUnit.ZPos, moveX, moveZ);
             Transform objectTrans = playerGridMovement.transform;

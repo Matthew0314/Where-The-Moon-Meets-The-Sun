@@ -18,7 +18,7 @@ public abstract class StatusAilments
     public int Turns { get; set; } // will decrement at the start of the turn for enemies and players
 
     // Different Types of Status Ailments
-    public bool TurnStartDamage {get;} // Poison, burn, etc.
+    public bool TurnStartDamage { get; set; } // Poison, burn, etc.
 
     public StatusAilments (string n, string t, UnitManager u, int a, int m, int d, int r, int s, int e, int l, int mov, bool tsd, int turns) {
         Name = n;

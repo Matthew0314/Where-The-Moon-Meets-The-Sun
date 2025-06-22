@@ -20,7 +20,9 @@ public interface IMaps
     IEnumerator CheckEvents();
     void RemoveDeadUnit(UnitManager unit, int x, int y);
 
-    Queue<UnitManager> GetMapEnemies();
+    Queue<UnitManager> GetMapEnemies1();
+    Queue<UnitManager> GetMapEnemies2();
+    Queue<UnitManager> GetMapAllies();
     List<UnitStats> GetMapUnitStats();
     List<UnitManager> GetMapUnits();
 

@@ -18,6 +18,16 @@ public class TurnManager : MonoBehaviour
     [SerializeField] GenerateGrid grid;
     [SerializeField] CombatMenuManager combatMenuManager;
 
+    enum Turn
+    {
+        Player,
+        Enemy1,
+        Enemy2,
+        Ally
+    }
+
+    Turn currentTurn;
+
 
     void Start()
     {
@@ -47,7 +57,7 @@ public class TurnManager : MonoBehaviour
     public void SetEnemyList() {
         currEnemies = new Queue<UnitManager>();
 
-        Queue<UnitManager> temp = _currentMap.GetMapEnemies();
+        Queue<UnitManager> temp = _currentMap.GetMapEnemies1();
 
         foreach(UnitManager element in temp) {
             currEnemies.Enqueue(element);

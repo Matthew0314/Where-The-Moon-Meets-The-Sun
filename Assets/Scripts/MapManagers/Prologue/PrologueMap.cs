@@ -292,7 +292,9 @@ public class PrologueMap : MonoBehaviour, IMaps
 
     public int GetWidth() => width;
     public string GetDifficulty() => Difficulty;
-    public Queue<UnitManager> GetMapEnemies() => mapEnemies;
+    public Queue<UnitManager> GetMapEnemies1() => mapEnemies;
+    public Queue<UnitManager> GetMapEnemies2() => null;
+    public Queue<UnitManager> GetMapAllies() => null;
 
     public List<UnitStats> GetMapUnitStats() => mapUnits;
 

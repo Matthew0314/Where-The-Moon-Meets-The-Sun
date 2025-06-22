@@ -129,7 +129,6 @@ public class CombatMenuManager : MonoBehaviour
     List<Faith> nonUsableFaith;
     int currWeapIndex = 0;
 
-    bool inItemMenu = false;
 
     [Header("Victory/Defeated Menu")]
     CanvasGroup victoryBox;
@@ -147,6 +146,7 @@ public class CombatMenuManager : MonoBehaviour
     private float sensitivity = 0.2f;
     private Vector2 moveInput;
     [SerializeField] PlayerInput playerInput;
+    bool skipCutscene = false;
 
 
 
@@ -292,8 +292,21 @@ public class CombatMenuManager : MonoBehaviour
     public void ActivateBackground() => background.SetActive(true);
 
     public void DeactivateBackground() => background.SetActive(false);
+    
+    IEnumerator CheckForSkip()
+    {
+        while (!skipCutscene)
+        {
+            if (playerInput.actions["SkipCutscene"].WasPressedThisFrame()) // Input Manager should have "Skip" defined
+            {
+                skipCutscene = true;
+            }
+            yield return null;
+        }
+    }
 
-    public IEnumerator ActivateActionMenu() {
+    public IEnumerator ActivateActionMenu()
+    {
 
         // Checks if unit can use weapons or faith
         CheckWeapons(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
@@ -316,13 +329,14 @@ public class CombatMenuManager : MonoBehaviour
         actionMenuList = new List<GameObject>();
 
         // If there are usable weapons create an attack button
-        if(usableWeapons.Count > 0) {
+        if (usableWeapons.Count > 0)
+        {
             // Instantiate and initialize its parent
             tempBtn = (GameObject)Instantiate(attackButton);
             tempBtn.transform.SetParent(actionMenu.transform, false);
 
             // Sets its position
-            tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
+            tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
 
             // Add to list fo later user
             atkBut = tempBtn.GetComponent<Button>();
@@ -334,11 +348,12 @@ public class CombatMenuManager : MonoBehaviour
         }
 
         // If unit can use faith create a faith button
-        if(usableFaith.Count > 0) {
+        if (usableFaith.Count > 0)
+        {
             tempBtn = (GameObject)Instantiate(assistButton);
             tempBtn.transform.SetParent(actionMenu.transform, false);
 
-            tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
+            tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
             atkBut = tempBtn.GetComponent<Button>();
             buttons.Add(atkBut);
             Actions.Add("Assist");
@@ -349,7 +364,7 @@ public class CombatMenuManager : MonoBehaviour
         // Always creates an Item button, update code later if there are conditions to prevent this
         tempBtn = (GameObject)Instantiate(itemButton);
         tempBtn.transform.SetParent(actionMenu.transform, false);
-        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
+        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
         atkBut = tempBtn.GetComponent<Button>();
         buttons.Add(atkBut);
         Actions.Add("Item");
@@ -359,7 +374,7 @@ public class CombatMenuManager : MonoBehaviour
         // Always creates a Wait button, update code later if there are conditions to prevent this
         tempBtn = (GameObject)Instantiate(waitButton);
         tempBtn.transform.SetParent(actionMenu.transform, false);
-        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0); 
+        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
         atkBut = tempBtn.GetComponent<Button>();
         buttons.Add(atkBut);
         Actions.Add("Wait");
@@ -374,14 +389,17 @@ public class CombatMenuManager : MonoBehaviour
         bool axisInUse = false;
         bool oneAction = false;
 
-        while (true) {
+        while (true)
+        {
 
             // Gets Vertical Input
-            float vertical = moveInput.y;         
+            float vertical = moveInput.y;
 
-            if (!axisInUse) {
+            if (!axisInUse)
+            {
                 // Move Up
-                if (vertical > sensitivity) {
+                if (vertical > sensitivity)
+                {
                     // If move up sets to next button
                     buttons[currentIndex].OnDeselect(null);
                     currentIndex--;
@@ -394,10 +412,11 @@ public class CombatMenuManager : MonoBehaviour
                     axisInUse = true;
                 }
                 // Move Down
-                else if (vertical < -sensitivity) {
+                else if (vertical < -sensitivity)
+                {
                     // If move down sets to next button
                     buttons[currentIndex].OnDeselect(null);
-                    currentIndex++ ;
+                    currentIndex++;
 
                     // If out of range loop around
                     if (currentIndex >= buttons.Count) currentIndex = 0;
@@ -410,19 +429,21 @@ public class CombatMenuManager : MonoBehaviour
 
             if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
 
-            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame()) {
+            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame())
+            {
 
-                if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack();}
-                else if (Actions[currentIndex] == "Item") { DeactivateActionMenu(); PlayerItem();}
-                else if (Actions[currentIndex] == "Wait") { DeactivateActionMenu(); PlayerWait();}
-                else if (Actions[currentIndex] == "Assist") { DeactivateActionMenu(); PlayerAssist();}
+                if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack(); }
+                else if (Actions[currentIndex] == "Item") { DeactivateActionMenu(); PlayerItem(); }
+                else if (Actions[currentIndex] == "Wait") { DeactivateActionMenu(); PlayerWait(); }
+                else if (Actions[currentIndex] == "Assist") { DeactivateActionMenu(); PlayerAssist(); }
                 else continue;
 
                 break;
             }
 
 
-            if (oneAction && playerInput.actions["Back"].WasPressedThisFrame()) {
+            if (oneAction && playerInput.actions["Back"].WasPressedThisFrame())
+            {
                 moveGrid.OutOfMenu();
                 break;
             }
@@ -786,14 +807,17 @@ public class CombatMenuManager : MonoBehaviour
         }
     }
 
-//^------------------------------------ITEM---------------------------------------------------------------------
-    public void PlayerItem() => StartCoroutine(ItemMenu());
+    //^------------------------------------ITEM---------------------------------------------------------------------
+    public void PlayerItem()
+    {
+        currItemIndex = 0;
+        StartCoroutine(ItemMenu());
+    }
     
     public void DeactivateItemMenu() => itemMenu.SetActive(false);
 
     public void ActivateItemMenu() {
         itemMenu.SetActive(true);
-        currItemIndex = 0;
         currWeapIndex = 0;
         foreach (Button btn in itemButtons) Destroy(btn.gameObject);
         foreach (GameObject obj in divList) Destroy(obj);
@@ -811,7 +835,7 @@ public class CombatMenuManager : MonoBehaviour
         bool oneAction = false;
         
         CreateMenu(unit);
-        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.GetMagic().Count + unit.GetFaith().Count - 1 ;
+        int maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.GetFaith().Count - 1 ;
 
         if (maxIndex >= 0) itemButtons[currItemIndex].Select();
 
@@ -820,7 +844,6 @@ public class CombatMenuManager : MonoBehaviour
             float vertical = moveInput.y;
 
             if (playerInput.actions["Back"].WasPressedThisFrame() && oneAction) {
-                inItemMenu = false;
                 StartCoroutine(ActivateActionMenu());
                 DeactivateItemMenu();
                 
@@ -876,14 +899,38 @@ public class CombatMenuManager : MonoBehaviour
         GameObject tempBtn;
         int count = 0;
 
-        if (weapons.Count > 0) {
+        
+
+        if (weapons.Count > 0)
+        {
             GameObject tempDiv = (GameObject)Instantiate(itemDivider);
             tempDiv.transform.SetParent(scrollViewContent.transform, false);
             tempDiv.transform.position += new Vector3(0, -count * 45, 0);
             count++;
             tempDiv.GetComponent<TextMeshProUGUI>().text = "Weapons";
             divList.Add(tempDiv);
-            for (int i = 0; i < weapons.Count; i++) {
+
+            Weapon prim = user.GetPrimaryWeapon();
+
+            if (prim != null)
+            {
+
+                tempBtn = (GameObject)Instantiate(buttonTemplate);
+                tempBtn.transform.SetParent(scrollViewContent.transform, false);
+
+                tempBtn.transform.position += new Vector3(0, -count * 45, 0);
+                count++;
+                TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+                texts[0].text = prim.WeaponName;
+
+                if (prim == user.GetPrimaryWeapon()) texts[0].text += " (E)";
+                texts[1].text = prim.Uses + "/" + prim.MaxUses;
+
+                itemButtons.Add(tempBtn.GetComponent<Button>());
+            }
+            for (int i = 0; i < weapons.Count; i++)
+            {
+                if (weapons[i] == user.GetPrimaryWeapon()) continue;
                 tempBtn = (GameObject)Instantiate(buttonTemplate);
                 tempBtn.transform.SetParent(scrollViewContent.transform, false);
 
@@ -892,7 +939,7 @@ public class CombatMenuManager : MonoBehaviour
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
                 texts[0].text = weapons[i].WeaponName;
 
-                if(weapons[i] == user.GetPrimaryWeapon()) texts[0].text += " (E)";
+                // if (weapons[i] == user.GetPrimaryWeapon()) texts[0].text += " (E)";
                 texts[1].text = weapons[i].Uses + "/" + weapons[i].MaxUses;
 
                 itemButtons.Add(tempBtn.GetComponent<Button>());
@@ -980,7 +1027,7 @@ public class CombatMenuManager : MonoBehaviour
             tempBtn.transform.SetParent(button.transform, false);
             optionButtons.Add(tempBtn.GetComponent<Button>());
             List<Weapon> weps = user.GetWeapons();
-            if (weps[ind] == user.primaryWeapon)
+            if (weps[ind] == user.GetPrimaryWeapon())
             {
                 options.Add("Unequip");
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
@@ -1003,6 +1050,11 @@ public class CombatMenuManager : MonoBehaviour
             // }
 
         }
+        //! This is causing problems with faith, please fix
+        else if (ind < user.GetFaith().Count + user.GetWeapons().Count)
+        {
+            
+        }
         else if (ind < user.GetItems().Count + user.GetFaith().Count + user.GetWeapons().Count)
         {
             if (user.GetItems().Count > 0 && user.GetItems()[ind - user.GetWeapons().Count - user.GetFaith().Count].CanUse(user))
@@ -1015,8 +1067,8 @@ public class CombatMenuManager : MonoBehaviour
                 TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
                 texts[0].text = "Use";
             }
-            
-            
+
+
         }
         int index = 0;
 
@@ -1083,25 +1135,40 @@ public class CombatMenuManager : MonoBehaviour
             if (oneAction && (Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) // "Submit" button
             {
                 if(ind < user.GetWeapons().Count) {
-                    if (options[index] == "Equip") {
-                        
+                    if (options[index] == "Equip")
+                    {
+
                         List<Weapon> tempWeap = user.GetWeapons();
-                        user.primaryWeapon = tempWeap[ind];
-                        foreach (Button btn in optionButtons) {
+                        user.SetPrimaryWeapon(tempWeap[ind]);
+                        foreach (Button btn in optionButtons)
+                        {
                             Destroy(btn.gameObject);
                         }
+                        currItemIndex = 0;
+                            
                         StartCoroutine(ItemMenu());
-                    } else if (options[index] == "Unequip") {
-                        user.primaryWeapon = null;
-                        foreach (Button btn in optionButtons) {
+                    }
+                    else if (options[index] == "Unequip")
+                    {
+                        user.SetPrimaryWeapon(null);
+                        foreach (Button btn in optionButtons)
+                        {
                             Destroy(btn.gameObject);
                         }
+                        // currItemIndex = 0;
+
                         StartCoroutine(ItemMenu());
-                    } else if (options[index] == "Discard") {
-                        foreach (Button btn in optionButtons) {
+                    }
+                    else if (options[index] == "Discard")
+                    {
+                        foreach (Button btn in optionButtons)
+                        {
                             Destroy(btn.gameObject);
                         }
+                        currItemIndex = 0;
+
                         StartCoroutine(ItemMenu());
+                        
                     }
                 } else if (ind < user.GetItems().Count + user.GetWeapons().Count + user.GetFaith().Count) {
                     if (options[index] == "Use") {
@@ -1114,6 +1181,8 @@ public class CombatMenuManager : MonoBehaviour
                             user.GetItems().Remove(tempItems[ind - user.GetWeapons().Count - user.GetFaith().Count]);
                             Debug.LogError("AHHHHHHH " + user.GetItems().Count);
                         }
+                        currItemIndex = 0;
+
                         
                         PlayerWait(); //Might have to change if wait abilities are implemented
                     }
@@ -1145,8 +1214,8 @@ public class CombatMenuManager : MonoBehaviour
         levelText.text = $"{unit.stats.Level}";
         healthText.text = $"{unit.getCurrentHealth()} / {unit.stats.Health}";
 
-        if (unit.primaryWeapon != null) {
-            weaponText.text = unit.primaryWeapon.WeaponName;
+        if (unit.GetPrimaryWeapon() != null) {
+            weaponText.text = unit.GetPrimaryWeapon().WeaponName;
         } else {
             weaponText.text = "";
         }
@@ -1178,14 +1247,14 @@ public class CombatMenuManager : MonoBehaviour
         int playerCrit = -1;
         int enemyCrit = -1;
 
-        if (player.primaryWeapon != null) {
-            playerHit = player.primaryWeapon.HitRate + (player.stats.Luck * 4) - enemy.stats.Evasion;
-            playerCrit = player.primaryWeapon.CritRate + (int)(player.stats.Luck / 2);
+        if (player.GetPrimaryWeapon() != null) {
+            playerHit = player.GetPrimaryWeapon().HitRate + (player.stats.Luck * 4) - enemy.stats.Evasion;
+            playerCrit = player.GetPrimaryWeapon().CritRate + (int)(player.stats.Luck / 2);
         }
 
-        if (enemy.primaryWeapon != null) {
-            enemyHit = enemy.primaryWeapon.HitRate + (enemy.stats.Luck * 4) - player.stats.Evasion;
-            enemyCrit = enemy.primaryWeapon.CritRate + (int)(enemy.stats.Luck / 2);
+        if (enemy.GetPrimaryWeapon() != null) {
+            enemyHit = enemy.GetPrimaryWeapon().HitRate + (enemy.stats.Luck * 4) - player.stats.Evasion;
+            enemyCrit = enemy.GetPrimaryWeapon().CritRate + (int)(enemy.stats.Luck / 2);
         }
 
 
@@ -1214,8 +1283,8 @@ public class CombatMenuManager : MonoBehaviour
         }
 
         PlayerName.text = player.stats.Name;
-        if (player.primaryWeapon != null) {
-            PlayerWeapon.text = player.primaryWeapon.WeaponName;
+        if (player.GetPrimaryWeapon() != null) {
+            PlayerWeapon.text = player.GetPrimaryWeapon().WeaponName;
         } else {
             PlayerWeapon.text = "";
         }
@@ -1257,8 +1326,8 @@ public class CombatMenuManager : MonoBehaviour
 
 
         EnemyName.text = enemy.stats.Name;
-        if (enemy.primaryWeapon != null) {
-            EnemyWeapon.text = enemy.primaryWeapon.WeaponName;
+        if (enemy.GetPrimaryWeapon() != null) {
+            EnemyWeapon.text = enemy.GetPrimaryWeapon().WeaponName;
         } else {
             EnemyWeapon.text = "";
         }
@@ -1353,6 +1422,8 @@ public class CombatMenuManager : MonoBehaviour
                 expGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : interpolatedGain.ToString();
                 expNext.text = interpolatedNext.ToString();
 
+                if (playerInput.actions["SkipCutscene"].WasPressedThisFrame()) break;
+
                 yield return null; // Wait for the next frame
             }
 
@@ -1423,6 +1494,9 @@ public class CombatMenuManager : MonoBehaviour
 
         float waitTime = 0.8f;
 
+        StartCoroutine(CheckForSkip());
+
+
         yield return StartCoroutine(AnimateLevelText(lvLevel, unit.stats.Level));
 
         // Update stats incrementally and display changes
@@ -1432,7 +1506,7 @@ public class CombatMenuManager : MonoBehaviour
             HP += hp;
             lvHP.text = HP.ToString();
             lvHPGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
 
         if (str > 0)
@@ -1441,7 +1515,7 @@ public class CombatMenuManager : MonoBehaviour
             Str += str;
             lvStr.text = Str.ToString();
             lvStrGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
 
         if (mag > 0)
@@ -1450,7 +1524,7 @@ public class CombatMenuManager : MonoBehaviour
             Mag += mag;
             lvMag.text = Mag.ToString();
             lvMagGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
 
         if (spd > 0)
@@ -1459,7 +1533,7 @@ public class CombatMenuManager : MonoBehaviour
             Spd += spd;
             lvSpd.text = Spd.ToString();
             lvSpdGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
 
         if (def > 0)
@@ -1468,7 +1542,7 @@ public class CombatMenuManager : MonoBehaviour
             Def += def;
             lvDef.text = Def.ToString();
             lvDefGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
 
         if (res > 0)
@@ -1477,7 +1551,7 @@ public class CombatMenuManager : MonoBehaviour
             Res += res;
             lvRes.text = Res.ToString();
             lvResGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
 
         if (eva > 0)
@@ -1486,7 +1560,7 @@ public class CombatMenuManager : MonoBehaviour
             Eva += eva;
             lvEva.text = Eva.ToString();
             lvEvaGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
 
         if (lck > 0)
@@ -1495,8 +1569,11 @@ public class CombatMenuManager : MonoBehaviour
             Lck += lck;
             lvLck.text = Lck.ToString();
             lvLckGR.gameObject.SetActive(true);
-            yield return new WaitForSeconds(waitTime);
+            yield return WaitForTime(waitTime);
         }
+
+        StopCoroutine(CheckForSkip());
+        skipCutscene = false;
 
         // Wait before deactivating the menu
         yield return new WaitForSeconds(1f);
@@ -1504,16 +1581,41 @@ public class CombatMenuManager : MonoBehaviour
         DeactivateLevelUpMenu();
     }
 
+    private IEnumerator WaitForTime(float waitTime)
+    {
+        float timer = 0f;
+
+        while (timer < waitTime)
+        {
+            if (skipCutscene) yield break;
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        
+    }
+    
+
+
     private IEnumerator AnimateLevelText(TextMeshProUGUI levelText, int level)
     {
         Vector3 originalScale = levelText.transform.localScale;
         Vector3 targetScale = originalScale * 1.5f; // Increase size by 50%
         float animationTime = 0.5f; // Time for animation
         float elapsedTime = 0f;
+        int newLevel;
 
         // Scale up
         while (elapsedTime < animationTime)
         {
+            if (skipCutscene)
+            {
+                newLevel = level + 1;
+                levelText.text = newLevel.ToString();
+                levelText.transform.localScale = originalScale;
+                yield break;
+            }
             levelText.transform.localScale = Vector3.Lerp(originalScale, targetScale, elapsedTime / animationTime);
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -1524,10 +1626,10 @@ public class CombatMenuManager : MonoBehaviour
         // Ensure it's at the target scale
         levelText.transform.localScale = targetScale;
 
-        int newLevel = level + 1;
+        newLevel = level + 1;
         levelText.text = newLevel.ToString();
 
-        
+
 
         // Reset timer for scale down
         elapsedTime = 0f;
@@ -1535,6 +1637,11 @@ public class CombatMenuManager : MonoBehaviour
         // Scale down
         while (elapsedTime < animationTime)
         {
+            if (skipCutscene)
+            {
+                levelText.transform.localScale = originalScale;
+                yield break;
+            }
             levelText.transform.localScale = Vector3.Lerp(targetScale, originalScale, elapsedTime / animationTime);
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -1974,7 +2081,7 @@ public class CombatMenuManager : MonoBehaviour
     //         } else if (buttonCorners[1].y > viewportCorners[1].y - 45) {
     //             contentLocalPosition.y -= 45;
     //         }
-            
+
     //         contentRect.anchoredPosition = contentLocalPosition;
     //     }
     // }
@@ -1998,6 +2105,10 @@ public class CombatMenuManager : MonoBehaviour
     {
         victoryText.text = vCond;
         defeatText.text = Dcond;
+
+        skipCutscene = false;
+        StartCoroutine(CheckForSkip());
+
         // Fade up the first image
         yield return StartCoroutine(FadeUpCanvasGroup(victoryBox, 0.5f, 50f));
 
@@ -2009,8 +2120,10 @@ public class CombatMenuManager : MonoBehaviour
 
         // yield return new WaitForSeconds(1.5f);
 
-        while (true) {
-            if((Input.GetKeyDown(KeyCode.Space) || (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame))) {
+        while (true)
+        {
+            if (playerInput.actions["Select"].WasPressedThisFrame())
+            {
                 victoryBox.gameObject.SetActive(false);
                 defeatBox.gameObject.SetActive(false);
                 background.gameObject.SetActive(false);
@@ -2018,6 +2131,9 @@ public class CombatMenuManager : MonoBehaviour
             }
             yield return null;
         }
+        
+        StopCoroutine(CheckForSkip());
+        skipCutscene = false;
 
         
     }
@@ -2033,6 +2149,8 @@ public class CombatMenuManager : MonoBehaviour
 
         while (elapsed < duration)
         {
+            if (skipCutscene) break;
+
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 

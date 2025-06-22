@@ -68,23 +68,18 @@ public abstract class UnitStats
         faith = new List<Faith>();
 
     }
-    public abstract PlayerClass getClass();
-    public abstract void SetFaith();
+
 
     public virtual void AddWeapon(Weapon weapon)
     {
-        if (weapons.Count + items.Count < 6) { weapons.Add(weapon); }
+        if (weapons.Count + items.Count < 6) weapons.Add(weapon);
     }
 
 
     public virtual void AddItem(Item item)
     {
-        if (weapons.Count + items.Count < 6) { items.Add(item); }
+        if (weapons.Count + items.Count < 6) items.Add(item);
     }
-
-    public virtual Item GetItemAt(int x) { return items[x]; }
-
-
 
     public virtual void TakeDamage(int health)
     {
@@ -92,8 +87,22 @@ public abstract class UnitStats
         if (CurrentHealth < 0) { CurrentHealth = 0; }
     }
 
+    public virtual void HealUnit(int health)
+    {
+        int curHlt = health + CurrentHealth;
+
+        if (curHlt > Health) curHlt = Health;
+
+        CurrentHealth = curHlt;
+    }
+
     public virtual Weapon GetWeaponAt(int x) => weapons[x];
     public virtual void ResetHealth() => CurrentHealth = Health;
+    public virtual Item GetItemAt(int x) => items[x];
+
+    
+    public abstract PlayerClass getClass();
+    public abstract void SetFaith();
     
 }
 
@@ -166,7 +175,7 @@ public class PlayerStats : UnitStats {
                         faith.Add(tempFai);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Weapon temp = WeaponManager.MakeWeapon(faithRankList[i]);
                     if (temp != null) {

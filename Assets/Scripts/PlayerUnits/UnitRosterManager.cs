@@ -159,7 +159,7 @@ public class UnitRosterManager : MonoBehaviour
                 string itemName = data[22 + j];
                 if (itemName == "NULL")
                 {
-                    Debug.Log("Null Weapon");
+                    // Debug.Log("Null Weapon");
                     break;
                 }
 
@@ -167,7 +167,7 @@ public class UnitRosterManager : MonoBehaviour
                 if (tempWeapon != null)
                 {
                     stats.AddWeapon(tempWeapon);
-                    Debug.Log("Added " + tempWeapon.WeaponName);
+                    // Debug.Log("Added " + tempWeapon.WeaponName);
                 }
                 else
                 {
@@ -190,7 +190,7 @@ public class UnitRosterManager : MonoBehaviour
                 {
                     stats.MagicRankList[i - 1] = magicFields[i];
                     stats.faithRankList[i - 1] = faithFields[i];
-                    Debug.Log("Faith Created " + faithFields[i]);
+                    // Debug.Log("Faith Created " + faithFields[i]);
                 }
             }
 

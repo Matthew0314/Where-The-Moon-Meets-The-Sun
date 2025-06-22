@@ -44,9 +44,9 @@ public class PlayerUnit : UnitManager
 
         PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
 
-        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience));
+        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience + 200));
 
-        stats.Experience += experience;
+        stats.Experience += experience + 200;
 
         PlayerStats pStats = (PlayerStats)stats;
         

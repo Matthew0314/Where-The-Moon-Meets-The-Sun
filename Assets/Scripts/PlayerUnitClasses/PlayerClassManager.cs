@@ -6,7 +6,6 @@ using UnityEngine;
 //Purpose of this class is to inilize the stats for each class, store them, and allow for player units to call them
 public class PlayerClassManager : MonoBehaviour
 {
-    private PlayerClass uClass;
     public TextAsset classTextData;
     public static Dictionary<string, PlayerClass> fullClassList = new Dictionary<string, PlayerClass>();
 
@@ -41,7 +40,7 @@ public class PlayerClassManager : MonoBehaviour
             bool armored = bool.Parse(data[i + 14]);
             bool whisp = bool.Parse(data[i + 15]);
 
-            uClass = new PlayerClass(cName, cDesc, cType, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp);
+            PlayerClass uClass = new PlayerClass(cName, cDesc, cType, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp);
 
           
 
