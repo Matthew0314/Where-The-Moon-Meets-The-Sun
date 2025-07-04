@@ -130,9 +130,111 @@ public class FindPath : MonoBehaviour
     }
 
 
-  
-  
-//----------------------------------------------------------------------------------------------------------------------
+
+
+    //----------------------------------------------------------------------------------------------------------------------
+
+    // public void calculateMovement(int startX, int startZ, int charMovement, UnitManager unit)
+    // {
+    //     //Creates two lists
+    //     //cellList is used to keep track to cells that need to be processed
+    //     List<GridTile> cellList = new List<GridTile>();
+    //     List<GridTile> processedList = new List<GridTile>();
+    //     //movable cells are the ones on the outer rim that will be used when we calculate the Attack area
+    //     // movableCells = new List<GridTile>();
+
+    //     bool [,] discard;
+
+    //     //Adds the starting cell to both cellList and movableCells
+    //     cellList.Add(gridTraverse.GetGridTile(startX, startZ));
+    //     // movableCells.Add(gridTraverse.GetGridTile(startX, startZ));
+    //     processedList.Add(gridTraverse.GetGridTile(startX, startZ));
+
+    //     //creates arrays that store the distance number and which cells have been visited
+    //     moveDistances = new int[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+    //     moveVisited = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+    //     canAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+    //     canMove = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
+    //     Debug.Log(startX + " " + startZ);
+    //     canMove[startX, startZ] = true;
+
+    //     //Initilizes all distances with the max interger
+    //     for (int i = 0; i < gridTraverse.GetWidth(); i++)
+    //     {
+    //         for (int j = 0; j < gridTraverse.GetLength(); j++)
+    //         {
+    //             moveDistances[i, j] = int.MaxValue;
+    //         }
+    //     }
+
+    //     moveDistances[startX, startZ] = 0;
+    //     canMove[startX, startZ] = true;
+
+    //     while (cellList.Count > 0)
+    //     {
+    //         GridTile currentCell = cellList[0];
+    //         cellList.RemoveAt(0);
+
+    //         int currX = currentCell.GetGridX();
+    //         int currZ = currentCell.GetGridZ();
+
+    //         if (moveVisited[currX, currZ]) { continue; }
+
+    //         moveVisited[currX, currZ] = true;
+    //         if (unit.GetPrimaryWeapon() != null) {
+    //             discard = CalculateAttack(currX, currZ, unit.GetPrimaryWeapon().Range, unit.GetPrimaryWeapon().Range1, unit.GetPrimaryWeapon().Range2, unit.GetPrimaryWeapon().Range3);
+    //         } else {
+    //             discard = CalculateAttack(currX, currZ, 0, false, false, false);
+    //         }
+
+
+    //         for (int x = -1; x < 2; x++)
+    //         {
+    //             for (int z = -1; z < 2; z++)
+    //             {
+    //                 if ((x == 0 && z == 0) || (x != 0 && z != 0)) { continue; }
+
+    //                 int nextX = currX + x;
+    //                 int nextZ = currZ + z;
+
+    //                 if (gridTraverse.IsValid(nextX, nextZ))
+    //                 {
+
+    //                     //If implementing flier class later on change this to check that case
+    //                     int currCost = gridTraverse.GetGridTile(nextX, nextZ).GetMovementCost();
+
+    //                     // Debug.Log(gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.currentHealth );
+
+
+    //                     if (currCost == int.MaxValue || ((gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile != null && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats != null ) && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats.UnitType != unit.stats.UnitType))
+    //                     {
+    //                         //Since its an edge cell it will be added tp movable cells and used to calculate attack area
+    //                         // discard = CalculateAttack(startX, startZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
+
+    //                         continue;
+    //                     }
+
+    //                     int newDistance = moveDistances[currX, currZ] + currCost;
+
+    //                     if (!moveVisited[nextX, nextZ] && newDistance <= charMovement)
+    //                     {
+    //                         canMove[nextX, nextZ] = true;
+    //                         moveDistances[nextX, nextZ] = newDistance;
+    //                         if (!processedList.Contains(gridTraverse.GetGridTile(nextX, nextZ)))
+    //                         {
+    //                             cellList.Add(gridTraverse.GetGridTile(nextX, nextZ));
+    //                         }
+    //                     }
+    //                     else
+    //                     {
+    //                         // discard = CalculateAttack(startX, startZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
+
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }     
+    // }
 
     public void calculateMovement(int startX, int startZ, int charMovement, UnitManager unit)
     {
@@ -143,7 +245,7 @@ public class FindPath : MonoBehaviour
         //movable cells are the ones on the outer rim that will be used when we calculate the Attack area
         // movableCells = new List<GridTile>();
 
-        bool [,] discard;
+        bool[,] discard;
 
         //Adds the starting cell to both cellList and movableCells
         cellList.Add(gridTraverse.GetGridTile(startX, startZ));
@@ -181,59 +283,79 @@ public class FindPath : MonoBehaviour
             if (moveVisited[currX, currZ]) { continue; }
 
             moveVisited[currX, currZ] = true;
-            if (unit.GetPrimaryWeapon() != null) {
+            if (unit.GetPrimaryWeapon() != null)
+            {
                 discard = CalculateAttack(currX, currZ, unit.GetPrimaryWeapon().Range, unit.GetPrimaryWeapon().Range1, unit.GetPrimaryWeapon().Range2, unit.GetPrimaryWeapon().Range3);
-            } else {
+            }
+            else
+            {
                 discard = CalculateAttack(currX, currZ, 0, false, false, false);
             }
-            
+
 
             for (int x = -1; x < 2; x++)
             {
                 for (int z = -1; z < 2; z++)
                 {
+                    // Skips Diagonal tiles
                     if ((x == 0 && z == 0) || (x != 0 && z != 0)) { continue; }
 
+
+                    // Get the x and z coordinates of the next tile
                     int nextX = currX + x;
                     int nextZ = currZ + z;
 
-                    if (gridTraverse.IsValid(nextX, nextZ))
+                    // Checks if in range
+                    if (!gridTraverse.IsValid(nextX, nextZ)) continue;
+
+                    //If implementing flier class later on change this to check that case
+                    int currCost = gridTraverse.GetGridTile(nextX, nextZ).GetMovementCost();
+
+                    // Debug.Log(gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.currentHealth );
+
+
+                    if (currCost == int.MaxValue || ((gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile != null && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats != null) && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats.UnitType != unit.stats.UnitType))
                     {
+                        //Since its an edge cell it will be added tp movable cells and used to calculate attack area
+                        // discard = CalculateAttack(startX, startZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
 
-                        //If implementing flier class later on change this to check that case
-                        int currCost = gridTraverse.GetGridTile(nextX, nextZ).GetMovementCost();
+                        continue;
+                    }
 
-                        // Debug.Log(gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.currentHealth );
-                        
+                    int newDistance = moveDistances[currX, currZ] + currCost;
 
-                        if (currCost == int.MaxValue || ((gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile != null && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats != null ) && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats.UnitType != unit.stats.UnitType))
+                    if ((!moveVisited[nextX, nextZ] && newDistance <= charMovement) || (moveVisited[nextX, nextZ] && newDistance <= charMovement && newDistance < moveDistances[nextX, nextZ]))
+                    {
+                        canMove[nextX, nextZ] = true;
+                        moveDistances[nextX, nextZ] = newDistance;
+                        if (!processedList.Contains(gridTraverse.GetGridTile(nextX, nextZ)))
                         {
-                            //Since its an edge cell it will be added tp movable cells and used to calculate attack area
-                            // discard = CalculateAttack(startX, startZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
-                            
-                            continue;
-                        }
-
-                        int newDistance = moveDistances[currX, currZ] + currCost;
-
-                        if (!moveVisited[nextX, nextZ] && newDistance <= charMovement)
-                        {
-                            canMove[nextX, nextZ] = true;
-                            moveDistances[nextX, nextZ] = newDistance;
-                            if (!processedList.Contains(gridTraverse.GetGridTile(nextX, nextZ)))
-                            {
-                                cellList.Add(gridTraverse.GetGridTile(nextX, nextZ));
-                            }
-                        }
-                        else
-                        {
-                            // discard = CalculateAttack(startX, startZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
-                            
+                            cellList.Add(gridTraverse.GetGridTile(nextX, nextZ));
                         }
                     }
+
+
                 }
             }
-        }     
+        }
+
+        string output = "";
+        int rows = moveDistances.GetLength(0);
+        int cols = moveDistances.GetLength(1);
+
+        for (int y = cols - 1; y >= 0; y--) // Columns become rows (reversed)
+        {
+            output += "[ ";
+            for (int x = 0; x < rows; x++) // Rows become columns
+            {
+                int value = moveDistances[x, y];
+                output += (value == int.MaxValue ? "-" : value.ToString()) +
+                        (x < rows - 1 ? ", " : "");
+            }
+            output += " ]\n";
+        }
+        Debug.Log(output);
+
     }
 
 
@@ -251,7 +373,7 @@ public class FindPath : MonoBehaviour
         attackDistances = new int[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         attackVisited = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
         canOnlyAttack = new bool[gridTraverse.GetWidth(), gridTraverse.GetLength()];
-        
+
 
         for (int i = 0; i < gridTraverse.GetWidth(); i++)
         {
@@ -307,30 +429,34 @@ public class FindPath : MonoBehaviour
 
 
                         if (!attackVisited[nextX, nextZ] && newDistance <= attackRange)
-                        {   
+                        {
                             // if (newDistance == attackRange) {
                             //     canAttack[nextX, nextZ] = true;
                             // } 
 
-                            if (attackRange > 3 && newDistance > 3) {
+                            if (attackRange > 3 && newDistance > 3)
+                            {
                                 canAttack[nextX, nextZ] = true;
                                 canOnlyAttack[nextX, nextZ] = true;
                             }
 
-                            if (canAttack1 && newDistance == 1) {
+                            if (canAttack1 && newDistance == 1)
+                            {
                                 canAttack[nextX, nextZ] = true;
                                 canOnlyAttack[nextX, nextZ] = true;
 
                             }
-                            if (canAttack2 && newDistance == 2) {
+                            if (canAttack2 && newDistance == 2)
+                            {
                                 canAttack[nextX, nextZ] = true;
                                 canOnlyAttack[nextX, nextZ] = true;
                             }
-                            if (canAttack3 && newDistance == 3) {
+                            if (canAttack3 && newDistance == 3)
+                            {
                                 canAttack[nextX, nextZ] = true;
                                 canOnlyAttack[nextX, nextZ] = true;
                             }
-                            
+
                             attackDistances[nextX, nextZ] = newDistance;
                             if (!processedList.Contains(gridTraverse.GetGridTile(nextX, nextZ)))
                             {

@@ -119,7 +119,7 @@ public class PrologueMap : MonoBehaviour, IMaps
     //Adds Young Felix and Young Lilith to the players roster
     public void AddNewPlayers() {
         for (int i = 0; i < newUnits.Length; i++) {
-            unitRos.AddPlayableUnit(newUnits[i]);
+            UnitRosterManager.AddPlayableUnit(newUnits[i]);
         }
     }
 

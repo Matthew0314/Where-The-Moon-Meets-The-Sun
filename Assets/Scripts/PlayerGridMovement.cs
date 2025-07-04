@@ -69,7 +69,7 @@ public class PlayerGridMovement : MonoBehaviour
         }
 
 
-        if (isAttacking || manageTurn.IsEnemyTurn()) { }
+        if (isAttacking || !manageTurn.IsPlayerTurn()) { }
 
         else if (playerInput.actions["Select"].WasPressedThisFrame() && gridControl.GetGridTile(x, z).UnitOnTile != null && gridControl.GetGridTile(x, z).UnitOnTile.UnitType == "Enemy" && !pathFinder.selectedEnemies.Contains(gridControl.GetGridTile(x, z).UnitOnTile))
         {
@@ -83,13 +83,13 @@ public class PlayerGridMovement : MonoBehaviour
         }
 
         //Toggles enemy ranges for all enemies
-        else if (playerInput.actions["ShowRange"].WasPressedThisFrame() && !enemyRangeActive && !inMenu && !manageTurn.IsEnemyTurn())
+        else if (playerInput.actions["ShowRange"].WasPressedThisFrame() && !enemyRangeActive && !inMenu && manageTurn.IsPlayerTurn())
         {
             pathFinder.EnemyRange();
             enemyRangeActive = true;
         }
 
-        else if (playerInput.actions["ShowRange"].WasPressedThisFrame() && enemyRangeActive && !inMenu && !manageTurn.IsEnemyTurn())
+        else if (playerInput.actions["ShowRange"].WasPressedThisFrame() && enemyRangeActive && !inMenu && manageTurn.IsPlayerTurn())
         {
             pathFinder.DestroyEnemyRange();
             enemyRangeActive = false;
@@ -150,7 +150,7 @@ public class PlayerGridMovement : MonoBehaviour
 
 
 
-        if (!inMenu && !manageTurn.IsEnemyTurn())
+        if (!inMenu && manageTurn.IsPlayerTurn())
         {
             MoveCursor();
         }

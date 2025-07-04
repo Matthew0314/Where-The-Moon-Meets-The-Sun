@@ -11,6 +11,8 @@ public class TurnManager : MonoBehaviour
     [SerializeField] IMaps _currentMap;
     private List<UnitStats> currUnits;  // Current player units
     private Queue<UnitManager> currEnemies;
+    private Queue<UnitManager> currEnemies2;
+    private Queue<UnitManager> currAllies;
     private int turns = 0;
     private bool playerTurn;
     private bool enemyTurn; //possibly add another one for ally later on
@@ -147,6 +149,8 @@ public class TurnManager : MonoBehaviour
 
         turns++; 
 
+        
+
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
 
         // yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ()));
@@ -169,23 +173,28 @@ public class TurnManager : MonoBehaviour
     {
         if (playerTurn)
         {
-            if(currUnits.Count == 0)
+            if (currUnits.Count == 0)
             {
                 playerTurn = false;
                 enemyTurn = true;
                 SetLists();
                 Debug.Log("ENEMY PHASE");
+                currentTurn = Turn.Enemy1;
             }
         }
         if (enemyTurn)
         {
-            
+
             StartCoroutine(EnemyPhase());
+            currentTurn = Turn.Player;
             
         }
     }
 
-    public bool IsPlayerTurn() { return playerTurn; }
+    public bool IsPlayerTurn()
+    {
+        return playerTurn;
+    }
     public bool IsEnemyTurn() { return enemyTurn; }
 
     //Checks if a player hasn't been moved yet

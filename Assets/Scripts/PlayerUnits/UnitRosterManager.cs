@@ -218,7 +218,7 @@ public class UnitRosterManager : MonoBehaviour
     }
 
     //Adds unit from the full roster to the playable roster when needed
-    public void AddPlayableUnit(string Name)
+    public static void AddPlayableUnit(string Name)
     {
         if (fullRoster.ContainsKey(Name))
         {

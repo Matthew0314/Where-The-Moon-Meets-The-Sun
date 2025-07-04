@@ -1948,13 +1948,20 @@ public class CombatMenuManager : MonoBehaviour
 
     public IEnumerator PhaseStart(string phase) {
         Image temp = null;
-        if (phase == "Player") {
+        if (phase == "Player")
+        {
             PlayerPhase.gameObject.SetActive(true);
             temp = PlayerPhase;
-        } else if (phase == "Enemy") {
+        }
+        else if (phase == "Enemy")
+        {
             EnemyPhase.gameObject.SetActive(true);
             temp = EnemyPhase;
-        } 
+        }
+        else
+        {
+            yield break;
+        }
         if (temp != null) {
             RectTransform rectTransform = temp.rectTransform;
 
@@ -2113,7 +2120,7 @@ public class CombatMenuManager : MonoBehaviour
         yield return StartCoroutine(FadeUpCanvasGroup(victoryBox, 0.5f, 50f));
 
         // Wait before starting the second fade-up
-        yield return new WaitForSeconds(0.5f);
+        if (!skipCutscene) yield return new WaitForSeconds(0.5f);
 
         // Fade up the second image
         yield return StartCoroutine(FadeUpCanvasGroup(defeatBox, 0.5f, 50f));
