@@ -15,11 +15,11 @@ public class ExecuteAction : MonoBehaviour
     [SerializeField] TurnManager turnManager;
     [SerializeField] PlayerInput playerInput;
     [SerializeField] CinemachineBrain brain;
-    bool skipCutscene = false;
-    public bool[,] attackGrid;
+    private bool skipCutscene = false;
+    private bool[,] attackGrid;
     private GameObject playerCurs;
-    public CinemachineVirtualCamera mainCam;
-    public CinemachineVirtualCamera combatCam;
+    [SerializeField]  CinemachineVirtualCamera mainCam;
+    [SerializeField] CinemachineVirtualCamera combatCam;
     Gamepad gamepad;
     void Start() {
         playerCurs = GameObject.Find("Player");
@@ -132,7 +132,7 @@ public class ExecuteAction : MonoBehaviour
             playerGridMovement.moveCursor.transform.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos()+0.02f, UnitsInRange[currentIndex].GetZPos());
 
             
-            if ((Input.GetKeyDown(KeyCode.E) || (gamepad != null && gamepad.rightShoulder.wasPressedThisFrame)) && playerWeapons.Count > 1) {
+            if (playerInput.actions["RightSelect"].WasPressedThisFrame() && playerWeapons.Count > 1) {
                 newEnemies = new List<GridTile>();
                 weaponIndex++;
                 
@@ -146,7 +146,7 @@ public class ExecuteAction : MonoBehaviour
 
             }
 
-            if ((Input.GetKeyDown(KeyCode.Q) || (gamepad != null && gamepad.leftShoulder.wasPressedThisFrame))  && playerWeapons.Count > 1) {
+            if (playerInput.actions["LeftSelect"].WasPressedThisFrame() && playerWeapons.Count > 1) {
                 newEnemies = new List<GridTile>();
                 weaponIndex--;
                 
@@ -195,7 +195,7 @@ public class ExecuteAction : MonoBehaviour
 
                 
             }
-            if ((Input.GetKeyDown(KeyCode.Space) || (gamepad != null &&  gamepad.buttonSouth.wasPressedThisFrame))) {
+            if (playerInput.actions["Select"].WasPressedThisFrame() ) {
                 DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
                 
                 playerGridMovement.IsAttacking = true;
@@ -206,7 +206,7 @@ public class ExecuteAction : MonoBehaviour
                 break;
             }
 
-            if ((Input.GetKeyDown(KeyCode.B) || (gamepad != null && gamepad.buttonEast.wasPressedThisFrame))) {
+            if (playerInput.actions["Back"].WasPressedThisFrame()) {
                 playerGridMovement.IsAttacking = false;
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());

@@ -34,6 +34,7 @@ public class TurnManager : MonoBehaviour
     void Start()
     {
         playerTurn = true; enemyTurn = false; turns++;
+        currentTurn = Turn.Player;
         // playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
         _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
         // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
@@ -142,7 +143,7 @@ public class TurnManager : MonoBehaviour
         // yield return new WaitForSeconds(2f);
 
         SetEnemyList();
-        playerTurn = true;
+        
         yield return StartCoroutine(_currentMap.CheckEvents());
 
         yield return StartCoroutine(moveGrid.MoveCursor(moveGrid.getX(), moveGrid.getZ(), 200f));
@@ -160,6 +161,7 @@ public class TurnManager : MonoBehaviour
         Debug.Log("PLAYER PHASE");
         Debug.Log("Turn: " + turns);
 
+        currentTurn = Turn.Player;
         playerTurn = true;
         enemyTurn = false;
 
@@ -177,30 +179,44 @@ public class TurnManager : MonoBehaviour
             {
                 playerTurn = false;
                 enemyTurn = true;
+                currentTurn = Turn.Enemy1;
                 SetLists();
                 Debug.Log("ENEMY PHASE");
-                currentTurn = Turn.Enemy1;
+                // currentTurn = Turn.Enemy1;
             }
         }
         if (enemyTurn)
         {
 
             StartCoroutine(EnemyPhase());
-            currentTurn = Turn.Player;
+            // currentTurn = Turn.Player;
             
         }
     }
 
+    // public bool IsPlayerTurn()
+    // {
+    //     return playerTurn;
+    // }
+    // public bool IsEnemyTurn() { return enemyTurn; }
+
     public bool IsPlayerTurn()
     {
-        return playerTurn;
+        if (currentTurn == Turn.Player) return true;
+        else return false;
     }
-    public bool IsEnemyTurn() { return enemyTurn; }
+
+    public bool IsEnemyTurn()
+    {
+        if (currentTurn != Turn.Player) return true;
+        else return false;
+    }
 
     //Checks if a player hasn't been moved yet
-    public bool IsActive(UnitStats player) { 
+    public bool IsActive(UnitStats player)
+    {
         // Debug.LogError(currUnits.Contains(player));
-        return currUnits.Contains(player); 
+        return currUnits.Contains(player);
     }
 
     public int GetTurns() {

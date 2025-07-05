@@ -280,9 +280,14 @@ public class UnitRosterManager : MonoBehaviour
         }
     }
 
+    // Resets the Health of all units
     public static void HealUnits()
     {
-        foreach (UnitStats unit in fullRoster.Values)
+        // foreach (UnitStats unit in fullRoster.Values)
+        // {
+        //     unit.ResetHealth();
+        // }
+        foreach (UnitStats unit in playableList)
         {
             unit.ResetHealth();
         }
