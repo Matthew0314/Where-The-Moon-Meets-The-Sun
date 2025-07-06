@@ -36,7 +36,7 @@ public abstract class Weapon
     bool critical;
 
 
-    private IMaps _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+    private MapManager _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
     private FindPath pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
 
     //Constructor

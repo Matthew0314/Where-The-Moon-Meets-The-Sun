@@ -11,7 +11,7 @@ public class ExecuteAction : MonoBehaviour
     [SerializeField] CombatMenuManager combatMenuManager;
     [SerializeField] FindPath findPath;
     [SerializeField] GenerateGrid generateGrid;
-    [SerializeField] IMaps _currentMap;
+    [SerializeField] MapManager _currentMap;
     [SerializeField] TurnManager turnManager;
     [SerializeField] PlayerInput playerInput;
     [SerializeField] CinemachineBrain brain;
@@ -23,7 +23,7 @@ public class ExecuteAction : MonoBehaviour
     Gamepad gamepad;
     void Start() {
         playerCurs = GameObject.Find("Player");
-        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
     }
 
     void Update()

@@ -34,7 +34,7 @@ public class FindPath : MonoBehaviour
     private int attackRangeStat;
     private GenerateGrid gridTraverse;
     private PlayerGridMovement movementVars;
-    private IMaps _currentMap;
+    private MapManager _currentMap;
     private GameObject currUnit;
     private GridTile gridCell;
     [SerializeField] GameObject movementAreaTile;
@@ -72,7 +72,7 @@ public class FindPath : MonoBehaviour
     {
         gridTraverse = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         movementVars = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
 
         canMove = new bool[_currentMap.GetWidth(), _currentMap.GetLength()];
         canAttack = new bool[_currentMap.GetWidth(), _currentMap.GetLength()];
@@ -657,6 +657,8 @@ public class FindPath : MonoBehaviour
 
    // Next four methods are used to find the shortest path from one tile to another
     private void InitPathGrid() {
+        Debug.LogWarning(_currentMap.GetWidth() + " " + _currentMap.GetLength());
+
         pathTiles = new PathTile[_currentMap.GetWidth(), _currentMap.GetLength()];
         
         for (int x = 0; x < _currentMap.GetWidth(); x++) {
@@ -668,6 +670,7 @@ public class FindPath : MonoBehaviour
 
     
     public List<PathTile> FindShortestPath(int startX, int startZ, int endX, int endZ) {
+
         PathTile startTile = pathTiles[startX, startZ];
         PathTile endTile = pathTiles[endX, endZ];
 

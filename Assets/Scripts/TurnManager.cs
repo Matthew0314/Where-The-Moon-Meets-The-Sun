@@ -8,7 +8,7 @@ using UnityEngine;
 public class TurnManager : MonoBehaviour
 {
     [SerializeField] UnitRosterManager playerList;
-    [SerializeField] IMaps _currentMap;
+    [SerializeField] MapManager _currentMap;
     private List<UnitStats> currUnits;  // Current player units
     private Queue<UnitManager> currEnemies;
     private Queue<UnitManager> currEnemies2;
@@ -36,7 +36,7 @@ public class TurnManager : MonoBehaviour
         playerTurn = true; enemyTurn = false; turns++;
         currentTurn = Turn.Player;
         // playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
-        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
         // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         // grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         // combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();

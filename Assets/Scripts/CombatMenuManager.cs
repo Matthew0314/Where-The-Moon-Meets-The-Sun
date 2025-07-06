@@ -7,7 +7,7 @@ using TMPro;
 
 public class CombatMenuManager : MonoBehaviour
 {
-    [SerializeField] IMaps _currentMap;
+    [SerializeField] MapManager _currentMap;
     [SerializeField] TurnManager manageTurn;    
     [SerializeField] PlayerGridMovement moveGrid;
     [SerializeField] GenerateGrid generateGrid;
@@ -153,7 +153,7 @@ public class CombatMenuManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
         // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         // manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
         // generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();

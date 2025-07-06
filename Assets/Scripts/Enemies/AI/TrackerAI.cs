@@ -9,7 +9,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
     private FindPath findPath;
     private GenerateGrid generateGrid;
     private PlayerGridMovement playerGridMovement;
-    private IMaps _currentMap;
+    private MapManager _currentMap;
     private ExecuteAction executeAction;
 
     public bool DidAction { get; set; }
@@ -19,7 +19,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
         findPath = GameObject.Find("Player").GetComponent<FindPath>();
         generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        _currentMap = GameObject.Find("GridManager").GetComponent<IMaps>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
         executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
 
     }
