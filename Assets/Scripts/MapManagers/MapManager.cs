@@ -129,7 +129,7 @@ public abstract class MapManager : MonoBehaviour
     }
 
     // Standard logic for removing a Dead Unit
-    // TODO: Review Logic for any buigs, such as enemy range not resetting
+    // TODO: Review Logic for any bugs
     public virtual void RemoveDeadUnit(UnitManager unit, int x, int z)
     {
 

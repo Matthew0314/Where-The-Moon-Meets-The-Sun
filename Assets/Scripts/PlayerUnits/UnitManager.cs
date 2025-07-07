@@ -194,7 +194,19 @@ public abstract class UnitManager : MonoBehaviour
     public virtual UnitStats GetStats() => stats;
 
     // Returns Both magic and weapons
-    public virtual List<Weapon> GetWeapons() => stats.weapons.Concat(stats.magic).ToList();
+    // public virtual List<Weapon> GetWeapons() => stats.weapons.Concat(stats.magic).ToList();
+
+    public virtual List<Weapon> GetWeapons()
+    {
+        List<Weapon> temp = stats.weapons.Concat(stats.magic).ToList();
+
+        if (primaryWeapon == null) return temp;
+
+        temp.Remove(primaryWeapon);
+        temp.Insert(0, primaryWeapon);
+
+        return temp;
+    }
     public virtual List<Item> GetItems() => stats.items;
     public virtual List<Weapon> GetMagic() => stats.magic;
     public virtual List<Faith> GetFaith() => stats.faith;
@@ -204,6 +216,9 @@ public abstract class UnitManager : MonoBehaviour
         primaryWeapon = temp;
 
         if (primaryWeapon == null) return;
+
+        //! May become a problem later on
+        if (stats.magic.Contains(primaryWeapon)) return;
 
         stats.weapons.Remove(primaryWeapon);
         stats.weapons.Insert(0, primaryWeapon);

@@ -33,6 +33,7 @@ public class PrologueMap : MapManager
     {
         //Reads in data for weapons, all units in the game, and all player classes
         // ! THESE WILL NEVER BE CALLED AGAIN AFTER THE PROLOGUE MAP
+        // ! This needs to be moved to another class
         manageWeapons.ReadCSV();
         classRos.Init();
         unitRos.ReadCSV();

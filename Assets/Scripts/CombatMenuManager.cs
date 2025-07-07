@@ -148,26 +148,11 @@ public class CombatMenuManager : MonoBehaviour
     [SerializeField] PlayerInput playerInput;
     bool skipCutscene = false;
 
-
-
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
-        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        // manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
-        // generateGrid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
-        // executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
-        // findPath = GameObject.Find("Player").GetComponent<FindPath>();
-
-        //Action Menu
-        // attackButton = GameObject.Find("Canvas/AttackButton");
-        // itemButton = GameObject.Find("Canvas/ItemButton");
-        // waitButton = GameObject.Find("Canvas/WaitButton");
 
         List<GameObject> actionMenuList = new List<GameObject>();
-
-        // DeactivateActionMenu();
 
         //Hover Menu
         enemyBar = GameObject.Find("Canvas/HoverUnitMenu/EnemyBar");
@@ -206,13 +191,12 @@ public class CombatMenuManager : MonoBehaviour
 
         PHealthSwapped = GameObject.Find("Canvas/ExpectedBattleMenu/PHealthBarSwapped").GetComponent<Image>();
         EHealthSwapped = GameObject.Find("Canvas/ExpectedBattleMenu/EHealthBarSwapped").GetComponent<Image>();
-
         PHealthSwapped.gameObject.SetActive(false);
         EHealthSwapped.gameObject.SetActive(false);
 
         DeactivateExpectedMenu();
 
-
+        // Experience Menu
         experienceMenu = GameObject.Find("Canvas/ExperienceMenu");
         expBar = GameObject.Find("Canvas/ExperienceMenu/ExpBar").GetComponent<Image>();
         expUnitName = GameObject.Find("Canvas/ExperienceMenu/UnitName").GetComponent<TextMeshProUGUI>();
@@ -221,6 +205,7 @@ public class CombatMenuManager : MonoBehaviour
 
         DeactivateExperienceMenu();
 
+        // Level Up Menu
         levelUpMenu = GameObject.Find("Canvas/LevelUpMenu");
         lvName = GameObject.Find("Canvas/LevelUpMenu/LvName").GetComponent<TextMeshProUGUI>();
         lvClass = GameObject.Find("Canvas/LevelUpMenu/LvClass").GetComponent<TextMeshProUGUI>();
@@ -246,44 +231,45 @@ public class CombatMenuManager : MonoBehaviour
 
         DeactivateLevelUpMenu();
 
+        // Phases
+        // TODO: Need to eventually add Ally and Enemy 2
         PlayerPhase = GameObject.Find("Canvas/Phases/PPhase/PlayerPhase").GetComponent<Image>();
         EnemyPhase = GameObject.Find("Canvas/Phases/EPhase/EnemyPhase").GetComponent<Image>();
         PlayerPhase.gameObject.SetActive(false);
         EnemyPhase.gameObject.SetActive(false);
 
-        //Item
-
+        // Item Menu
         scrollViewContent = GameObject.Find("Canvas/ItemMenu/ScrollView/Viewport/Content");
         itemMenu = GameObject.Find("Canvas/ItemMenu");
-        itemButtons = new List<Button>();
+
         DeactivateItemMenu();
 
-
+        itemButtons = new List<Button>();
         usableWeapons = new List<Weapon>();
         nonUsableWeapons = new List<Weapon>();
-
         listOfWeapons = new List<Weapon>();
         usableFaith = new List<Faith>();
         nonUsableFaith = new List<Faith>();
 
-
-        victoryBox = GameObject.Find("Canvas/VDConditions/Victory").GetComponent<CanvasGroup>();;
-        defeatBox = GameObject.Find("Canvas/VDConditions/Defeat").GetComponent<CanvasGroup>();;
+        // Victory Conditions
+        victoryBox = GameObject.Find("Canvas/VDConditions/Victory").GetComponent<CanvasGroup>(); ;
+        defeatBox = GameObject.Find("Canvas/VDConditions/Defeat").GetComponent<CanvasGroup>(); ;
         victoryText = GameObject.Find("Canvas/VDConditions/Victory/VCondition").GetComponent<TextMeshProUGUI>();
         defeatText = GameObject.Find("Canvas/VDConditions/Defeat/DCondition").GetComponent<TextMeshProUGUI>();
 
-        victoryBox.alpha = 0;
-        defeatBox.alpha = 0;
+        if (victoryBox != null) victoryBox.alpha = 0;
+        if (defeatBox != null) defeatBox.alpha = 0;
 
+        // Victory and Defeat Popups
         VictoryText = GameObject.Find("Canvas/Phases/Victory/VicPop").GetComponent<CanvasGroup>();
         DefeatText = GameObject.Find("Canvas/Phases/Defeat/DefPop").GetComponent<CanvasGroup>();
-
+        
+        // Background
         background = GameObject.Find("Canvas/Background");
         DeactivateBackground();
-        
-
 
     }
+
 
     // Gets movement from player input
     public void OnMove(InputAction.CallbackContext context) => moveInput = context.ReadValue<Vector2>();
@@ -888,7 +874,6 @@ public class CombatMenuManager : MonoBehaviour
         List<Weapon> weapons = user.GetWeapons();
         List<Item> items = user.GetItems();
         List<Faith> faith = user.stats.faith;
-        List<Weapon> magic = user.GetMagic();
 
         foreach (Button btn in itemButtons) Destroy(btn.gameObject);
         foreach (GameObject obj in divList) Destroy(obj);
@@ -930,6 +915,17 @@ public class CombatMenuManager : MonoBehaviour
             }
             for (int i = 0; i < weapons.Count; i++)
             {
+                List<Weapon> temp1 = user.stats.weapons;
+                List<Weapon> temp2 = user.stats.magic;
+
+                foreach (Weapon t in temp1)
+                {
+                    Debug.LogError("W: " + t.WeaponName);
+                }
+                foreach (Weapon t in temp2)
+                {
+                    Debug.LogError("M: " + t.WeaponName);
+                }
                 if (weapons[i] == user.GetPrimaryWeapon()) continue;
                 tempBtn = (GameObject)Instantiate(buttonTemplate);
                 tempBtn.transform.SetParent(scrollViewContent.transform, false);
