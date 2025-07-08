@@ -1219,16 +1219,22 @@ public class CombatMenuManager : MonoBehaviour
         unitNameText.text = unit.stats.Name;
 
         hoverMenu.SetActive(true);
+        playerBar.SetActive(false);
+        playerBar.SetActive(false);
 
-        if (unit.stats.UnitType == "Player") {
+        if (unit.stats.UnitType == "Player")
+        {
             playerBar.SetActive(true);
-        } else if (unit.stats.UnitType == "Enemy") {
+        }
+        else if (unit.stats.UnitType == "Enemy")
+        {
             enemyBar.SetActive(true);
-        } else {
-            //Should never be called
-            playerBar.SetActive(true);
-        }     
-    }
+        }
+        // } else {
+            //     //Should never be called
+            //     playerBar.SetActive(true);
+            // }     
+        }
 
 //-------------------------------------Expected Menu--------------------------------------------------//
 
