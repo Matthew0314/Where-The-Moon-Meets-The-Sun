@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using Cinemachine;
+using System.Linq;
 
 
 //Purpose of this class is to provide movement capabilities for the cursors on the grid
@@ -29,6 +30,8 @@ public class PlayerGridMovement : MonoBehaviour
     public bool inMenu;
     public bool isAttacking;
     public bool enemyRangeActive = false;
+    private bool isSwapping = false;
+    [SerializeField] GameObject selectedSwapping;
 
     public bool charSelected;
     // public CollideWithPlayerUnit playerCollide;
@@ -36,6 +39,8 @@ public class PlayerGridMovement : MonoBehaviour
 
     private TurnManager manageTurn;
     private CombatMenuManager combatMenu;
+    private BattleStartMenu battleStartMenu;
+    private MapManager _currentMap;
 
 
     public bool startGame = false;
@@ -43,12 +48,14 @@ public class PlayerGridMovement : MonoBehaviour
     public static bool SkipCutscene { get; set; }
     private Vector2 moveInput;
 
-    void Start()
+    void Awake()
     {
         gridControl = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
         manageTurn = GameObject.Find("GridManager").GetComponent<TurnManager>();
+        _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
         combatMenu = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+        battleStartMenu = GameObject.Find("Canvas").GetComponent<BattleStartMenu>();
 
         playerInput = GetComponent<PlayerInput>();
 
@@ -59,6 +66,13 @@ public class PlayerGridMovement : MonoBehaviour
     void Update()
     {
         // moveCursor.position = new Vector3(moveCursor.position.x, cursorY, moveCursor.position.z);
+
+        if (battleStartMenu.GetInMapMenu())
+        {
+            StartMapControl();
+            return;
+        }
+        else if (!battleStartMenu.GetInMapMenu() && !startGame) combatMenu.DeactivateHoverMenu();
 
         if (!startGame) return;
         // transform.position = new Vector3(transform.position.x, cursorY, transform.position.z);
@@ -156,6 +170,19 @@ public class PlayerGridMovement : MonoBehaviour
         }
 
     }
+
+
+    private void StartMapControl()
+    {
+        Debug.LogError("Start Control");
+        MoveCursor();
+
+        if (playerInput.actions["Select"].WasPressedThisFrame() && IsSwappable() && !isSwapping)
+        {
+
+            StartCoroutine(SwapUnits(gridControl.GetGridTile(x, z).UnitOnTile, x, z));
+        }
+    }
     private bool CanPlace() => gridControl.GetGridTile(x, z).UnitOnTile == null || gridControl.GetGridTile(x, z).UnitOnTile == currUnit.GetComponent<UnitManager>();
     public void OnMove(InputAction.CallbackContext context) => moveInput = context.ReadValue<Vector2>();
 
@@ -199,7 +226,7 @@ public class PlayerGridMovement : MonoBehaviour
                 // Debug.Log(x + " " + z);
             }
 
-            if (gridControl.GetGridTile(x, z).UnitOnTile != null && startGame) combatMenu.ActivateHoverMenu(gridControl.GetGridTile(x, z).UnitOnTile);
+            if (gridControl.GetGridTile(x, z).UnitOnTile != null && (startGame || battleStartMenu.GetInMapMenu())) combatMenu.ActivateHoverMenu(gridControl.GetGridTile(x, z).UnitOnTile);
             else combatMenu.DeactivateHoverMenu();
         }
     }
@@ -209,6 +236,13 @@ public class PlayerGridMovement : MonoBehaviour
     {
         Vector3 currentPosition = currUnit.transform.position;
         currUnit.transform.position = new Vector3(gridControl.GetGridTile(movX, movZ).GetXPos(), currentPosition.y, gridControl.GetGridTile(movX, movZ).GetZPos());
+    }
+
+    private void MoveUnit(UnitManager unit, int movX, int movZ)
+    {
+        GameObject temp = unit.gameObject;
+        Vector3 currentPosition = temp.transform.position;
+        temp.transform.position = new Vector3(gridControl.GetGridTile(movX, movZ).GetXPos(), currentPosition.y, gridControl.GetGridTile(movX, movZ).GetZPos());
     }
 
 
@@ -236,12 +270,107 @@ public class PlayerGridMovement : MonoBehaviour
         transform.position = targetPosition;
     }
 
+    public bool IsSwappable()
+    {
+        if (gridControl.GetGridTile(x, z).UnitOnTile != null && gridControl.GetGridTile(x, z).UnitOnTile.UnitType != "Player") return false;
+
+        if (gridControl.GetGridTile(x, z).UnitOnTile != null)
+        {
+            UnitManager tempUnit = gridControl.GetGridTile(x, z).UnitOnTile;
+
+
+            List<string> tempReq = _currentMap.GetRequiredUnits();
+
+            foreach (string t in tempReq)
+            {
+                if (tempUnit.stats.UnitName == t) return false;
+            }
+        }
+        
+
+        Vector2Int[] temp = _currentMap.GetPlayerStartPositions();
+
+        foreach (Vector2Int t in temp)
+        {
+            if (x == t.x && z == t.y) return true;
+        }
+
+        return false;
+    }
+    public IEnumerator SwapUnits(UnitManager chosenUnit, int firstX, int firstZ)
+    {
+        isSwapping = true;
+        GridTile tile = gridControl.GetGridTile(firstX, firstZ);
+
+        Vector3 spawnPos = new Vector3(tile.GetXPos(), tile.GetYPos() + 0.01f, tile.GetZPos());
+
+        GameObject tempSwap = Instantiate(selectedSwapping, spawnPos, Quaternion.identity);
+        while (true)
+        {
+            if (playerInput.actions["Back"].WasPressedThisFrame())
+            {
+                // isSwapping = false;
+
+                Destroy(tempSwap);
+                // yield return null;
+                break;
+            }
+
+            if (playerInput.actions["Select"].WasPressedThisFrame() && IsSwappable() && (gridControl.GetGridTile(x, z).UnitOnTile != chosenUnit))
+            {
+                if (chosenUnit == null && gridControl.GetGridTile(x, z).UnitOnTile == null) continue;
+
+                UnitManager temp = null;
+                if (gridControl.GetGridTile(x, z).UnitOnTile != null)
+                {
+                    temp = gridControl.GetGridTile(x, z).UnitOnTile;
+
+                }
+
+                if (chosenUnit != null)
+                {
+                    gridControl.MoveUnit(chosenUnit, -1, -1, x, z);
+                    MoveUnit(chosenUnit, x, z);
+                    gridControl.GetGridTile(firstX, firstZ).UnitOnTile = null;
+                }
+
+                if (temp != null)
+                {
+                    gridControl.MoveUnit(temp, -1, -1, firstX, firstZ);
+                    MoveUnit(temp, firstX, firstZ);
+                    if (gridControl.GetGridTile(x, z).UnitOnTile == temp)
+                    {
+                        gridControl.GetGridTile(x, z).UnitOnTile = null;
+                    }
+
+                }
+                // int choX = chosenUnit.XPos;
+                // int choZ = chosenUnit.ZPos;
+                Destroy(tempSwap);
+                break;
+            }
+            yield return null;
+        }
+
+        yield return null;
+        isSwapping = false;
+    }
+
+    public bool BackToStartMenu()
+    {
+        if (isSwapping) return false;
+
+        return true;
+    }
+
     public int getX() { return x; }
     public int getZ() { return z; }
     public int GetCurX() { return curX; }
     public int GetCurZ() { return curZ; }
     public int GetOrgX() { return orgX; }
     public int GetOrgZ() { return orgZ; }
+    public int SetX(int xt) => x = xt;
+    public int SetZ(int zt) => z = zt;
     public bool isCharSelected() { return charSelected; }
     // public CollideWithPlayerUnit GetPlayerCollide() {
     //     playerCollide = GameObject.Find("PlayerMove").GetComponent<CollideWithPlayerUnit>();

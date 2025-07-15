@@ -17,6 +17,7 @@ public abstract class MapManager : MonoBehaviour
     protected CombatMenuManager combatMenuManager;
     protected ExecuteAction executeAction;
     [SerializeField] protected EnemyInitializer enemyInitializer;
+    protected BattleStartMenu battleStartMenu;
 
 
     // Initialized Difficult variable and text data
@@ -27,16 +28,23 @@ public abstract class MapManager : MonoBehaviour
     protected int maxEID;
 
 
+    [SerializeField] protected GameObject playerStartTile;
+    protected List<GameObject> startTiles = new List<GameObject>();
+
+
     // Info about map size, conditions, and how many units
     //* MUST BE INITIALIZED IN AWAKE IN EVERY CHILD CLASS
-    protected int length = 1;
-    protected int width = 1;
-    protected string winCondition = "";
-    protected string loseCondition = "";
-    protected int unitStartNum;
-    protected int maxEIDNormal = 0;
-    protected int maxEIDHard = 0;
-    protected int maxEIDEclipse = 0;
+    [SerializeField] protected int length = 1;
+    [SerializeField] protected int width = 1;
+    [SerializeField] protected string winCondition = "";
+    [SerializeField] protected string loseCondition = "";
+    [SerializeField] protected int unitStartNum;
+    [SerializeField] protected int maxEIDNormal = 0;
+    [SerializeField] protected int maxEIDHard = 0;
+    [SerializeField] protected int maxEIDEclipse = 0;
+    [SerializeField] protected Vector2Int[] playerStartPosition;
+    [SerializeField] protected Vector2Int primaryStart;
+
 
 
     // Lists of Players, Enemies and Allies
@@ -46,6 +54,7 @@ public abstract class MapManager : MonoBehaviour
     protected Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
     protected Queue<UnitManager> mapEnemies2 = new Queue<UnitManager>();
     protected Queue<UnitManager> mapAllies = new Queue<UnitManager>();
+    [SerializeField] protected List<string> requiredUnits = new List<string>(); 
 
     // Getters for each Queues and Lists
     public virtual Queue<UnitManager> GetMapEnemies1() => mapEnemies;
@@ -53,6 +62,7 @@ public abstract class MapManager : MonoBehaviour
     public virtual Queue<UnitManager> GetMapAllies() => mapAllies;
     public virtual List<UnitStats> GetMapUnitStats() => mapUnits;
     public virtual List<UnitManager> GetMapUnits() => mapGameUnits;
+    public virtual List<string> GetRequiredUnits() => requiredUnits;
 
     // Getters for Length and Width
     public virtual int GetLength() => length;
@@ -67,7 +77,7 @@ public abstract class MapManager : MonoBehaviour
     public abstract IEnumerator CheckClearCondition();
     public abstract IEnumerator CheckDefeatCondition();
     public abstract IEnumerator CheckEvents();
-    protected abstract Vector2Int[] GetPlayerStartPositions();
+    // public abstract ;
     protected abstract IEnumerator StartMap();
 
 
@@ -86,6 +96,7 @@ public abstract class MapManager : MonoBehaviour
         pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
         executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+        battleStartMenu = GameObject.Find("Canvas").GetComponent<BattleStartMenu>();
     }
 
     protected virtual void Start() { }
@@ -127,6 +138,22 @@ public abstract class MapManager : MonoBehaviour
             UnitRosterManager.AddPlayableUnit(newUnits[i]);
         }
     }
+
+    protected virtual void InitStartTiles()
+    {
+        foreach (Vector2Int pos in GetPlayerStartPositions())
+        {
+            GridTile tile = grid.GetGridTile(pos.x, pos.y);
+
+            Vector3 spawnPos = new Vector3(tile.GetXPos(), tile.GetYPos() + 0.005f, tile.GetZPos());
+
+            GameObject temp = Instantiate(playerStartTile, spawnPos, Quaternion.identity);
+
+            startTiles.Add(temp);
+        }
+    }
+
+    public virtual Vector2Int[] GetPlayerStartPositions() => playerStartPosition;
 
     // Standard logic for removing a Dead Unit
     // TODO: Review Logic for any bugs
@@ -282,6 +309,7 @@ public abstract class MapManager : MonoBehaviour
             yield return null;
         }
     }
+    
 
 
 
@@ -306,7 +334,18 @@ public abstract class MapManager : MonoBehaviour
         yield return StartCoroutine(combatMenuManager.FadeUpVD(winCondition, loseCondition));
 
         // Moves the cursor back to the player, simultaneously shows the player phase popup
-        StartCoroutine(playerCursor.MoveCursor(playerCursor.getX(), playerCursor.getZ(), 200f));
+        if (primaryStart == null)
+        {
+            StartCoroutine(playerCursor.MoveCursor(playerCursor.getX(), playerCursor.getZ(), 200f));
+        }
+        else
+        {
+            StartCoroutine(playerCursor.MoveCursor(primaryStart.x, primaryStart.y, 200f));
+            playerCursor.SetX(primaryStart.x);
+            playerCursor.SetZ(primaryStart.y);
+        }
+
+
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
         yield return new WaitForSeconds(0.5f);
 

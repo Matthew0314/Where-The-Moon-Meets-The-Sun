@@ -179,7 +179,9 @@ public class GenerateGrid : MonoBehaviour
 
     //Moves units to another tile
     public void MoveUnit(UnitManager unitToMove,int orgX,int orgZ,int curX,int curZ) {
-        grid[orgX, orgZ].UnitOnTile = null;
+
+        if (IsValid(orgX, orgZ)) grid[orgX, orgZ].UnitOnTile = null;
+        
         grid[curX, curZ].UnitOnTile = unitToMove;
 
         unitToMove.XPos = curX;

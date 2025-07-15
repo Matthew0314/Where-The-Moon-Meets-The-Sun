@@ -88,33 +88,40 @@ public class ExecuteAction : MonoBehaviour
     }
 
     public IEnumerator CycleAttackList(List<GridTile> UnitsInRange, Weapon selectedWeapon) {
-        // bool playerGridMovement.IsAttacking = false;
+
+        // Sets up variables that will be used later
         int currentIndex = 0;
-        // UnitManager AttackingUnit = playerGridMovement.GetPlayerCollide().GetPlayer();
+        int weaponIndex = 0;
+        bool weaponChange = false;
+        List<GridTile> newEnemies = new List<GridTile>();
+
+        // Get the Attacking Unit and the first Defending Unit in the list
         UnitManager AttackingUnit = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
         UnitManager DefendingEnemy = UnitsInRange[currentIndex].UnitOnTile;
+
+        // Get the attacker and defenders x and z
         int attackerX = playerGridMovement.GetCurX();
         int attackerZ = playerGridMovement.GetCurZ();
         int defenderX = UnitsInRange[currentIndex].GetGridX();
         int defenderZ = UnitsInRange[currentIndex].GetGridZ();
-        bool weaponChange = false;
 
-        int weaponIndex = 0;
+        // Get the original primary weapon in case that the user backs out
         Weapon orgPrimWeapon = AttackingUnit.GetPrimaryWeapon();
+
+        // Get the player weapons and set the selectedWeapon to the Primary Weapon slot
         List<Weapon> playerWeapons = AttackingUnit.GetWeapons();
-        List<GridTile> newEnemies = new List<GridTile>();
         AttackingUnit.SetPrimaryWeapon(selectedWeapon);
     
-        
-
+        // Deactivates hover menu
         combatMenuManager.DeactivateHoverMenu();
+
+        // Calculates the expected attack for the selected weapon and first enemy
         CalculateExpectedAttack(AttackingUnit, UnitsInRange[currentIndex].UnitOnTile, attackerX, attackerZ, defenderX, defenderZ);
 
         Vector3 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
         float fspeed = 40f; // Speed of movement
         playerGridMovement.moveCursor.position = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
 
-        // Move the enemy towards the target position
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
             float step = fspeed * Time.deltaTime;
@@ -310,15 +317,15 @@ public class ExecuteAction : MonoBehaviour
 
 
         if (playerGridMovement.IsAttacking) {
-            //Start Attacking based on primary weapons
+
+            //Start Attacking based on primary weapon
             yield return StartCoroutine(ExecuteAttack(AttackingUnit, DefendingEnemy));
 
-            // Debug.Log(DefendingEnemy.primaryWeapon.WeaponName);
-            // Debug.Log(AttackingUnit.primaryWeapon.WeaponName);
+            // Starts cleaning up
+            // Deactivates Expected Menu
             combatMenuManager.DeactivateExpectedMenu();
-            // AttackingUnit.primaryWeapon.InitiateQueues(AttackingUnit, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
-            // AttackingUnit.primaryWeapon.unitAttack(AttackingUnit.primaryWeapon.AttackingQueue, AttackingUnit.primaryWeapon.DefendingQueue, DefendingEnemy, attackerX, attackerZ, defenderX, defenderZ);
-            // Debug.Log(AttackingUnit.stats.UnitName);
+            
+            // Moves the cursor back to the units original position
             playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(attackerX, attackerZ).GetXPos(), generateGrid.GetGridTile(attackerX, attackerZ).GetYPos() + 0.02f, generateGrid.GetGridTile(attackerX, attackerZ).GetZPos());
             UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
