@@ -49,12 +49,13 @@ public abstract class MapManager : MonoBehaviour
 
     // Lists of Players, Enemies and Allies
     // * Map Allies and Map Enemies 2 will not always be used
-    protected List<UnitStats> mapUnits;
+    protected List<UnitStats> mapUnits = new List<UnitStats>();
     protected List<UnitManager> mapGameUnits = new List<UnitManager>();
     protected Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
     protected Queue<UnitManager> mapEnemies2 = new Queue<UnitManager>();
     protected Queue<UnitManager> mapAllies = new Queue<UnitManager>();
     [SerializeField] protected List<string> requiredUnits = new List<string>(); 
+    [SerializeField] protected List<string> forbiddenUnits = new List<string>(); 
 
     // Getters for each Queues and Lists
     public virtual Queue<UnitManager> GetMapEnemies1() => mapEnemies;
@@ -63,6 +64,7 @@ public abstract class MapManager : MonoBehaviour
     public virtual List<UnitStats> GetMapUnitStats() => mapUnits;
     public virtual List<UnitManager> GetMapUnits() => mapGameUnits;
     public virtual List<string> GetRequiredUnits() => requiredUnits;
+    public virtual List<string> GetForbiddenUnits() => forbiddenUnits;
 
     // Getters for Length and Width
     public virtual int GetLength() => length;
@@ -99,7 +101,10 @@ public abstract class MapManager : MonoBehaviour
         battleStartMenu = GameObject.Find("Canvas").GetComponent<BattleStartMenu>();
     }
 
-    protected virtual void Start() { }
+    protected virtual void Start()
+    {
+        // Init();
+    }
 
     protected virtual void Init()
     {
@@ -113,7 +118,7 @@ public abstract class MapManager : MonoBehaviour
         grid.GenGrid(length, width);
 
         //Initilizes what units will be on the map initially
-        unitRos.InitMapUnit(unitStartNum);
+        InitMapUnits();
 
         //Prints the map units on the map
         PrintCharacters();
@@ -139,7 +144,39 @@ public abstract class MapManager : MonoBehaviour
         }
     }
 
-    protected virtual void InitStartTiles()
+    protected virtual void InitMapUnits()
+    {
+        mapUnits.Clear(); // optional, to reset the list
+
+        // Step 1: Add required units
+        foreach (string name in requiredUnits)
+        {
+            UnitStats temp = UnitRosterManager.GetPlayableUnit(name);
+            if (temp != null && !forbiddenUnits.Contains(temp.UnitName))
+            {
+                mapUnits.Add(temp);
+            }
+        }
+
+        // Step 2: Fill remaining slots from the full playable pool
+        List<UnitStats> allPlayable = UnitRosterManager.GetPlayableUnits();
+
+        foreach (UnitStats unit in allPlayable)
+        {
+            if (mapUnits.Count >= playerStartPosition.Length)
+                break;
+
+            if (mapUnits.Contains(unit)) // already added (e.g. requiredUnits)
+                continue;
+
+            if (forbiddenUnits.Contains(unit.UnitName))
+                continue;
+
+            mapUnits.Add(unit);
+        }
+    }
+
+    public virtual void InitStartTiles()
     {
         foreach (Vector2Int pos in GetPlayerStartPositions())
         {
@@ -150,6 +187,14 @@ public abstract class MapManager : MonoBehaviour
             GameObject temp = Instantiate(playerStartTile, spawnPos, Quaternion.identity);
 
             startTiles.Add(temp);
+        }
+    }
+
+    public virtual void DestroyStartTiles()
+    {
+        foreach (GameObject tile in startTiles)
+        {
+            Destroy(tile);
         }
     }
 
@@ -208,14 +253,11 @@ public abstract class MapManager : MonoBehaviour
         }
     }
 
-    // Standard logic for printing characters on starting areas
+
     public virtual void PrintCharacters()
     {
         // Get the list of unit starting positions
         Vector2Int[] startPositions = GetPlayerStartPositions();
-
-        // Gets the map units from the roster
-        mapUnits = unitRos.getMapUnits();
 
         // Safety check
         if (startPositions.Length != mapUnits.Count)
@@ -223,31 +265,37 @@ public abstract class MapManager : MonoBehaviour
             Debug.LogWarning($"Mismatch between number of starting positions ({startPositions.Length}) and map units ({mapUnits.Count})");
         }
 
-        int count = Mathf.Min(startPositions.Length, mapUnits.Count);
+        // int count = Mathf.Min(startPositions.Length, mapUnits.Count);
+        int spawnIndex = 0;
 
-        for (int i = 0; i < count; i++)
+        foreach (UnitStats stats in mapUnits)
         {
-            UnitStats stats = mapUnits[i];
-            Vector2Int pos = startPositions[i];
-
-            GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
-
-            GridTile tile = grid.GetGridTile(pos.x, pos.y);
-            Vector3 spawnPos = new Vector3(tile.GetXPos(), tile.GetYPos() + 0.005f, tile.GetZPos());
-
-            GameObject gridUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
-            PlayerUnit unitToGrid = gridUnit.GetComponent<PlayerUnit>();
-
-            unitToGrid.XPos = pos.x;
-            unitToGrid.ZPos = pos.y;
-
-            unitToGrid.InitializeUnitData();
-
-            tile.UnitOnTile = unitToGrid;
-
-            mapGameUnits.Add(gridUnit.GetComponent<UnitManager>());
+            Vector2Int pos = startPositions[spawnIndex++];
+            SpawnUnit(stats, pos);
         }
     }
+
+    protected void SpawnUnit(UnitStats stats, Vector2Int pos)
+    {
+        GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
+
+        GridTile tile = grid.GetGridTile(pos.x, pos.y);
+        Vector3 spawnPos = new Vector3(tile.GetXPos(), tile.GetYPos() + 0.005f, tile.GetZPos());
+
+        GameObject gridUnit = Instantiate(unitPrefab, spawnPos, Quaternion.identity);
+        PlayerUnit unitToGrid = gridUnit.GetComponent<PlayerUnit>();
+
+        unitToGrid.XPos = pos.x;
+        unitToGrid.ZPos = pos.y;
+
+        unitToGrid.InitializeUnitData();
+
+        tile.UnitOnTile = unitToGrid;
+
+        mapGameUnits.Add(gridUnit.GetComponent<UnitManager>());
+        Debug.LogError("Spawned " + stats.UnitName);
+    }
+
 
     // Initializes Enemies on the map
     protected virtual void InitEnemies()

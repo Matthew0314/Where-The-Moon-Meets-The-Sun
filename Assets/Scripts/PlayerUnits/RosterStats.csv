@@ -1,4 +1,5 @@
 Character,DisplayName,CharDesc,Level,HPGR,ATKGR,MGGR,DEFGR,RESGR,SPDGR,EVAGR,LCKGR,HP,ATK,MAG,DEF,RES,SPD,EVA,LUCK,MOV,StartClass,ItemSlot1,ItemSlot2,ItemSlot3,ItemSlot4,ItemSlot5,ItemSlot6,FaithRank,MagicRank,FILLER
 YoungFelix,Felix,Older Brother of Lilith,3,50,55,20,20,30,40,50,50,10,8,2,7,4,5,5,3,51,Villager,Iron Sword,Steel Sword,Vulnerary,NULL,NULL,NULL,1,1,FILLER
 YoungLilith,Lilith,Younger sister of Felix,1,40,30,50,20,30,10,50,50,12,5,8,7,5,7,6,4,50,Villager,Iron Bow,Vulnerary,NULL,NULL,NULL,NULL,2,2,FILLER
-Felix,Felix,Young Adventurer seeking his missing sister,3,50,55,25,35,30,50,45,45,14,8,3,6,4,5,4,2,0,Adventurer,Iron Sword,Iron Bow,NULL,NULL,NULL,NULL,1,1,FILLER
+Felix,Felix,Young Adventurer seeking his missing sister,3,50,55,25,35,30,50,45,45,14,8,3,6,4,5,4,2,0,Villager,Iron Sword,Iron Bow,NULL,NULL,NULL,NULL,1,1,FILLER
+Janine,Janine,Temp,1,40,30,50,20,30,10,50,50,12,5,8,7,5,7,6,4,50,Villager,Iron Bow,NULL,NULL,NULL,NULL,NULL,1,1,FILLER

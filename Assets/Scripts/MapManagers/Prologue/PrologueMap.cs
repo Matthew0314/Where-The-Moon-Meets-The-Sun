@@ -8,30 +8,30 @@ using UnityEngine;
 
 public class PrologueMap : MapManager
 {
-    string[] newUnits = { "YoungFelix", "YoungLilith" };
+    string[] newUnits = { "YoungLilith", "Janine", "Felix", "YoungFelix" };
     private bool calledReinforcements = false;
 
 
-    protected override void Awake()
-    {
-        // length = 16;
-        // width = 24;
-        // unitStartNum = 2;
+    // protected override void Awake()
+    // {
+    //     // length = 16;
+    //     // width = 24;
+    //     // unitStartNum = 2;
 
-        // winCondition = "Defeat the boss.";
-        // loseCondition = "<color=#3160BC>Felix</color> or <color=#3160BC>Lilith</color> falls in battle.";
+    //     // winCondition = "Defeat the boss.";
+    //     // loseCondition = "<color=#3160BC>Felix</color> or <color=#3160BC>Lilith</color> falls in battle.";
 
-        // maxEIDNormal = 5;
-        // maxEIDHard = 5;
-        // maxEIDEclipse = 8;
+    //     // maxEIDNormal = 5;
+    //     // maxEIDHard = 5;
+    //     // maxEIDEclipse = 8;
 
-        // requiredUnits.Add("YoungFelix");
+    //     // requiredUnits.Add("YoungFelix");
 
-        // primaryStart = new Vector2Int(9, 2);
+    //     // primaryStart = new Vector2Int(9, 2);
 
-        base.Awake();
+    //     base.Awake();
 
-    }
+    // }
 
     protected override void Start()
     {
@@ -48,7 +48,7 @@ public class PrologueMap : MapManager
         //Initilizes the prologue map
         // base.Init();
         Init();
-        InitStartTiles();
+        // InitStartTiles();
     }
 
     // public override Vector2Int[] GetPlayerStartPositions()
