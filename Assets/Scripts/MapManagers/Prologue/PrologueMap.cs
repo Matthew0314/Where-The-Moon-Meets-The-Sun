@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class PrologueMap : MapManager
 {
-    string[] newUnits = { "YoungLilith", "Janine", "Felix", "YoungFelix" };
+    string[] newUnits = { "YoungLilith", "Janine", "Felix", "YoungFelix", "Meyneth", "Mia", "Noah" };
     private bool calledReinforcements = false;
 
 
@@ -43,7 +43,11 @@ public class PrologueMap : MapManager
         unitRos.ReadCSV();
 
         //If there are new players being added to the players roster, this will be called
+        // for (int i = 0; i < 10; i++)
+        // {
         AddNewPlayers(newUnits);
+            
+        // }
 
         //Initilizes the prologue map
         // base.Init();

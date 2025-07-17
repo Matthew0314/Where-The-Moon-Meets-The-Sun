@@ -109,8 +109,9 @@ public class PlayerUnit : UnitManager
         stats = UnitRosterManager.GetUnitStats(unitName);
         // maxHealth = stats.Health;
         // currentHealth = maxHealth;
-        UnitType = "Player"; 
+        UnitType = "Player";
         primaryWeapon = stats.GetWeaponAt(0);
+        // stats.CurrentHealth = 2;
     }
 
     public override int getMove() { return stats.getClass().Movement + base.getMove(); }

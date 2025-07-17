@@ -9,7 +9,7 @@ public class TurnManager : MonoBehaviour
 {
     [SerializeField] UnitRosterManager playerList;
     [SerializeField] MapManager _currentMap;
-    private List<UnitStats> currUnits;  // Current player units
+    private List<UnitStats> currUnits = new List<UnitStats>();  // Current player units
     private Queue<UnitManager> currEnemies;
     private Queue<UnitManager> currEnemies2;
     private Queue<UnitManager> currAllies;
@@ -43,7 +43,7 @@ public class TurnManager : MonoBehaviour
     }
 
     //Resets Player List after every player turn
-    public void SetLists()
+    private void SetLists()
     {
         currUnits = new List<UnitStats>();
 
@@ -79,24 +79,29 @@ public class TurnManager : MonoBehaviour
         currUnits.Remove(player);
     }
 
+    public void AddPlayer(UnitStats player) => currUnits.Add(player);
+
     //Removes Enemy from the queue if they have been killed during the player phase
-    public void RemoveEnemy(UnitManager ene) {
+    public void RemoveEnemy(UnitManager ene)
+    {
         Queue<UnitManager> temp = currEnemies;
 
-            int queueCou = temp.Count;
+        int queueCou = temp.Count;
 
-            for (int i = 0; i < queueCou; i++) {
-                UnitManager eneTemp = temp.Dequeue();
-                if (eneTemp.stats.EnemyID == ene.stats.EnemyID) {
-                    
-                    continue;
-                }
-                temp.Enqueue(eneTemp);
+        for (int i = 0; i < queueCou; i++)
+        {
+            UnitManager eneTemp = temp.Dequeue();
+            if (eneTemp.stats.EnemyID == ene.stats.EnemyID)
+            {
+
+                continue;
+            }
+            temp.Enqueue(eneTemp);
         }
 
         currEnemies = temp;
 
-        
+
     }
 
     //Executes all enemy actions who are in the queue based on the AI script that is attached to them

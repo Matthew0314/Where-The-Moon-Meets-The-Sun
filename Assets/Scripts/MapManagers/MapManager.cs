@@ -38,7 +38,6 @@ public abstract class MapManager : MonoBehaviour
     [SerializeField] protected int width = 1;
     [SerializeField] protected string winCondition = "";
     [SerializeField] protected string loseCondition = "";
-    [SerializeField] protected int unitStartNum;
     [SerializeField] protected int maxEIDNormal = 0;
     [SerializeField] protected int maxEIDHard = 0;
     [SerializeField] protected int maxEIDEclipse = 0;
@@ -54,8 +53,8 @@ public abstract class MapManager : MonoBehaviour
     protected Queue<UnitManager> mapEnemies = new Queue<UnitManager>();
     protected Queue<UnitManager> mapEnemies2 = new Queue<UnitManager>();
     protected Queue<UnitManager> mapAllies = new Queue<UnitManager>();
-    [SerializeField] protected List<string> requiredUnits = new List<string>(); 
-    [SerializeField] protected List<string> forbiddenUnits = new List<string>(); 
+    [SerializeField] protected List<string> requiredUnits = new List<string>();
+    [SerializeField] protected List<string> forbiddenUnits = new List<string>();
 
     // Getters for each Queues and Lists
     public virtual Queue<UnitManager> GetMapEnemies1() => mapEnemies;
@@ -65,6 +64,8 @@ public abstract class MapManager : MonoBehaviour
     public virtual List<UnitManager> GetMapUnits() => mapGameUnits;
     public virtual List<string> GetRequiredUnits() => requiredUnits;
     public virtual List<string> GetForbiddenUnits() => forbiddenUnits;
+
+    public virtual int GetNumberOfStartUnits() => playerStartPosition.Length;
 
     // Getters for Length and Width
     public virtual int GetLength() => length;
@@ -128,8 +129,10 @@ public abstract class MapManager : MonoBehaviour
 
         unitRos.setFaithSpells();
 
-        manageTurn.SetLists();
+        // manageTurn.SetLists();
         manageTurn.SetEnemyList();
+
+
 
         //! Change to Start Menu instead of starting Map
         StartCoroutine(StartMap());
@@ -250,6 +253,7 @@ public abstract class MapManager : MonoBehaviour
             mapUnits.Remove(unit.stats);
             Destroy(tempObj);
             mapGameUnits.Remove(unit);
+            manageTurn.RemovePlayer(unit.stats);
         }
     }
 
@@ -275,7 +279,7 @@ public abstract class MapManager : MonoBehaviour
         }
     }
 
-    protected void SpawnUnit(UnitStats stats, Vector2Int pos)
+    public void SpawnUnit(UnitStats stats, Vector2Int pos)
     {
         GameObject unitPrefab = Resources.Load("Units/" + stats.UnitClass + "/" + stats.UnitName + stats.UnitClass) as GameObject;
 
@@ -292,8 +296,21 @@ public abstract class MapManager : MonoBehaviour
 
         tile.UnitOnTile = unitToGrid;
 
+        if (!mapUnits.Contains(stats)) mapUnits.Add(stats);
         mapGameUnits.Add(gridUnit.GetComponent<UnitManager>());
-        Debug.LogError("Spawned " + stats.UnitName);
+
+        manageTurn.AddPlayer(stats);
+    }
+
+    public void DespawnUnit(UnitManager unit)
+    {
+        mapUnits.Remove(unit.stats);
+        mapGameUnits.Remove(unit);
+
+        grid.GetGridTile(unit.XPos, unit.ZPos).UnitOnTile = null;
+
+        Destroy(unit.gameObject);
+        manageTurn.RemovePlayer(unit.stats);
     }
 
 
@@ -357,7 +374,7 @@ public abstract class MapManager : MonoBehaviour
             yield return null;
         }
     }
-    
+
 
 
 
@@ -399,6 +416,19 @@ public abstract class MapManager : MonoBehaviour
 
         // Starts the game
         playerCursor.startGame = true;
+    }
+
+    public virtual Vector2Int FindNextStartPosition()
+    {
+        foreach (Vector2Int t in playerStartPosition)
+        {
+            if (grid.GetGridTile(t.x, t.y).UnitOnTile == null)
+            {
+                return t;
+            }
+        }
+
+        return new Vector2Int(-1, -1);
     }
 
 }

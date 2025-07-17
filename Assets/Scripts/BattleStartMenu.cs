@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 using System.Linq;
+using TMPro;
 
 
 
@@ -22,6 +23,8 @@ public class BattleStartMenu : MonoBehaviour
     [SerializeField] GameObject UnitSelectButton;
     [SerializeField] GameObject UnitSelectBox;
     [SerializeField] RectTransform content;
+    [SerializeField] ScrollRect scrollRect;
+    [SerializeField] TextMeshProUGUI unitNumber;
     private List<UnitStats> playableRoster = new List<UnitStats>();
 
     private int currentRow = 0;
@@ -35,6 +38,9 @@ public class BattleStartMenu : MonoBehaviour
     private MapManager _currentMap;
 
     private List<Button> unitButtons = new List<Button>();
+    private List<UnitManager> unitList = new List<UnitManager>();
+    private List<string> units = new List<string>();
+    List<UnitStats> combinedList = new List<UnitStats>();
     private int selectedIndex = 0;
     private int buttonsPerRow = 2;
 
@@ -120,7 +126,7 @@ public class BattleStartMenu : MonoBehaviour
                     axisInUse = true;
                 }
 
-                Debug.Log(currentRow + " " + currentCol);
+                // Debug.Log(currentRow + " " + currentCol);
 
                 // Select new button
                 buttons[currentRow, currentCol].Select();
@@ -240,22 +246,126 @@ public class BattleStartMenu : MonoBehaviour
                     CycleSelection(buttonsPerRow); // down
                     lastInputTime = Time.unscaledTime;
                 }
+
             }
 
             if (playerInput.actions["Select"].WasPressedThisFrame())
             {
                 // unitButtons[selectedIndex].onClick.Invoke();
                 // yield break; // Exit coroutine after selection
+
+                // List<UnitManager> units = _currentMap.GetMapUnits();
+
+                // string selectedUnitName = unitList[selectedIndex].stats.UnitName;
+
+                // UnitManager matchingUnit = units.FirstOrDefault(u => u.stats.UnitName == selectedUnitName);
+
+                // List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
+
+                // if (cantUse.Contains(matchingUnit.stats.UnitName)) {
+                //     yield return null;
+                //     continue;
+                // }
+
+                // if (matchingUnit != null)
+                // {
+                //     _currentMap.DespawnUnit(matchingUnit);
+                //     BuildUnitSelectMenu();
+                //     yield return null;
+                // }
+
+                // UnitManager matchingUnit = units.FirstOrDefault(u => u.stats.UnitName == units[selectedIndex]);
+
+                // List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
+
+                // if (matchingUnit != null)
+                // {
+                //     _currentMap.DespawnUnit(matchingUnit);
+                //     BuildUnitSelectMenu();
+                //     yield return null;
+                // }
+
+                UnitStats unit = UnitRosterManager.GetPlayableUnit(units[selectedIndex]);
+
+                List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
+
+                if (cantUse.Contains(unit.UnitName))
+                {
+                    yield return null;
+                    continue;
+                }
+
+                List<UnitManager> unitsMan = _currentMap.GetMapUnits();
+                UnitManager matchUnit = unitsMan.FirstOrDefault(u => u.stats.UnitName == unit.UnitName);
+
+                if (matchUnit != null)
+                {
+                    _currentMap.DespawnUnit(matchUnit);
+                    // BuildUnitSelectMenu();
+                    ChangeTextColor(unitButtons[selectedIndex], "default", matchUnit.stats.Name);
+                    yield return null;
+                }
+
+                else if ((_currentMap.GetMapUnits().Count < _currentMap.GetPlayerStartPositions().Length))
+                {
+
+                    _currentMap.SpawnUnit(unit, _currentMap.FindNextStartPosition());
+                    // BuildUnitSelectMenu();
+                    ChangeTextColor(unitButtons[selectedIndex], "blue", combinedList[selectedIndex].Name);
+
+                    yield return null;
+                }
             }
 
             if (playerInput.actions["Back"].WasPressedThisFrame())
             {
                 // CloseUnitSelect();
+                foreach (Button but in unitButtons)
+                {
+                    Destroy(but.gameObject);
+                }
+                unitButtons.Clear();
+                unitList.Clear();
+                units.Clear();
+                combinedList.Clear();
+                UnitSelectBox.SetActive(false);
                 yield break; // Exit coroutine on cancel
             }
 
             yield return null;
         }
+    }
+
+    // private void CycleSelection(int delta)
+    // {
+    //     int newIndex = selectedIndex + delta;
+
+    //     if (newIndex >= 0 && newIndex < unitButtons.Count)
+    //     {
+    //         selectedIndex = newIndex;
+    //         unitButtons[selectedIndex].Select();
+    //     }
+
+
+    // }
+
+    private void ScrollToButton(RectTransform targetButton)
+    {
+        Canvas.ForceUpdateCanvases();
+
+        float contentHeight = content.rect.height;
+        float viewportHeight = scrollRect.viewport.rect.height;
+
+        // Convert button's position to local space
+        float buttonCenterY = -targetButton.localPosition.y + (targetButton.rect.height / 2);
+
+        float upperBound = scrollRect.content.anchoredPosition.y;
+        float lowerBound = upperBound + viewportHeight;
+
+        float scrollY = Mathf.Clamp(buttonCenterY - viewportHeight / 1.25f, 0, contentHeight - viewportHeight);
+        float normalized = 1 - Mathf.Clamp01(scrollY / (contentHeight - viewportHeight));
+
+        scrollRect.verticalNormalizedPosition = normalized;
     }
 
     private void CycleSelection(int delta)
@@ -266,270 +376,70 @@ public class BattleStartMenu : MonoBehaviour
         {
             selectedIndex = newIndex;
             unitButtons[selectedIndex].Select();
+
+            // Scroll to the button
+            RectTransform btnRect = unitButtons[selectedIndex].GetComponent<RectTransform>();
+            ScrollToButton(btnRect);
         }
+    }
+
+
+
+    private void ChangeTextColor(Button button, string color, string name)
+    {
+        TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+        foreach (var text in texts)
+        {
+            if (text.name.ToLower().Contains("name"))
+            {
+                Debug.LogWarning("Changing " + text.text + " to " + name);
+
+                if (color == "green")
+                {
+                    color = "<color=#00FF00>"; // Green
+                }
+                else if (color == "blue")
+                {
+                    color = "<color=#0000FF>"; // Blue
+                }
+
+                else if (color == "red")
+                {
+                    color = "<color=#FF0000>"; // Red
+                }
+                else
+                {
+                    color = "";
+                }
+
+                text.text = color + name + (color != "" ? "</color>" : "");
+
+            }
+        }
+
+        unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
 
     }
 
-    // private void BuildUnitSelectMenu()
-    // {
-    //     UnitSelectBox.SetActive(true);
-
-    //     int buttonsPerRow = 2;
-    //     float xSpacing = 450f;
-    //     float ySpacing = 100f;
-
-    //     Vector2 startPos = new Vector2(-225f, 50f); // Starting top-left
-
-    //     playableRoster = UnitRosterManager.GetPlayableUnits();
-
-    //     for (int i = 0; i < playableRoster.Count; i++)
-    //     {
-    //         int row = i / buttonsPerRow;
-    //         int col = i % buttonsPerRow;
-
-    //         float x = startPos.x + (col * xSpacing);
-    //         float y = startPos.y - (row * ySpacing);
-
-    //         GameObject button = Instantiate(UnitSelectButton, content);
-    //         RectTransform rect = button.GetComponent<RectTransform>();
-    //         rect.anchoredPosition = new Vector2(x, y);
-
-    //         // Set button name and child text to unit's name
-    //         UnitStats stats = playableRoster[i];
-    //         // button.name = stats.UnitName;
-
-    //         // Look for a child Text or TextMeshProUGUI and assign name
-    //         TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-    //         foreach (var text in texts)
-    //         {
-    //             if (text.name.ToLower().Contains("name"))
-    //             {
-    //                 string color = "";
-
-    //                 List<UnitStats> temp = _currentMap.GetMapUnitStats();
-    //                 List<string> reqTemp = _currentMap.GetRequiredUnits();
-
-    //                 if (reqTemp.Contains(stats.UnitName))
-    //                 {
-    //                     color = "<color=#00FF00>"; // Green
-
-    //                 }
-    //                 else if (temp.Any(u => u.UnitName == stats.UnitName))
-    //                 {
-    //                     color = "<color=#0000FF>"; // Blue
-
-    //                 }
-    //                 else
-    //                 {
-    //                     color = ""; // Default color (no tag)
-    //                 }
-
-    //                 text.text = color + stats.Name;
-    //             }
-    //             else if (text.name.ToLower().Contains("health"))
-    //             {
-    //                 // text.text = $"HP: {stats.HP}"; // or whatever your health field is called
-    //                 text.text = $"{stats.CurrentHealth}/{stats.Health}";
-    //             }
-    //         }
-
-    //         Button btn = button.GetComponent<Button>();
-    //         unitButtons.Add(btn);
-
-    //     }
-
-    //     // Resize content height based on rows
-    //     int totalRows = Mathf.CeilToInt(playableRoster.Count / (float)buttonsPerRow);
-    //     float contentHeight = totalRows * ySpacing + 50f; // Extra padding
-    //     content.sizeDelta = new Vector2(content.sizeDelta.x, contentHeight);
-    // }
-
-    // private void BuildUnitSelectMenu()
-    // {
-    //     UnitSelectBox.SetActive(true);
-
-    //     int buttonsPerRow = 2;
-    //     float xSpacing = 450f;
-    //     float ySpacing = 100f;
-
-    //     Vector2 startPos = new Vector2(-225f, 50f); // Starting top-left
-
-    //     playableRoster = UnitRosterManager.GetPlayableUnits();
-
-    //     List<string> requiredUnits = _currentMap.GetRequiredUnits();
-
-    //     // Split into required and non-required lists
-    //     List<UnitStats> requiredList = playableRoster
-    //         .Where(unit => requiredUnits.Contains(unit.UnitName))
-    //         .ToList();
-
-    //     List<UnitStats> nonRequiredList = playableRoster
-    //         .Where(unit => !requiredUnits.Contains(unit.UnitName))
-    //         .ToList();
-
-    //     // Combine with required units first
-    //     List<UnitStats> combinedList = requiredList.Concat(nonRequiredList).ToList();
-
-    //     // Clear previous buttons if needed
-    //     unitButtons.Clear();
-
-    //     for (int i = 0; i < combinedList.Count; i++)
-    //     {
-    //         int row = i / buttonsPerRow;
-    //         int col = i % buttonsPerRow;
-
-    //         float x = startPos.x + (col * xSpacing);
-    //         float y = startPos.y - (row * ySpacing);
-
-    //         GameObject button = Instantiate(UnitSelectButton, content);
-    //         RectTransform rect = button.GetComponent<RectTransform>();
-    //         rect.anchoredPosition = new Vector2(x, y);
-
-    //         UnitStats stats = combinedList[i];
-
-    //         TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-    //         List<UnitStats> temp = _currentMap.GetMapUnitStats();
-
-    //         foreach (var text in texts)
-    //         {
-    //             if (text.name.ToLower().Contains("name"))
-    //             {
-    //                 string color = "";
-
-    //                 if (requiredUnits.Contains(stats.UnitName))
-    //                 {
-    //                     color = "<color=#00FF00>"; // Green
-    //                 }
-    //                 else if (temp.Any(u => u.UnitName == stats.UnitName))
-    //                 {
-    //                     color = "<color=#0000FF>"; // Blue
-    //                 }
-    //                 else
-    //                 {
-    //                     color = ""; // Default color
-    //                 }
-
-    //                 text.text = color + stats.Name + (color != "" ? "</color>" : "");
-    //             }
-    //             else if (text.name.ToLower().Contains("health"))
-    //             {
-    //                 text.text = $"{stats.CurrentHealth}/{stats.Health}";
-    //             }
-    //         }
-
-    //         Button btn = button.GetComponent<Button>();
-    //         unitButtons.Add(btn);
-    //     }
-
-    //     // Resize content height based on rows
-    //     int totalRows = Mathf.CeilToInt(combinedList.Count / (float)buttonsPerRow);
-    //     float contentHeight = totalRows * ySpacing + 50f; // Extra padding
-    //     content.sizeDelta = new Vector2(content.sizeDelta.x, contentHeight);
-    // }
-
-    // private void BuildUnitSelectMenu()
-    // {
-    //     UnitSelectBox.SetActive(true);
-
-    //     int buttonsPerRow = 2;
-    //     float xSpacing = 450f;
-    //     float ySpacing = 100f;
-
-    //     Vector2 startPos = new Vector2(-225f, 50f);
-
-    //     playableRoster = UnitRosterManager.GetPlayableUnits();
-
-    //     List<string> requiredUnits = _currentMap.GetRequiredUnits();
-    //     List<UnitStats> mapUnits = _currentMap.GetMapUnitStats();
-
-    //     // Split into three groups
-    //     var requiredList = playableRoster
-    //         .Where(unit => requiredUnits.Contains(unit.UnitName))
-    //         .ToList();
-
-    //     var mapUnitsOnlyList = playableRoster
-    //         .Where(unit => !requiredUnits.Contains(unit.UnitName) && mapUnits.Any(mu => mu.UnitName == unit.UnitName))
-    //         .ToList();
-
-    //     var restList = playableRoster
-    //         .Where(unit => !requiredUnits.Contains(unit.UnitName) && !mapUnits.Any(mu => mu.UnitName == unit.UnitName))
-    //         .ToList();
-
-    //     // Combine with desired order
-    //     List<UnitStats> combinedList = requiredList.Concat(mapUnitsOnlyList).Concat(restList).ToList();
-
-    //     unitButtons.Clear();
-
-    //     for (int i = 0; i < combinedList.Count; i++)
-    //     {
-    //         int row = i / buttonsPerRow;
-    //         int col = i % buttonsPerRow;
-
-    //         float x = startPos.x + (col * xSpacing);
-    //         float y = startPos.y - (row * ySpacing);
-
-    //         GameObject button = Instantiate(UnitSelectButton, content);
-    //         RectTransform rect = button.GetComponent<RectTransform>();
-    //         rect.anchoredPosition = new Vector2(x, y);
-
-    //         UnitStats stats = combinedList[i];
-
-    //         TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-
-    //         foreach (var text in texts)
-    //         {
-    //             if (text.name.ToLower().Contains("name"))
-    //             {
-    //                 string color = "";
-
-    //                 if (requiredUnits.Contains(stats.UnitName))
-    //                 {
-    //                     color = "<color=#00FF00>"; // Green
-    //                 }
-    //                 else if (mapUnits.Any(mu => mu.UnitName == stats.UnitName))
-    //                 {
-    //                     color = "<color=#0000FF>"; // Blue
-    //                 }
-    //                 else
-    //                 {
-    //                     color = ""; // Default
-    //                 }
-
-    //                 text.text = color + stats.Name + (color != "" ? "</color>" : "");
-    //             }
-    //             else if (text.name.ToLower().Contains("health"))
-    //             {
-    //                 text.text = $"{stats.CurrentHealth}/{stats.Health}";
-    //             }
-    //         }
-
-    //         Button btn = button.GetComponent<Button>();
-    //         unitButtons.Add(btn);
-    //     }
-
-    //     // Resize content height based on rows
-    //     int totalRows = Mathf.CeilToInt(combinedList.Count / (float)buttonsPerRow);
-    //     float contentHeight = totalRows * ySpacing + 50f;
-    //     content.sizeDelta = new Vector2(content.sizeDelta.x, contentHeight);
-    // }
-    
     private void BuildUnitSelectMenu()
     {
         UnitSelectBox.SetActive(true);
+
 
         int buttonsPerRow = 2;
         float xSpacing = 450f;
         float ySpacing = 100f;
 
-        Vector2 startPos = new Vector2(-225f, 50f);
+        Vector2 startPos = new Vector2(-225f, 400f);
 
-        playableRoster = UnitRosterManager.GetPlayableUnits();
+        List<UnitStats> playableRoster = UnitRosterManager.GetPlayableUnits(); // ✅ Still UnitStats
 
         List<string> requiredUnits = _currentMap.GetRequiredUnits();
-        List<UnitStats> mapUnits = _currentMap.GetMapUnitStats();
+        List<UnitManager> mapUnits = _currentMap.GetMapUnits(); // ✅ UnitManagers
         List<string> forbiddenUnits = _currentMap.GetForbiddenUnits();
 
-        // Split into groups
+        // Split into groups using UnitName comparisons
         var requiredList = playableRoster
             .Where(unit => requiredUnits.Contains(unit.UnitName))
             .ToList();
@@ -537,13 +447,13 @@ public class BattleStartMenu : MonoBehaviour
         var mapUnitsOnlyList = playableRoster
             .Where(unit => !requiredUnits.Contains(unit.UnitName)
                         && !forbiddenUnits.Contains(unit.UnitName)
-                        && mapUnits.Any(mu => mu.UnitName == unit.UnitName))
+                        && mapUnits.Any(mu => mu.stats.UnitName == unit.UnitName))
             .ToList();
 
         var restList = playableRoster
             .Where(unit => !requiredUnits.Contains(unit.UnitName)
                         && !forbiddenUnits.Contains(unit.UnitName)
-                        && !mapUnits.Any(mu => mu.UnitName == unit.UnitName))
+                        && !mapUnits.Any(mu => mu.stats.UnitName == unit.UnitName))
             .ToList();
 
         var forbiddenList = playableRoster
@@ -551,13 +461,18 @@ public class BattleStartMenu : MonoBehaviour
             .ToList();
 
         // Combine lists in order
-        List<UnitStats> combinedList = requiredList
+        combinedList = requiredList
             .Concat(mapUnitsOnlyList)
             .Concat(restList)
             .Concat(forbiddenList)
             .ToList();
 
+        foreach (Button but in unitButtons)
+        {
+            Destroy(but.gameObject);
+        }
         unitButtons.Clear();
+        unitList.Clear();
 
         for (int i = 0; i < combinedList.Count; i++)
         {
@@ -568,12 +483,12 @@ public class BattleStartMenu : MonoBehaviour
             float y = startPos.y - (row * ySpacing);
 
             GameObject button = Instantiate(UnitSelectButton, content);
-            RectTransform rect = button.GetComponent<RectTransform>();
-            rect.anchoredPosition = new Vector2(x, y);
+            // RectTransform rect = button.GetComponent<RectTransform>();
+            // rect.anchoredPosition = new Vector2(x, y);
 
             UnitStats stats = combinedList[i];
-
             TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
 
             foreach (var text in texts)
             {
@@ -582,13 +497,23 @@ public class BattleStartMenu : MonoBehaviour
                     string color = "";
 
                     if (requiredUnits.Contains(stats.UnitName))
+                    {
                         color = "<color=#00FF00>"; // Green
-                    else if (mapUnits.Any(mu => mu.UnitName == stats.UnitName)
-                            && !requiredUnits.Contains(stats.UnitName)
-                            && !forbiddenUnits.Contains(stats.UnitName))
+                        UnitManager matchingUnit = mapUnits.Find(u => u.stats.UnitName == stats.UnitName);
+                        unitList.Add(matchingUnit);
+                    }
+                    else if (mapUnits.Any(mu => mu.stats.UnitName == stats.UnitName)
+                        && !requiredUnits.Contains(stats.UnitName)
+                        && !forbiddenUnits.Contains(stats.UnitName))
+                    {
                         color = "<color=#0000FF>"; // Blue
+
+                        UnitManager matchingUnit = mapUnits.Find(u => u.stats.UnitName == stats.UnitName);
+                        unitList.Add(matchingUnit);
+                    }
+
                     else if (forbiddenUnits.Contains(stats.UnitName))
-                        color = "<color=#FF0000>"; // Red for forbidden
+                        color = "<color=#FF0000>"; // Red
                     else
                         color = ""; // Default
 
@@ -602,13 +527,21 @@ public class BattleStartMenu : MonoBehaviour
 
             Button btn = button.GetComponent<Button>();
             unitButtons.Add(btn);
+            // unitList.Add()
+            units.Add(stats.UnitName);
+
         }
 
         // Resize content height based on rows
         int totalRows = Mathf.CeilToInt(combinedList.Count / (float)buttonsPerRow);
         float contentHeight = totalRows * ySpacing + 50f;
         content.sizeDelta = new Vector2(content.sizeDelta.x, contentHeight);
+
+        unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
     }
+
+
+
 
 
 
