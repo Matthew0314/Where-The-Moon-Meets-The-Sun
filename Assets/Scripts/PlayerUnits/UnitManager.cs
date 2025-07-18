@@ -207,6 +207,18 @@ public abstract class UnitManager : MonoBehaviour
 
         return temp;
     }
+
+    public virtual List<Weapon> GetPhysicalWeapons()
+    {
+        List<Weapon> temp = stats.weapons;
+
+        if (primaryWeapon == null) return temp;
+
+        temp.Remove(primaryWeapon);
+        temp.Insert(0, primaryWeapon);
+
+        return temp;
+    }
     public virtual List<Item> GetItems() => stats.items;
     public virtual List<Weapon> GetMagic() => stats.magic;
     public virtual List<Faith> GetFaith() => stats.faith;

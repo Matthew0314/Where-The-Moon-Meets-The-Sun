@@ -47,6 +47,13 @@ public class BattleStartMenu : MonoBehaviour
     private float inputCooldown = 0.2f;
     private float lastInputTime;
 
+
+
+    [SerializeField] private GameObject InfoTextData;
+    [SerializeField] private Image expBar;
+    [SerializeField] private GameObject unitItemBar;
+    private List<GameObject> unitItemBarsList = new List<GameObject>();
+
     void Awake()
     {
         playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
@@ -216,6 +223,7 @@ public class BattleStartMenu : MonoBehaviour
 
         selectedIndex = 0;
         unitButtons[selectedIndex].Select();
+        UpdateUnitInfo(combinedList[selectedIndex]);
 
         float inputCooldown = 0.2f;
         float lastInputTime = -inputCooldown;
@@ -381,6 +389,7 @@ public class BattleStartMenu : MonoBehaviour
             RectTransform btnRect = unitButtons[selectedIndex].GetComponent<RectTransform>();
             ScrollToButton(btnRect);
         }
+        UpdateUnitInfo(combinedList[selectedIndex]);
     }
 
 
@@ -397,7 +406,7 @@ public class BattleStartMenu : MonoBehaviour
 
                 if (color == "green")
                 {
-                    color = "<color=#00FF00>"; // Green
+                    color = "<color=#228B22>";  // Green
                 }
                 else if (color == "blue")
                 {
@@ -421,6 +430,9 @@ public class BattleStartMenu : MonoBehaviour
         unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
 
     }
+
+
+
 
     private void BuildUnitSelectMenu()
     {
@@ -498,7 +510,7 @@ public class BattleStartMenu : MonoBehaviour
 
                     if (requiredUnits.Contains(stats.UnitName))
                     {
-                        color = "<color=#00FF00>"; // Green
+                        color = "<color=#228B22>"; // Green
                         UnitManager matchingUnit = mapUnits.Find(u => u.stats.UnitName == stats.UnitName);
                         unitList.Add(matchingUnit);
                     }
@@ -538,6 +550,95 @@ public class BattleStartMenu : MonoBehaviour
         content.sizeDelta = new Vector2(content.sizeDelta.x, contentHeight);
 
         unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
+    }
+
+
+
+    public void UpdateUnitInfo(UnitStats stats)
+    {
+
+
+        TMPro.TextMeshProUGUI[] texts = InfoTextData.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+        foreach (var text in texts)
+        {
+            if (text.name.ToLower().Contains("level"))
+            {
+                text.text = stats.Level.ToString();
+            }
+            else if (text.name.ToLower().Contains("name"))
+            {
+                text.text = stats.Name;
+            }
+            else if (text.name.ToLower().Contains("exp"))
+            {
+                text.text = stats.Experience.ToString();
+            }
+            else if (text.name.ToLower().Contains("health"))
+            {
+                text.text = stats.CurrentHealth + "/" + stats.Health;
+            }
+            else if (text.name.ToLower().Contains("class"))
+            {
+                text.text = stats.UnitClass;
+            }
+        }
+
+        foreach (GameObject g in unitItemBarsList) Destroy(g);
+        unitItemBarsList.Clear();
+
+        List<Weapon> weapons = stats.weapons;
+        List<Item> items = stats.items;
+        int count = 0;
+        int offset = -52;
+
+        foreach (Weapon w in weapons)
+        {
+            GameObject temp = Instantiate(unitItemBar);
+            temp.transform.SetParent(InfoTextData.transform, false);
+            temp.transform.position += new Vector3(0, count * offset, 0);
+
+            TMPro.TextMeshProUGUI[] weapTexts = temp.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+            foreach (var text in weapTexts)
+            {
+                if (text.name.ToLower().Contains("item"))
+                {
+                    text.text = w.WeaponName;
+                }
+                else if (text.name.ToLower().Contains("uses"))
+                {
+                    text.text = w.Uses + "/" + w.MaxUses;
+                }
+            }
+
+            count++;
+            unitItemBarsList.Add(temp);
+        }
+
+        foreach (Item w in items)
+        {
+            GameObject temp = Instantiate(unitItemBar);
+            temp.transform.SetParent(InfoTextData.transform, false);
+            temp.transform.position += new Vector3(0, count * offset, 0);
+
+            TMPro.TextMeshProUGUI[] itemTexts = temp.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+            foreach (var text in itemTexts)
+            {
+                if (text.name.ToLower().Contains("item"))
+                {
+                    text.text = w.Name;
+                }
+                else if (text.name.ToLower().Contains("uses"))
+                {
+                    text.text = w.Uses + "/" + w.MaxUses;
+                }
+            }
+
+            count++;
+            unitItemBarsList.Add(temp);
+        }
     }
 
 
