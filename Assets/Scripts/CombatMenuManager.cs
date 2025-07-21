@@ -448,7 +448,7 @@ public class CombatMenuManager : MonoBehaviour
 
     public void PlayerWait() {
         // Removes player from actives list
-        manageTurn.RemovePlayer(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile.stats);
+        manageTurn.RemovePlayer(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile.GetStats());
 
         // Calls the unit wait function
         executeAction.unitWait();
@@ -826,7 +826,7 @@ public class CombatMenuManager : MonoBehaviour
         if (maxIndex >= 0) itemButtons[currItemIndex].Select();
 
         while (true) {
-            maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.stats.faith.Count - 1 ;
+            maxIndex = unit.GetWeapons().Count + unit.GetItems().Count + unit.GetFaith().Count - 1 ;
             float vertical = moveInput.y;
 
             if (playerInput.actions["Back"].WasPressedThisFrame() && oneAction) {
@@ -873,7 +873,7 @@ public class CombatMenuManager : MonoBehaviour
     public void CreateMenu(UnitManager user) {
         List<Weapon> weapons = user.GetWeapons();
         List<Item> items = user.GetItems();
-        List<Faith> faith = user.stats.faith;
+        List<Faith> faith = user.GetFaith();
 
         foreach (Button btn in itemButtons) Destroy(btn.gameObject);
         foreach (GameObject obj in divList) Destroy(obj);
@@ -915,8 +915,8 @@ public class CombatMenuManager : MonoBehaviour
             }
             for (int i = 0; i < weapons.Count; i++)
             {
-                List<Weapon> temp1 = user.stats.weapons;
-                List<Weapon> temp2 = user.stats.magic;
+                List<Weapon> temp1 = user.GetPhysicalWeapons();
+                List<Weapon> temp2 = user.GetMagicList();
 
                 foreach (Weapon t in temp1)
                 {
@@ -1207,8 +1207,8 @@ public class CombatMenuManager : MonoBehaviour
 
     public void ActivateHoverMenu(UnitManager unit) {
 
-        levelText.text = $"{unit.stats.Level}";
-        healthText.text = $"{unit.getCurrentHealth()} / {unit.stats.Health}";
+        levelText.text = $"{unit.GetLevel()}";
+        healthText.text = $"{unit.GetCurrentHealth()} / {unit.GetHealth()}";
 
         if (unit.GetPrimaryWeapon() != null) {
             weaponText.text = unit.GetPrimaryWeapon().WeaponName;
@@ -1216,17 +1216,17 @@ public class CombatMenuManager : MonoBehaviour
             weaponText.text = "";
         }
 
-        unitNameText.text = unit.stats.Name;
+        unitNameText.text = unit.GetName();
 
         hoverMenu.SetActive(true);
         playerBar.SetActive(false);
         playerBar.SetActive(false);
 
-        if (unit.stats.UnitType == "Player")
+        if (unit.GetUnitType() == "Player")
         {
             playerBar.SetActive(true);
         }
-        else if (unit.stats.UnitType == "Enemy")
+        else if (unit.GetUnitType() == "Enemy")
         {
             enemyBar.SetActive(true);
         }
@@ -1250,41 +1250,17 @@ public class CombatMenuManager : MonoBehaviour
         int enemyCrit = -1;
 
         if (player.GetPrimaryWeapon() != null) {
-            playerHit = player.GetPrimaryWeapon().HitRate + (player.stats.Luck * 4) - enemy.stats.Evasion;
-            playerCrit = player.GetPrimaryWeapon().CritRate + (int)(player.stats.Luck / 2);
+            playerHit = player.GetBattleHit(enemy);
+            playerCrit = player.GetBattleCrit();
         }
 
         if (enemy.GetPrimaryWeapon() != null) {
-            enemyHit = enemy.GetPrimaryWeapon().HitRate + (enemy.stats.Luck * 4) - player.stats.Evasion;
-            enemyCrit = enemy.GetPrimaryWeapon().CritRate + (int)(enemy.stats.Luck / 2);
+            enemyHit = enemy.GetBattleHit(player);
+            enemyCrit = enemy.GetBattleCrit();
         }
 
 
-        Debug.Log(expectedEnemyHP);
-
-        if (playerHit > 100) {
-            playerHit = 100;
-        } else if (playerHit < 0) {
-            playerHit = 0;
-        }
-
-        if (playerCrit > 100) {
-            playerCrit = 100;
-        } else if (playerCrit < 0) {
-            playerCrit = 0;
-        }
-        if (enemyHit > 100) {
-            enemyHit = 100;
-        } else if (enemyHit < 0) {
-            enemyHit = 0;
-        }
-        if (enemyCrit > 100) {
-            enemyCrit = 100;
-        } else if (enemyCrit < 0) {
-            enemyCrit = 0;
-        }
-
-        PlayerName.text = player.stats.Name;
+        PlayerName.text = player.GetName();
         if (player.GetPrimaryWeapon() != null) {
             PlayerWeapon.text = player.GetPrimaryWeapon().WeaponName;
         } else {
@@ -1305,13 +1281,13 @@ public class CombatMenuManager : MonoBehaviour
             PlayerCrit.text = $"{playerCrit}%";
         }
 
-        PlayerCurrHealth.text = $"{player.getCurrentHealth()}";
+        PlayerCurrHealth.text = $"{player.GetCurrentHealth()}";
 
         if (expectedPlayerHP < 0) { expectedPlayerHP = 0; }
         if (expectedEnemyHP < 0) { expectedEnemyHP = 0; }
 
-        float PLostFill = ((float)expectedPlayerHP / (float)player.stats.Health);
-        float PCurrFill = ((float)player.getCurrentHealth() / (float)player.stats.Health);
+        float PLostFill = ((float)expectedPlayerHP / (float)player.GetHealth());
+        float PCurrFill = ((float)player.GetCurrentHealth() / (float)player.GetHealth());
 
         PHealth.fillAmount = PLostFill;
         PHealthLost.fillAmount = PCurrFill;
@@ -1327,7 +1303,7 @@ public class CombatMenuManager : MonoBehaviour
 
 
 
-        EnemyName.text = enemy.stats.Name;
+        EnemyName.text = enemy.GetName();
         if (enemy.GetPrimaryWeapon() != null) {
             EnemyWeapon.text = enemy.GetPrimaryWeapon().WeaponName;
         } else {
@@ -1349,10 +1325,10 @@ public class CombatMenuManager : MonoBehaviour
             EnemyCrit.text = $"{enemyCrit}%";
         }
 
-        EnemyCurrHealth.text = $"{enemy.getCurrentHealth()}";
+        EnemyCurrHealth.text = $"{enemy.GetCurrentHealth()}";
 
-        float ELostFill = ((float)expectedEnemyHP / (float)enemy.stats.Health);
-        float ECurrFill = ((float)enemy.getCurrentHealth() / (float)enemy.stats.Health);
+        float ELostFill = ((float)expectedEnemyHP / (float)enemy.GetHealth());
+        float ECurrFill = ((float)enemy.GetCurrentHealth() / (float)enemy.GetHealth());
 
         Destroy(HPenemy);
 
@@ -1386,9 +1362,9 @@ public class CombatMenuManager : MonoBehaviour
     public IEnumerator GainExperienceMenu(UnitManager unit, int gainExp)
     {
         experienceMenu.SetActive(true);
-        expUnitName.text = unit.stats.Name;
+        expUnitName.text = unit.GetName();
 
-        int currentExp = unit.stats.Experience; // Starting experience
+        int currentExp = unit.GetExperience(); // Starting experience
         int remainingExp = gainExp;             // Experience to be added
         int expThreshold = 100;                 // Max experience for a level
         int initialExpNext = expThreshold - currentExp; // Initial experience needed to level up
@@ -1471,18 +1447,18 @@ public class CombatMenuManager : MonoBehaviour
         levelUpMenu.SetActive(true);
 
         // Set initial values for the unit's stats
-        lvName.text = unit.stats.Name;
-        lvClass.text = unit.stats.UnitClass;
-        lvLevel.text = unit.stats.Level.ToString();
+        lvName.text = unit.GetName();
+        lvClass.text = unit.GetClass();
+        lvLevel.text = unit.GetLevel().ToString();
 
-        int HP = unit.stats.Health;
-        int Str = unit.stats.Attack;
-        int Mag = unit.stats.Magic;
-        int Spd = unit.stats.Speed;
-        int Def = unit.stats.Defense;
-        int Res = unit.stats.Resistance;
-        int Eva = unit.stats.Evasion;
-        int Lck = unit.stats.Luck;
+        int HP = unit.GetBaseHealth();
+        int Str = unit.GetBaseAttack();
+        int Mag = unit.GetBaseMagic();
+        int Spd = unit.GetBaseSpeed();
+        int Def = unit.GetBaseDefense();
+        int Res = unit.GetBaseResistance();
+        int Eva = unit.GetBaseEvasion();
+        int Lck = unit.GetBaseLuck();
 
         // Display current stats
         lvHP.text = HP.ToString();
@@ -1499,7 +1475,7 @@ public class CombatMenuManager : MonoBehaviour
         StartCoroutine(CheckForSkip());
 
 
-        yield return StartCoroutine(AnimateLevelText(lvLevel, unit.stats.Level));
+        yield return StartCoroutine(AnimateLevelText(lvLevel, unit.GetLevel()));
 
         // Update stats incrementally and display changes
         if (hp > 0)
@@ -2234,14 +2210,15 @@ public class CombatMenuManager : MonoBehaviour
         int rightCrit = -1;
         PlayerWeapon.text = "";
         EnemyWeapon.text = "";
+
         if (leftWeap != null) {
-            leftHit = leftWeap.HitRate + (leftUnit.stats.Luck * 4) - rightUnit.stats.Evasion;
-            leftCrit = leftWeap.CritRate + (int)(leftUnit.stats.Luck / 2);
+            leftHit = leftUnit.GetBattleHit(rightUnit);
+            leftCrit = leftUnit.GetBattleCrit();
             PlayerWeapon.text = leftWeap.WeaponName;
         } 
         if (rightWeap != null) {
-            rightHit = rightWeap.HitRate + (rightUnit.stats.Luck * 4) - leftUnit.stats.Evasion;
-            rightCrit = rightWeap.CritRate + (int)(rightUnit.stats.Luck / 2);
+            rightHit = rightUnit.GetBattleHit(leftUnit);
+            rightCrit = rightUnit.GetBattleCrit();
             EnemyWeapon.text = rightWeap.WeaponName;
         }
         
@@ -2253,7 +2230,7 @@ public class CombatMenuManager : MonoBehaviour
         rightCrit = Mathf.Clamp(rightCrit, 0, 100);
 
         // Set the left unit (player or enemy) info
-        PlayerName.text = leftUnit.stats.Name;
+        PlayerName.text = leftUnit.GetName();
 
         if (numLHits > 1) {
             PlayerDamage.text = $"{lDamage} x {numLHits}";
@@ -2268,11 +2245,11 @@ public class CombatMenuManager : MonoBehaviour
             PlayerHit.text = $"{leftHit}%";
             PlayerCrit.text = $"{leftCrit}%";
         }
-        PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
+        PlayerCurrHealth.text = $"{leftUnit.GetCurrentHealth()}";
 
         // Update health bars and positions
-        float leftCurrFill = (float)(expectedLeftHP) / leftUnit.stats.Health;
-        float leftLostFill = (float)leftUnit.getCurrentHealth() / leftUnit.stats.Health;
+        float leftCurrFill = (float)(expectedLeftHP) / leftUnit.GetHealth();
+        float leftLostFill = (float)leftUnit.GetCurrentHealth() / leftUnit.GetHealth();
         lBar.fillAmount = leftCurrFill;
         lLostBar.fillAmount = leftLostFill;
 
@@ -2287,17 +2264,11 @@ public class CombatMenuManager : MonoBehaviour
         TextMeshProUGUI plaText = plaChild.GetComponent<TextMeshProUGUI>();
         // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
         plaText.text = $"{expectedLeftHP}";
-        // if(playerOnLeft) {
-        //     plaText.text = $"{expectedPlayerHP}";
-        //     // PlayerCurrHealth.text = $"{leftUnit.getCurrentHealth()}";
-        // } else {
-        //     plaText.text = $"{expectedEnemyHP}";
-        //     // PlayerCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
-        // }
+    
         
 
         // Set the right unit (enemy or player) info
-        EnemyName.text = rightUnit.stats.Name;
+        EnemyName.text = rightUnit.GetName();
 
 
         
@@ -2314,11 +2285,11 @@ public class CombatMenuManager : MonoBehaviour
             EnemyHit.text = $"{rightHit}%";
             EnemyCrit.text = $"{rightCrit}%";
         }
-        EnemyCurrHealth.text = $"{rightUnit.getCurrentHealth()}";
+        EnemyCurrHealth.text = $"{rightUnit.GetCurrentHealth()}";
 
         // Update health bars and positions
-        float rightCurrFill = (float)(expectedRightHP) / rightUnit.stats.Health;
-        float rightLostFill = (float)rightUnit.getCurrentHealth() / rightUnit.stats.Health;
+        float rightCurrFill = (float)(expectedRightHP) / rightUnit.GetHealth();
+        float rightLostFill = (float)rightUnit.GetCurrentHealth() / rightUnit.GetHealth();
         rBar.fillAmount = rightCurrFill;
         rLostBar.fillAmount = rightLostFill;
 

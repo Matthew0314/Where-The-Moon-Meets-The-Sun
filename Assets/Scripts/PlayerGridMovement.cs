@@ -111,14 +111,14 @@ public class PlayerGridMovement : MonoBehaviour
 
 
         // else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && playerCollide.collPlayer && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
-        else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && gridControl.GetGridTile(x, z).UnitOnTile?.UnitType == "Player" && manageTurn.IsActive((gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit)?.stats))
+        else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && gridControl.GetGridTile(x, z).UnitOnTile?.UnitType == "Player" && manageTurn.IsActive((gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit)?.GetStats()))
         {
             pathFinder.ResetArea();
             // currUnit = playerCollide.GetPlayerObject();
             currUnit = gridControl.GetGridTile(x, z).UnitOnTile.gameObject;
 
             // pathFinder.calculateMovement(x, z, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-            pathFinder.calculateMovement(x, z, gridControl.GetGridTile(x, z).UnitOnTile.getMove(), gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit);
+            pathFinder.calculateMovement(x, z, gridControl.GetGridTile(x, z).UnitOnTile.GetMove(), gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit);
 
             pathFinder.PrintArea();
 
@@ -283,7 +283,7 @@ public class PlayerGridMovement : MonoBehaviour
 
             foreach (string t in tempReq)
             {
-                if (tempUnit.stats.UnitName == t) return false;
+                if (tempUnit.GetUnitName() == t) return false;
             }
         }
         
@@ -398,7 +398,7 @@ public class PlayerGridMovement : MonoBehaviour
         gridControl.GetGridTile(orgX, orgZ).UnitOnTile = temp;
         // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
         // pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-        pathFinder.calculateMovement(orgX, orgZ, gridControl.GetGridTile(orgX, orgZ).UnitOnTile.getMove(), gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
+        pathFinder.calculateMovement(orgX, orgZ, gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetMove(), gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
         pathFinder.PrintArea();
         charSelected = true;
         inMenu = false;

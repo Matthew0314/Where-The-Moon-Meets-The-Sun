@@ -23,7 +23,7 @@ public class PlayerUnit : UnitManager
     }
 
     protected void Update() {
-        healthBar.fillAmount = (float)getCurrentHealth() / (float)stats.Health; 
+        healthBar.fillAmount = (float)GetCurrentHealth() / (float)GetHealth(); 
 
         if (!turnManager.IsActive(this.stats))
         {
@@ -110,18 +110,18 @@ public class PlayerUnit : UnitManager
         // maxHealth = stats.Health;
         // currentHealth = maxHealth;
         UnitType = "Player";
-        primaryWeapon = stats.GetWeaponAt(0);
+        stats.SetPrimaryWeapon(stats.GetWeaponAt(0));
         // stats.CurrentHealth = 2;
     }
 
-    public override int getMove() { return stats.getClass().Movement + base.getMove(); }
+    public override int GetMove() => Mathf.Max(0, stats.getClass().Movement + base.GetMove());
 
 
     
 
-    public override int getCurrentHealth() { return stats.CurrentHealth; }
-    public override int getMaxHealth() => stats.Health; 
-    public override void setCurrentHealth(int health) { stats.CurrentHealth = health; }
+    // public override int getCurrentHealth() { return stats.CurrentHealth; }
+    // public override int getMaxHealth() => stats.Health; 
+    // public override void setCurrentHealth(int health) { stats.CurrentHealth = health; }
     public override string GetUnitType() { return UnitType; }
 
 }

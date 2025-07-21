@@ -6,6 +6,7 @@ using System;
 public abstract class UnitStats
 {
     public string UnitName { get; set; }
+    public int UnitID { get; set; }
     public string Name { get; set; }
     public string UnitDescription { get; set; }
     public string UnitClass { get; set; }
@@ -20,7 +21,7 @@ public abstract class UnitStats
     public int Speed { get; set; }                  //base speed, determines if unit attacks first
     public int Evasion { get; set; }                //base evasion, how often the unit dodges
     public int Luck { get; set; }                   //base luck, increases chance of critical
-    public int EnemyID { get; set; }
+    // public int EnemyID { get; set; }
 
     public bool AirBorn { get; set; }                //if unit is airborn, will be ablee to pass over impassble tiles and weak to bows/air magic
     public bool Mounted { get; set; }                //if unit is mounted
@@ -33,6 +34,8 @@ public abstract class UnitStats
 
     public int Experience { get; set; }
 
+    public Weapon primaryWeapon;
+
     public List<Weapon> weapons;
     public List<Weapon> magic;
     public List<Item> items;
@@ -44,8 +47,9 @@ public abstract class UnitStats
 
 
 
-    public UnitStats(string uName, string dName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
+    public UnitStats(int uID, string uName, string dName, string uDesc, int LV, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass)
     {
+        UnitID = uID;
         UnitName = uName;
         Name = dName;
         UnitDescription = uDesc;
@@ -103,6 +107,34 @@ public abstract class UnitStats
     
     public abstract PlayerClass getClass();
     public abstract void SetFaith();
+
+    public virtual void SetPrimaryWeapon(Weapon weap) {
+        primaryWeapon = weap;
+
+        // if (primaryWeapon == null) return;
+
+        // temp.Remove(primaryWeapon);
+        // temp.Insert(0, primaryWeapon);
+
+    }
+
+    public virtual void FindAPrimaryWeapon() {
+        if (weapons.Count >= 1) {
+            SetPrimaryWeapon(weapons[0]);
+            return;
+        }
+
+        if (magic.Count >= 1) {
+            SetPrimaryWeapon(magic[0]);
+            return;
+        }
+
+        SetPrimaryWeapon(null);
+
+
+    }
+
+    public virtual Weapon GetPrimaryWeapon() => primaryWeapon;
     
 }
 
@@ -122,7 +154,7 @@ public class PlayerStats : UnitStats {
     
 
 
-    public PlayerStats(string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass, int faiRank, int magRank) : base(uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass)
+    public PlayerStats(int uID, string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass, int faiRank, int magRank) : base(uID, uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass)
     {
 
         Experience = 0;
@@ -201,14 +233,14 @@ public class EnemyStats : UnitStats {
     
     public bool IsBoss {get; set;}
 
-    public EnemyStats(int id, string uName, string uDesc,string uClass,int LV, int HLT,int ATK,int MG,int DEF,int RES,int SPD,int EVA,int LCK,int MOV,bool air,bool mount,bool arm,bool whisp, int hBars, bool boss) : base(uName, uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
+    public EnemyStats(int id, string uName, string uDesc,string uClass,int LV, int HLT,int ATK,int MG,int DEF,int RES,int SPD,int EVA,int LCK,int MOV,bool air,bool mount,bool arm,bool whisp, int hBars, bool boss) : base(id, uName, uName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass) {
         UnitType = "Enemy";
         AirBorn = air;
         Mounted = mount;
         Armored = arm;
         Whisper = whisp;
         HealthBars = hBars;
-        EnemyID = id;
+        // EnemyID = id;
         IsBoss = boss;
         faithRank = 1;
     }

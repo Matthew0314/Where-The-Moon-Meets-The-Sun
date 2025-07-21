@@ -17,7 +17,7 @@ public class EnemyUnit : UnitManager
 
     protected void Update() {
        
-        healthBar.fillAmount = (float)stats.CurrentHealth / (float)getMaxHealth(); 
+        healthBar.fillAmount = (float)GetCurrentHealth() / (float)GetHealth(); 
         
     }
 
@@ -25,7 +25,7 @@ public class EnemyUnit : UnitManager
     {
         // maxHealth = stats.Health;
         // currentHealth = maxHealth;
-        primaryWeapon = stats.GetWeaponAt(0);
+        stats.SetPrimaryWeapon(stats.GetWeaponAt(0));
         Debug.LogWarning(stats.Name);
         extraHealth1 = transform.Find("EnemyCircle/Canvas/UnitCircle/ExtraHealth1").GetComponent<Image>();
         if(stats.HealthBars < 2) 
@@ -37,9 +37,12 @@ public class EnemyUnit : UnitManager
 
     // public override int getMove() { return stats.Movement; }
 
-    public override int getMaxHealth() { return stats.Health; }
-    public override void setCurrentHealth(int health) { stats.CurrentHealth = health; }
+    // public override int getMaxHealth() { return stats.Health; }
+    // public override void setCurrentHealth(int health) { stats.CurrentHealth = health; }
     public override string GetUnitType() { return UnitType; }
+
+    public override int GetMove() => Mathf.Max(0, base.GetMove());
+    // public int GetEnemyID() => stats.EnemyID;
 
     // Additional Enemy-specific methods here
 }

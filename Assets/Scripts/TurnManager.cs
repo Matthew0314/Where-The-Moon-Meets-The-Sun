@@ -91,7 +91,7 @@ public class TurnManager : MonoBehaviour
         for (int i = 0; i < queueCou; i++)
         {
             UnitManager eneTemp = temp.Dequeue();
-            if (eneTemp.stats.EnemyID == ene.stats.EnemyID)
+            if (eneTemp.GetUnitID() == ene.GetUnitID())
             {
 
                 continue;
@@ -107,6 +107,7 @@ public class TurnManager : MonoBehaviour
     //Executes all enemy actions who are in the queue based on the AI script that is attached to them
     private IEnumerator EnemyPhase() {
 
+        combatMenuManager.DeactivateHoverMenu();
         
 
         yield return StartCoroutine(_currentMap.CheckEvents());
@@ -134,7 +135,7 @@ public class TurnManager : MonoBehaviour
             bool didAct = false;
             if (AIenemy.DidAction) { didAct = true; }
 
-            if (temp.getCurrentHealth() <= 0) {
+            if (temp.GetCurrentHealth() <= 0) {
                 Destroy(tempGameObj);
                 yield return new WaitForSeconds(1f);
             }

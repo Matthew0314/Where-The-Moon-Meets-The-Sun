@@ -208,7 +208,7 @@ public abstract class MapManager : MonoBehaviour
     public virtual void RemoveDeadUnit(UnitManager unit, int x, int z)
     {
 
-        if (unit.stats.UnitType == "Enemy")
+        if (unit.GetUnitType() == "Enemy")
         {
             Queue<UnitManager> temp = mapEnemies;
 
@@ -216,8 +216,9 @@ public abstract class MapManager : MonoBehaviour
 
             for (int i = 0; i < queueCou; i++)
             {
-                UnitManager eneTemp = temp.Dequeue();
-                if (eneTemp.stats.EnemyID == unit.stats.EnemyID)
+                EnemyUnit eneTemp = temp.Dequeue() as EnemyUnit;
+                EnemyUnit unitTemp = unit as EnemyUnit;
+                if (eneTemp.GetUnitID() == unitTemp.GetUnitID())
                 {
                     grid.GetGridTile(x, z).UnitOnTile = null;
                     GameObject tempObj = eneTemp.gameObject;
@@ -246,14 +247,14 @@ public abstract class MapManager : MonoBehaviour
             }
             return;
         }
-        else if (unit.stats.UnitType == "Player")
+        else if (unit.GetUnitType() == "Player")
         {
             GameObject tempObj = unit.gameObject;
             grid.GetGridTile(x, z).UnitOnTile = null;
-            mapUnits.Remove(unit.stats);
+            mapUnits.Remove(unit.GetStats());
             Destroy(tempObj);
             mapGameUnits.Remove(unit);
-            manageTurn.RemovePlayer(unit.stats);
+            manageTurn.RemovePlayer(unit.GetStats());
         }
     }
 
@@ -304,13 +305,13 @@ public abstract class MapManager : MonoBehaviour
 
     public void DespawnUnit(UnitManager unit)
     {
-        mapUnits.Remove(unit.stats);
+        mapUnits.Remove(unit.GetStats());
         mapGameUnits.Remove(unit);
 
         grid.GetGridTile(unit.XPos, unit.ZPos).UnitOnTile = null;
 
         Destroy(unit.gameObject);
-        manageTurn.RemovePlayer(unit.stats);
+        manageTurn.RemovePlayer(unit.GetStats());
     }
 
 

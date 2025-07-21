@@ -28,14 +28,14 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
         DidAction = false;
 
 
-        List<Weapon> weaponList = enemy.GetComponent<UnitManager>().stats.weapons;
+        List<Weapon> weaponList = enemy.GetComponent<UnitManager>().GetWeapons();
         UnitManager enemyUnit = enemy.GetComponent<UnitManager>();
         List<UnitsToAttack> unitAttackList = new List<UnitsToAttack>();
 
         // yield return StartCoroutine(playerGridMovement.MoveCursor(enemyUnit.XPos, enemyUnit.ZPos, 200f));
 
         for (int k = 0; k < weaponList.Count; k++) {
-            findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.getMove(), enemyUnit);
+            findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.GetMove(), enemyUnit);
             List<UnitManager> unitsInRange = new List<UnitManager>();
             for (int i = 0; i < generateGrid.GetWidth(); i++)
             {
@@ -54,8 +54,8 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
                 
                 UnitManager tempUnit = unitsInRange[l];
 
-                int enemyDamage = enemyUnit.getCurrentHealth();
-                int defDamage = tempUnit.getCurrentHealth();
+                int enemyDamage = enemyUnit.GetCurrentHealth();
+                int defDamage = tempUnit.GetCurrentHealth();
 
                 enemyUnit.GetPrimaryWeapon().InitiateQueues(enemyUnit, tempUnit, enemyUnit.XPos, enemyUnit.ZPos, tempUnit.XPos, tempUnit.ZPos);
                 Queue<UnitManager> AttackingQueue = enemyUnit.GetPrimaryWeapon().AttackingQueue;
@@ -67,7 +67,7 @@ public class AttackInRangeAI : MonoBehaviour, IEnemyAI
                     UnitManager atk = AttackingQueue.Dequeue();
                     UnitManager def = DefendingQueue.Dequeue();
 
-                    if (atk.stats.UnitType == "Enemy") {
+                    if (atk.GetUnitType() == "Enemy") {
                         defDamage += weaponList[k].UnitAttack(atk, def, true);
                         
                     } else {

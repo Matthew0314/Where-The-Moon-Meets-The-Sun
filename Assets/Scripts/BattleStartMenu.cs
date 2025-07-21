@@ -304,13 +304,13 @@ public class BattleStartMenu : MonoBehaviour
                 }
 
                 List<UnitManager> unitsMan = _currentMap.GetMapUnits();
-                UnitManager matchUnit = unitsMan.FirstOrDefault(u => u.stats.UnitName == unit.UnitName);
+                UnitManager matchUnit = unitsMan.FirstOrDefault(u => u.GetUnitName() == unit.UnitName);
 
                 if (matchUnit != null)
                 {
                     _currentMap.DespawnUnit(matchUnit);
                     // BuildUnitSelectMenu();
-                    ChangeTextColor(unitButtons[selectedIndex], "default", matchUnit.stats.Name);
+                    ChangeTextColor(unitButtons[selectedIndex], "default", matchUnit.GetName());
                     yield return null;
                 }
 
@@ -459,13 +459,13 @@ public class BattleStartMenu : MonoBehaviour
         var mapUnitsOnlyList = playableRoster
             .Where(unit => !requiredUnits.Contains(unit.UnitName)
                         && !forbiddenUnits.Contains(unit.UnitName)
-                        && mapUnits.Any(mu => mu.stats.UnitName == unit.UnitName))
+                        && mapUnits.Any(mu => mu.GetUnitName() == unit.UnitName))
             .ToList();
 
         var restList = playableRoster
             .Where(unit => !requiredUnits.Contains(unit.UnitName)
                         && !forbiddenUnits.Contains(unit.UnitName)
-                        && !mapUnits.Any(mu => mu.stats.UnitName == unit.UnitName))
+                        && !mapUnits.Any(mu => mu.GetUnitName() == unit.UnitName))
             .ToList();
 
         var forbiddenList = playableRoster
@@ -511,16 +511,16 @@ public class BattleStartMenu : MonoBehaviour
                     if (requiredUnits.Contains(stats.UnitName))
                     {
                         color = "<color=#228B22>"; // Green
-                        UnitManager matchingUnit = mapUnits.Find(u => u.stats.UnitName == stats.UnitName);
+                        UnitManager matchingUnit = mapUnits.Find(u => u.GetUnitName() == stats.UnitName);
                         unitList.Add(matchingUnit);
                     }
-                    else if (mapUnits.Any(mu => mu.stats.UnitName == stats.UnitName)
+                    else if (mapUnits.Any(mu => mu.GetUnitName() == stats.UnitName)
                         && !requiredUnits.Contains(stats.UnitName)
                         && !forbiddenUnits.Contains(stats.UnitName))
                     {
                         color = "<color=#0000FF>"; // Blue
 
-                        UnitManager matchingUnit = mapUnits.Find(u => u.stats.UnitName == stats.UnitName);
+                        UnitManager matchingUnit = mapUnits.Find(u => u.GetUnitName() == stats.UnitName);
                         unitList.Add(matchingUnit);
                     }
 
@@ -605,6 +605,8 @@ public class BattleStartMenu : MonoBehaviour
                 if (text.name.ToLower().Contains("item"))
                 {
                     text.text = w.WeaponName;
+                    if (stats.GetPrimaryWeapon() == w) text.text += " (e)";
+
                 }
                 else if (text.name.ToLower().Contains("uses"))
                 {

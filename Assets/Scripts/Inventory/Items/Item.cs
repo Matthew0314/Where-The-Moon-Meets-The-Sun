@@ -80,7 +80,7 @@ public class Vulnerary: Item {
     }
 
     public override bool CanUse(UnitManager user) {
-        if (user.getCurrentHealth() < user.getMaxHealth()) {
+        if (user.GetCurrentHealth() < user.GetHealth()) {
             return true;
         }
 

@@ -28,7 +28,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
         DidAction = false;
 
         //Get the enemy's UnitManager and its weapon list
-        List<Weapon> weaponList = enemy.GetComponent<UnitManager>().stats.weapons;
+        List<Weapon> weaponList = enemy.GetComponent<UnitManager>().GetWeapons();
         UnitManager enemyUnit = enemy.GetComponent<UnitManager>();
 
         //Sets up lists for Units to attack and units in range
@@ -37,7 +37,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
 
         // For each weapon, get the enemies movement and attack range and adds it to the list
         for (int k = 0; k < weaponList.Count; k++) {
-            findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.getMove(), enemyUnit);
+            findPath.calculateMovement(enemyUnit.XPos, enemyUnit.ZPos, enemyUnit.GetMove(), enemyUnit);
             unitsInRange = new List<UnitManager>();
             for (int i = 0; i < generateGrid.GetWidth(); i++)
             {
@@ -58,8 +58,8 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                 
                 UnitManager tempUnit = unitsInRange[l];
 
-                int enemyDamage = enemyUnit.getCurrentHealth();
-                int defDamage = tempUnit.getCurrentHealth();
+                int enemyDamage = enemyUnit.GetCurrentHealth();
+                int defDamage = tempUnit.GetCurrentHealth();
 
                 enemyUnit.GetPrimaryWeapon().InitiateQueues(enemyUnit, tempUnit, enemyUnit.XPos, enemyUnit.ZPos, tempUnit.XPos, tempUnit.ZPos);
                 Queue<UnitManager> AttackingQueue = enemyUnit.GetPrimaryWeapon().AttackingQueue;
@@ -71,7 +71,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
                     UnitManager atk = AttackingQueue.Dequeue();
                     UnitManager def = DefendingQueue.Dequeue();
 
-                    if (atk.stats.UnitType == "Enemy") {
+                    if (atk.GetUnitType() == "Enemy") {
                         defDamage += weaponList[k].UnitAttack(atk, def, true);
                         
                     } else {
@@ -136,7 +136,7 @@ public class TrackerAI : MonoBehaviour, IEnemyAI
             Transform enemyTrans = enemy.transform;
             float step;
 
-            for (int i = 0; i < enemyUnit.getMove(); i++) {
+            for (int i = 0; i < enemyUnit.GetMove(); i++) {
                 Vector3 targetPosition = new Vector3(generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetXPos(), generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetYPos() + 0.30f, generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetZPos());
                 float speed = 25f; // Speed of movement
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetXPos(), generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetYPos() + 0.30f, generateGrid.GetGridTile(minPath[i].x, minPath[i].z).GetZPos());

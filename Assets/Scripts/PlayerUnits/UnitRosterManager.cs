@@ -27,37 +27,43 @@ public class UnitRosterManager : MonoBehaviour
 
             string[] data = line.Trim().Split(',');
 
-            string chrName = data[0];
-            string dName = data[1];
-            string chrDesc = data[2];
-            int lev = int.Parse(data[3]);
-            int HPGR = int.Parse(data[4]);
-            int ATKGR = int.Parse(data[5]);
-            int MAGGR = int.Parse(data[6]);
-            int DEFGR = int.Parse(data[7]);
-            int RESGR = int.Parse(data[8]);
-            int SPDGR = int.Parse(data[9]);
-            int EVAGR = int.Parse(data[10]);
-            int LCKGR = int.Parse(data[11]);
-            int HP = int.Parse(data[12]);
-            int ATK = int.Parse(data[13]);
-            int MAG = int.Parse(data[14]);
-            int DEF = int.Parse(data[15]);
-            int RES = int.Parse(data[16]);
-            int SPD = int.Parse(data[17]);
-            int EVA = int.Parse(data[18]);
-            int LCK = int.Parse(data[19]);
-            int MOV = int.Parse(data[20]);
-            string charClass = data[21];
-            int faithRank = int.Parse(data[28]);
-            int magicRank = int.Parse(data[29]);
+            int index = 0;
 
-            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass, faithRank, magicRank);
+
+            int unitID = int.Parse(data[index++]);
+            string chrName = data[index++];
+            Debug.Log("adding " + chrName);
+
+            string dName = data[index++];
+            string chrDesc = data[index++];
+            int lev = int.Parse(data[index++]);
+            int HPGR = int.Parse(data[index++]);
+            int ATKGR = int.Parse(data[index++]);
+            int MAGGR = int.Parse(data[index++]);
+            int DEFGR = int.Parse(data[index++]);
+            int RESGR = int.Parse(data[index++]);
+            int SPDGR = int.Parse(data[index++]);
+            int EVAGR = int.Parse(data[index++]);
+            int LCKGR = int.Parse(data[index++]);
+            int HP = int.Parse(data[index++]);
+            int ATK = int.Parse(data[index++]);
+            int MAG = int.Parse(data[index++]);
+            int DEF = int.Parse(data[index++]);
+            int RES = int.Parse(data[index++]);
+            int SPD = int.Parse(data[index++]);
+            int EVA = int.Parse(data[index++]);
+            int LCK = int.Parse(data[index++]);
+            int MOV = int.Parse(data[index++]);
+            string charClass = data[index++];
+            int faithRank = int.Parse(data[index++ + 6]);
+            int magicRank = int.Parse(data[index++ + 6]);
+
+            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, unitID, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass, faithRank, magicRank);
 
             // Add items and weapons
             for (int j = 0; j < 6; j++)
             {
-                string itemName = data[22 + j];
+                string itemName = data[23 + j];
                 if (itemName == "NULL")
                 {
                     // Debug.Log("Null Weapon");
@@ -68,6 +74,8 @@ public class UnitRosterManager : MonoBehaviour
                 if (tempWeapon != null)
                 {
                     stats.AddWeapon(tempWeapon);
+
+                    if (j == 0) stats.SetPrimaryWeapon(tempWeapon);
                     // Debug.Log("Added " + tempWeapon.WeaponName);
                 }
                 else
@@ -93,6 +101,8 @@ public class UnitRosterManager : MonoBehaviour
                     stats.faithRankList[i - 1] = faithFields[i];
                     // Debug.Log("Faith Created " + faithFields[i]);
                 }
+
+                if (stats.GetPrimaryWeapon() == null && stats.magic[0] != null) stats.SetPrimaryWeapon(stats.magic[0]);
             }
 
             fullRoster.Add(chrName, stats);

@@ -69,7 +69,7 @@ public class PrologueMap : MapManager
     //The clear condition for the prologue is routing all the enemies 
     public override IEnumerator CheckClearCondition()
     {
-        if (!mapEnemies.Any(unit => unit.stats.EnemyID == 5)) {
+        if (!mapEnemies.Any(unit => unit.GetUnitID() == 5)) {
             yield return StartCoroutine(combatMenuManager.VicDefText("Victory"));
             playerCursor.startGame = false;
             while (true) {

@@ -74,34 +74,22 @@ public abstract class Weapon
     public virtual int UnitAttack(UnitManager atk, UnitManager def, bool ignoreRates)
     {
 
-        int damage = 0;
-        if (UseMagic)
-        {
-            damage = atk.GetAttack() - def.GetResistance();
-        }
-        else
-        {
-            damage = atk.GetAttack() - def.GetDefense();
-        }
+        int damage = atk.GetDamage(def);
 
         float multiplier = 1;
 
-        if (def.stats.Mounted)
-        {
+        if (def.GetMounted())
             multiplier += atk.GetPrimaryWeapon().MultMounted - 1;
-        }
-        if (def.stats.AirBorn)
-        {
+        
+        if (def.GetAirBorn())
             multiplier += atk.GetPrimaryWeapon().MultAirBorn - 1;
-        }
-        if (def.stats.Armored)
-        {
+
+        if (def.GetArmored())
             multiplier += atk.GetPrimaryWeapon().MultArmored - 1;
-        }
-        if (def.stats.Whisper)
-        {
+
+        if (def.GetWhisper())
             multiplier += atk.GetPrimaryWeapon().MultWhisper - 1;
-        }
+        
 
         damage = (int)(damage * multiplier);
 
@@ -110,8 +98,8 @@ public abstract class Weapon
 
         if (!ignoreRates)
         {
-            int hit = atk.GetPrimaryWeapon().HitRate + (atk.stats.Luck * 4) - def.stats.Evasion;
-            int crit = atk.GetPrimaryWeapon().CritRate + (int)(atk.stats.Luck / 2);
+            int hit = atk.GetBattleHit(def);
+            int crit = atk.GetBattleCrit();
 
             if (hit < 0) { hit = 0; }
             if (crit < 0) { crit = 0; }
@@ -145,10 +133,8 @@ public abstract class Weapon
 
         for (int i = 0; i < attacker.GetPrimaryWeapon().NumHits; i++)
         {
-            Debug.Log("hi" + attacker.stats.Name);
             AttackingQueue.Enqueue(attacker);
             DefendingQueue.Enqueue(defender);
-            Debug.Log("hi");
         }
         bool[,] counter;
 
@@ -167,7 +153,7 @@ public abstract class Weapon
         }
 
 
-        if (attacker.stats.Speed >= defender.stats.Speed + 4)
+        if (attacker.IsDoubleFaster(defender))
         {
             for (int i = 0; i < attacker.GetPrimaryWeapon().NumHits; i++)
             {
@@ -175,7 +161,7 @@ public abstract class Weapon
                 DefendingQueue.Enqueue(defender);
             }
         }
-        else if (attacker.stats.Speed <= defender.stats.Speed - 4 && defender.GetPrimaryWeapon() != null)
+        else if (attacker.IsDoubleFaster(defender) && defender.GetPrimaryWeapon() != null)
         {
             counter = pathFinder.CalculateAttack(defenderX, defenderZ, defender.GetPrimaryWeapon().Range, defender.GetPrimaryWeapon().Range1, defender.GetPrimaryWeapon().Range2, defender.GetPrimaryWeapon().Range3);
 

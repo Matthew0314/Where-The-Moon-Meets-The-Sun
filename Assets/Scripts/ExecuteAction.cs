@@ -77,7 +77,7 @@ public class ExecuteAction : MonoBehaviour
     public void ResetAfterAction(UnitManager playerUn) {
         findPath.DestroyRange();
         findPath.DestroyArea();
-        if (playerUn.getCurrentHealth() > 0) {
+        if (playerUn.GetCurrentHealth() > 0) {
             generateGrid.MoveUnit(playerUn, playerGridMovement.GetOrgX(), playerGridMovement.GetOrgZ(), playerGridMovement.GetCurX(), playerGridMovement.GetCurZ());
         }
         
@@ -330,7 +330,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
-            turnManager.RemovePlayer(AttackingUnit.stats);
+            turnManager.RemovePlayer(AttackingUnit.GetStats());
             ResetAfterAction(AttackingUnit);
             yield return StartCoroutine(_currentMap.CheckClearCondition());
             yield return StartCoroutine(_currentMap.CheckDefeatCondition());
@@ -355,9 +355,9 @@ public class ExecuteAction : MonoBehaviour
 
         int coun = AttackingQueue.Count;
         
-        int AttackerExpectHealth = player.getCurrentHealth();
+        int AttackerExpectHealth = player.GetCurrentHealth();
       
-        int DefendExpectHealth = enemy.getCurrentHealth();
+        int DefendExpectHealth = enemy.GetCurrentHealth();
 
         int PDamage = 0;
         int EDamage = 0;
@@ -369,38 +369,28 @@ public class ExecuteAction : MonoBehaviour
             UnitManager atk = AttackingQueue.Dequeue();
             UnitManager def = DefendingQueue.Dequeue();
 
-            int damage = 0;
-            if (atk.GetPrimaryWeapon().UseMagic) {
-                
-                damage = atk.GetAttack() - def.GetResistance();
-                Debug.LogError("USING MAGIC AHHHHHHHH  " + damage);
+            int damage = atk.GetDamage(def);
 
-            } else {
-                damage = atk.GetAttack() - def.GetDefense();
-
-            }
 
             float multiplier = 1;
 
-            if (def.stats.Mounted) {
-                multiplier += atk.GetPrimaryWeapon().MultMounted - 1; 
-            }
-            if (def.stats.AirBorn) {
+            if (def.GetMounted()) 
+                multiplier += atk.GetPrimaryWeapon().MultMounted - 1;
+            
+            if (def.GetAirBorn()) 
                 multiplier += atk.GetPrimaryWeapon().MultAirBorn - 1; 
-            }
-            if (def.stats.Armored) {
-                multiplier += atk.GetPrimaryWeapon().MultArmored - 1; 
-            }
-            if (def.stats.Whisper) {
-                multiplier += atk.GetPrimaryWeapon().MultWhisper - 1; 
-            }
 
+            if (def.GetArmored()) 
+                multiplier += atk.GetPrimaryWeapon().MultArmored - 1;  
+
+            if (def.GetWhisper()) 
+                multiplier += atk.GetPrimaryWeapon().MultWhisper - 1; 
 
             damage = (int)(damage * multiplier);
 
             if (damage < 0) {damage = 0;}
 
-            if (atk.stats.UnitType == "Player") {
+            if (atk.GetUnitType() == "Player") {
                 DefendExpectHealth -= damage;
                 PDamage = damage;
                 numPHits++;
@@ -482,40 +472,29 @@ public class ExecuteAction : MonoBehaviour
         UnitManager playerUnit = null;
         EnemyUnit enemyUnit = null;
 
-        if (attackingUnit.stats.UnitType == "Player") {
+        if (attackingUnit.GetUnitType() == "Player") {
             playerUnit = attackingUnit;
             enemyUnit = (EnemyUnit)defendingUnit;
         }
 
-        if (defendingUnit.stats.UnitType == "Player") {
+        if (defendingUnit.GetUnitType() == "Player") {
             playerUnit = defendingUnit;
             enemyUnit = (EnemyUnit)attackingUnit;
         }
         
         // Calculates Expected Attack for both defender and attacker that will be used in the battle menu
-        int defAttack = 0;
-        int atkAttack = 0;
-        if (attackingUnit.GetPrimaryWeapon().UseMagic) {
-            atkAttack = attackingUnit.GetAttack() - defendingUnit.GetResistance();
-        } else {
-            atkAttack = attackingUnit.GetAttack() - defendingUnit.GetDefense();
-        }
+        int defAttack = defendingUnit.GetDamage(attackingUnit);
+        int atkAttack = attackingUnit.GetDamage(defendingUnit);
+        
 
         
-        if (defendingUnit.GetPrimaryWeapon() != null)
-        {
-            if (defendingUnit.GetPrimaryWeapon().UseMagic) {
-                defAttack = defendingUnit.GetAttack() - attackingUnit.GetResistance();
-            } else {
-                defAttack = defendingUnit.GetAttack() - attackingUnit.GetDefense();
-            }
-        }
+        
             
         if (atkAttack < 0) atkAttack = 0;
         if(defAttack < 0) defAttack = 0;
 
         // Opens battle menu and switches to combat cam with a 3f transition
-        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
+        yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.GetCurrentHealth(), defendingUnit.GetCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
         // SwitchToCombatCamera(attackingUnit.gameObject.transform, defendingUnit.gameObject.transform);
         StartCoroutine(CheckForSkip());
         yield return StartCoroutine(SwitchToCombatCamera(attackingUnit.transform, defendingUnit.transform));
@@ -575,7 +554,7 @@ public class ExecuteAction : MonoBehaviour
 
 
             // Sets up combat battle menu with updated health
-            if (!skipCutscene) yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
+            if (!skipCutscene) yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.GetCurrentHealth(), defendingUnit.GetCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
             if (!skipCutscene) yield return new WaitForSeconds(1f);
 
             
@@ -584,9 +563,9 @@ public class ExecuteAction : MonoBehaviour
                 
             
             // If defender dies
-            if (def.getCurrentHealth() <= 0) {
+            if (def.GetCurrentHealth() <= 0) {
                 // checked if more than 1 health bar, else remove the dead unit 
-                if (def.stats.HealthBars > 1) {
+                if (def.GetHealthBars() > 1) {
                     extraHealthBar = true;
                     extraHltUnit = def;
                 } else {
@@ -604,7 +583,7 @@ public class ExecuteAction : MonoBehaviour
         }
         if (skipCutscene)
         {
-            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.getCurrentHealth(), defendingUnit.getCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
+            yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.GetCurrentHealth(), defendingUnit.GetCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
             yield return new WaitForSeconds(1f);
         }
 
@@ -616,7 +595,7 @@ public class ExecuteAction : MonoBehaviour
         
         
 
-        if (attackingUnit.UnitType == "Player" && playerUnit.getCurrentHealth() > 0) {
+        if (attackingUnit.GetUnitType() == "Player" && playerUnit.GetCurrentHealth() > 0) {
             // Transforms the camera to face the player, but have them slightly to the right
             Vector3 forward = atkObj.transform.forward; 
             Vector3 right = atkObj.transform.right;     
@@ -639,19 +618,19 @@ public class ExecuteAction : MonoBehaviour
 
         
         // If the playerunit is still alive calculate and send over the amount of EXP
-        if (playerUnit != null && playerUnit.getCurrentHealth() > 0) {
+        if (playerUnit != null && playerUnit.GetCurrentHealth() > 0) {
             int expObtained = 0;
 
             // Calculate EXP with a base of 30 with +5 for every level the player is below, or -5 for every level the player is above
-            expObtained = 30 + ((enemyUnit.stats.Level - playerUnit.stats.Level) * 5);
+            expObtained = 30 + ((enemyUnit.GetLevel() - playerUnit.GetLevel()) * 5);
 
-            EnemyStats eneStats = (EnemyStats)enemyUnit.stats;
+            EnemyStats eneStats = (EnemyStats)enemyUnit.GetStats();
 
             // If the Enemy is a boss, multiply the EXP by 1.5
             if (eneStats.IsBoss) { expObtained = (int)((double)expObtained * 1.5); }
 
             // If the Enemy is still alive, divide by 2
-            if (enemyUnit.getCurrentHealth() > 0) { expObtained /= 2; }
+            if (enemyUnit.GetCurrentHealth() > 0) { expObtained /= 2; }
 
             // If the player is not on Eclipse difficulty, then multiply it by 2
             if (_currentMap.GetDifficulty() != "Eclipse") { expObtained *= 2; }
@@ -1072,11 +1051,6 @@ public class ExecuteAction : MonoBehaviour
                     
                 }
 
-                Debug.Log("Index Changed");
-
-                // defenderX = UnitsInRange[currentIndex].GetGridX();
-                // defenderZ = UnitsInRange[currentIndex].GetGridZ();
-
                 
                 targetPosition = new Vector3(UnitsInRange[currentIndex].GetXPos(), UnitsInRange[currentIndex].GetYPos(), UnitsInRange[currentIndex].GetZPos());
                 
@@ -1114,7 +1088,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
-            turnManager.RemovePlayer(AttackingUnit.stats);
+            turnManager.RemovePlayer(AttackingUnit.GetStats());
             // unitWait();
             ResetAfterAction(AttackingUnit);
             

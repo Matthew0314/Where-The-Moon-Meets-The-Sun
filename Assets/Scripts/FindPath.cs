@@ -207,7 +207,7 @@ public class FindPath : MonoBehaviour
                     // Debug.Log(gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.currentHealth );
 
 
-                    if (currCost == int.MaxValue || ((gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile != null && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats != null) && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.stats.UnitType != unit.stats.UnitType))
+                    if (currCost == int.MaxValue || ((gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile != null && gridTraverse.GetGridTile(nextX, nextZ).UnitOnTile.GetUnitType() != unit.GetUnitType())))
                     {
                         //Since its an edge cell it will be added tp movable cells and used to calculate attack area
                         // discard = CalculateAttack(startX, startZ, unit.primaryWeapon.Range, unit.primaryWeapon.Range1, unit.primaryWeapon.Range2, unit.primaryWeapon.Range3);
@@ -426,7 +426,7 @@ public class FindPath : MonoBehaviour
 
         for (int k = 0; k < queueCount; k++) {
             UnitManager tempEne = currEnemies.Dequeue();
-            calculateMovement(tempEne.XPos, tempEne.ZPos, tempEne.getMove(), tempEne);
+            calculateMovement(tempEne.XPos, tempEne.ZPos, tempEne.GetMove(), tempEne);
 
             for (int i = 0; i < gridTraverse.GetWidth(); i++)
             {
@@ -472,7 +472,7 @@ public class FindPath : MonoBehaviour
 
     
           
-        calculateMovement(enemy.XPos, enemy.ZPos, enemy.getMove(), enemy);
+        calculateMovement(enemy.XPos, enemy.ZPos, enemy.GetMove(), enemy);
 
         for (int i = 0; i < gridTraverse.GetWidth(); i++)
         {
@@ -523,7 +523,7 @@ public class FindPath : MonoBehaviour
 
         for (int k = 0; k < eneCou; k++) {
             UnitManager tempEne = selectedEnemies[k];
-            calculateMovement(tempEne.XPos, tempEne.ZPos, tempEne.getMove(), tempEne);
+            calculateMovement(tempEne.XPos, tempEne.ZPos, tempEne.GetMove(), tempEne);
 
             for (int i = 0; i < gridTraverse.GetWidth(); i++)
             {

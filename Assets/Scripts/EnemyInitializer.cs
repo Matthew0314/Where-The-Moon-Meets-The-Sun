@@ -137,8 +137,9 @@ public class EnemyInitializer : MonoBehaviour
         //Stores the enemy stats in the EnemyUnit object and stores in a queue
         UnitManager enemy = newEnemy.GetComponent<UnitManager>();
 
-        enemy.stats = eStats;
-        if (enemy.stats.weapons.Count > 0) enemy.SetPrimaryWeapon(enemy.stats.weapons[0]);
+        // enemy.stats = eStats;
+        enemy.SetStats(eStats);
+        if (enemy.GetWeapons().Count > 0) enemy.SetPrimaryWeapon(enemy.GetWeapons()[0]);
 
         enemy.InitializeUnitData();
         enemy.XPos = enemyX;

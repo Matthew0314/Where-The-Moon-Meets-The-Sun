@@ -57,8 +57,8 @@ public class Heal : Faith {
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < length; j++) {
-                if (attackGrid[i, j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Player") && generateGrid.GetGridTile(i,j).UnitOnTile.stats.Name != user.stats.Name) {
-                    if (generateGrid.GetGridTile(i, j).UnitOnTile.getCurrentHealth() < generateGrid.GetGridTile(i, j).UnitOnTile.getMaxHealth()) {
+                if (attackGrid[i, j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Player") && generateGrid.GetGridTile(i,j).UnitOnTile.GetName() != user.GetName()) {
+                    if (generateGrid.GetGridTile(i, j).UnitOnTile.GetCurrentHealth() < generateGrid.GetGridTile(i, j).UnitOnTile.GetHealth()) {
                         return true;
                     }
                     
@@ -84,8 +84,8 @@ public class Heal : Faith {
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < length; j++) {
-                if (attackGrid[i, j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Player") && generateGrid.GetGridTile(i,j).UnitOnTile.stats.Name != unit.stats.Name) {
-                    if (generateGrid.GetGridTile(i, j).UnitOnTile.getCurrentHealth() < generateGrid.GetGridTile(i, j).UnitOnTile.getMaxHealth()) {
+                if (attackGrid[i, j] && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Player") && generateGrid.GetGridTile(i,j).UnitOnTile.GetName() != unit.GetName()) {
+                    if (generateGrid.GetGridTile(i, j).UnitOnTile.GetCurrentHealth() < generateGrid.GetGridTile(i, j).UnitOnTile.GetHealth()) {
                         listofTiles.Add(generateGrid.GetGridTile(i, j));
                     }
                     
@@ -99,7 +99,7 @@ public class Heal : Faith {
     public override IEnumerator Use(UnitManager user, UnitManager reciever) {
         Uses--;
         // reciever.HealUnit(10);
-        int healAmount = 8 + (user.stats.Magic / 3);
+        int healAmount = 8 + (user.GetMagic() / 3);
         yield return reciever.StartCoroutine(reciever.Heal(healAmount));
         yield return null;
     }
