@@ -14,6 +14,10 @@ public class PlayerUnit : UnitManager
         InitializeUnitData();
         Transform childImage = transform.Find("PlayerCircle/Canvas/UnitBar");
         healthBar = childImage.GetComponent<Image>();
+        extraHealth1 = transform.Find("PlayerCircle/Canvas/UnitCircle/ExtraHealth1").GetComponent<Image>();
+        extraHealth1.gameObject.SetActive(false);
+        numHealthBars++;
+        AddHealthBar();
         unitCircle = transform.Find("PlayerCircle").gameObject;
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
         originalMaterial = healthBar.material;
@@ -123,5 +127,18 @@ public class PlayerUnit : UnitManager
     // public override int getMaxHealth() => stats.Health; 
     // public override void setCurrentHealth(int health) { stats.CurrentHealth = health; }
     public override string GetUnitType() { return UnitType; }
+
+
+    public override void AddHealthBar() {
+        if (numHealthBars < 2) {
+            numHealthBars++;
+            extraHealth1.gameObject.SetActive(true);
+        }
+    }
+
+    public override int GetHealthBars() => numHealthBars;
+
+
+    // public override int GetHealthBars()
 
 }

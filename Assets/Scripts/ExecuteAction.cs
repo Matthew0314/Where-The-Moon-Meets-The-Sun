@@ -568,6 +568,8 @@ public class ExecuteAction : MonoBehaviour
                 if (def.GetHealthBars() > 1) {
                     extraHealthBar = true;
                     extraHltUnit = def;
+                    Debug.LogError("AHHHHHHHHHHEXTRA");
+                    
                 } else {
                     _currentMap.RemoveDeadUnit(def, def.XPos, def.ZPos);
                 }

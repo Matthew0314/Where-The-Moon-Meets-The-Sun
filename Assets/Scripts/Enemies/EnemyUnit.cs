@@ -26,7 +26,7 @@ public class EnemyUnit : UnitManager
         // maxHealth = stats.Health;
         // currentHealth = maxHealth;
         stats.SetPrimaryWeapon(stats.GetWeaponAt(0));
-        Debug.LogWarning(stats.Name);
+        // Debug.LogWarning(stats.Name);
         extraHealth1 = transform.Find("EnemyCircle/Canvas/UnitCircle/ExtraHealth1").GetComponent<Image>();
         if(stats.HealthBars < 2) 
         {

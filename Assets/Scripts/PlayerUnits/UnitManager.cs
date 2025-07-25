@@ -11,6 +11,7 @@ public abstract class UnitManager : MonoBehaviour
     public GameObject unitCircle;
     public Image healthBar;
     public Image extraHealth1;
+    protected int numHealthBars = 0;
 
     protected UnitStats stats;
     public string UnitType { get; set; }
@@ -90,7 +91,9 @@ public abstract class UnitManager : MonoBehaviour
     public virtual int GetExperience() => stats.Experience;
     public virtual int GetUnitID() => stats.UnitID;
     public virtual int GetHealthBars() => stats.HealthBars;
-    public virtual string GetUnitType() => stats.UnitType;
+    public virtual string GetUnitType() => stats.UnitType + numHealthBars;
+
+    public virtual void AddHealthBar() => numHealthBars++;
 
     // Returns info about the characters unit/class type
     public virtual bool GetAirBorn() => stats.AirBorn;
@@ -119,12 +122,22 @@ public abstract class UnitManager : MonoBehaviour
     // Handles removing the extra health bars
     public virtual IEnumerator ExtraHealthBar()
     {
-        stats.HealthBars--;
-        CanvasGroup hltBar = null;
-        if (stats.HealthBars == 1)
-        {
-            hltBar = extraHealth1.GetComponent<CanvasGroup>();
-        }
+        // stats.HealthBars--;
+        if (numHealthBars > 1) numHealthBars--;
+        else stats.HealthBars--;
+        
+        // CanvasGroup hltBar = null;
+        CanvasGroup hltBar = extraHealth1.GetComponent<CanvasGroup>();
+        // if (stats.HealthBars == 1)
+        // {
+        //     hltBar = extraHealth1.GetComponent<CanvasGroup>();
+        // }
+
+        // if (extraHealth1 != null && extraHealth1.gameObject.activeInHierarchy)
+        // {
+        //     hltBar = extraHealth1.GetComponent<CanvasGroup>();
+        // }
+
 
         float elapsed = 0f;
 

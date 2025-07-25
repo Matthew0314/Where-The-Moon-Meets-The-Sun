@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Item
+public abstract class Item : InventoryItem
 {
     public int Uses { get; protected set; }
     public bool Equipable { get; protected set; }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //Stores data for every weapon in the game
-public abstract class Weapon
+public abstract class Weapon : InventoryItem
 {
     public string WeaponName { get; set; }
     public string WeaponDescription { get; set; }
