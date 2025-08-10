@@ -16,6 +16,7 @@ public class TurnManager : MonoBehaviour
     private int turns = 0;
     private bool playerTurn;
     private bool enemyTurn; //possibly add another one for ally later on
+    private int currentCP;
     [SerializeField] PlayerGridMovement moveGrid;
     [SerializeField] GenerateGrid grid;
     [SerializeField] CombatMenuManager combatMenuManager;
@@ -54,6 +55,8 @@ public class TurnManager : MonoBehaviour
         {
             currUnits.Add(temp[i]);
         }
+
+        if (_currentMap.UsingCP()) currentCP = _currentMap.GetCP();
     }
 
     //Resets Enemy List after every enemy turn
@@ -181,7 +184,7 @@ public class TurnManager : MonoBehaviour
     {
         if (playerTurn)
         {
-            if (currUnits.Count == 0)
+            if (currUnits.Count == 0 || (_currentMap.UsingCP() && currentCP == 0))
             {
                 playerTurn = false;
                 enemyTurn = true;
@@ -198,6 +201,12 @@ public class TurnManager : MonoBehaviour
             // currentTurn = Turn.Player;
             
         }
+    }
+
+    public void EndTurn() {
+        currUnits.Clear();
+        currentCP = 0;
+        CheckPhase();
     }
 
     // public bool IsPlayerTurn()

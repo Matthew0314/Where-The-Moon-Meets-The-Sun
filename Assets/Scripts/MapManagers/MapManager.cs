@@ -43,6 +43,8 @@ public abstract class MapManager : MonoBehaviour
     [SerializeField] protected int maxEIDEclipse = 0;
     [SerializeField] protected Vector2Int[] playerStartPosition;
     [SerializeField] protected Vector2Int primaryStart;
+    [SerializeField] protected bool useCP;
+    [SerializeField] protected int CP;
 
 
 
@@ -70,6 +72,9 @@ public abstract class MapManager : MonoBehaviour
     // Getters for Length and Width
     public virtual int GetLength() => length;
     public virtual int GetWidth() => width;
+
+    public virtual bool UsingCP() => useCP;
+    public virtual int GetCP() => CP;
 
     // Getter for Difficult
     // TODO: Get rid of later

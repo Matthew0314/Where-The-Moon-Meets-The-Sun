@@ -95,6 +95,11 @@ public class PlayerGridMovement : MonoBehaviour
 
             pathFinder.UnSelectEnemies(gridControl.GetGridTile(x, z).UnitOnTile);
         }
+        else if (playerInput.actions["Select"].WasPressedThisFrame() && gridControl.GetGridTile(x, z).UnitOnTile == null && !inMenu && !charSelected) {
+            inMenu = true;
+            StartCoroutine(combatMenu.PassiveMenu());
+
+        }
 
         //Toggles enemy ranges for all enemies
         else if (playerInput.actions["ShowRange"].WasPressedThisFrame() && !enemyRangeActive && !inMenu && manageTurn.IsPlayerTurn())
@@ -399,18 +404,24 @@ public class PlayerGridMovement : MonoBehaviour
         pathFinder.DestroyArea();
         pathFinder.DestroyRange();
         pathFinder.ResetArea();
+        charSelected = true;
+        inMenu = false;
+
+
+
         MoveUnit(orgX, orgZ);
         // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = gridControl.GetGridTile(x, z).UnitOnTile;
         // gridControl.GetGridTile(x, z).UnitOnTile = null;
         UnitManager temp = gridControl.GetGridTile(x, z).UnitOnTile;
+
+        if (temp == null) return;
         gridControl.GetGridTile(x, z).UnitOnTile = null;
         gridControl.GetGridTile(orgX, orgZ).UnitOnTile = temp;
         // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
         // pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
         pathFinder.calculateMovement(orgX, orgZ, gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetMove(), gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
         pathFinder.PrintArea();
-        charSelected = true;
-        inMenu = false;
+        
         // oneAction = false;
     }
 

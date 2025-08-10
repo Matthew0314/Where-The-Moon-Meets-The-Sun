@@ -458,6 +458,122 @@ public class CombatMenuManager : MonoBehaviour
         _currentMap.CheckClearCondition();
     }
 
+
+
+
+
+    public IEnumerator PassiveMenu() {
+        List<Button> buttons = new List<Button>();
+        List<string> Actions = new List<string>();
+
+        // Start position for where we are spawining the buttons
+        int startX = 700;
+        int startY = 400;
+        int ind = 0;
+
+        // Sets up variables to use for the action menu
+        GameObject actionMenu = GameObject.Find("Canvas/ActionMenu");
+        GameObject tempBtn;
+        Button atkBut;
+        actionMenuList = new List<GameObject>();
+
+        // Always creates an Item button, update code later if there are conditions to prevent this
+        tempBtn = (GameObject)Instantiate(itemButton);
+        tempBtn.transform.SetParent(actionMenu.transform, false);
+        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+        atkBut = tempBtn.GetComponent<Button>();
+        buttons.Add(atkBut);
+        Actions.Add("Back");
+        actionMenuList.Add(tempBtn);
+        TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+        texts[0].text = "Back";
+        ind++;
+
+        // Always creates a Wait button, update code later if there are conditions to prevent this
+        tempBtn = (GameObject)Instantiate(waitButton);
+        tempBtn.transform.SetParent(actionMenu.transform, false);
+        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+        atkBut = tempBtn.GetComponent<Button>();
+        buttons.Add(atkBut);
+        Actions.Add("EndTurn");
+        actionMenuList.Add(tempBtn);
+        ind++;
+        texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+        texts[0].text = "EndTurn";
+
+        // Sets it to index 0
+        int currentIndex = 0;
+        buttons[currentIndex].Select();
+
+        // Used to slow down movement between buttons
+        bool axisInUse = false;
+        bool oneAction = false;
+
+        while (true)
+        {
+
+            // Gets Vertical Input
+            float vertical = moveInput.y;
+
+            if (!axisInUse)
+            {
+                // Move Up
+                if (vertical > sensitivity)
+                {
+                    // If move up sets to next button
+                    buttons[currentIndex].OnDeselect(null);
+                    currentIndex--;
+
+                    // If out of range loop around
+                    if (currentIndex < 0) currentIndex = buttons.Count - 1;
+
+                    // Selects new button
+                    buttons[currentIndex].Select();
+                    axisInUse = true;
+                }
+                // Move Down
+                else if (vertical < -sensitivity)
+                {
+                    // If move down sets to next button
+                    buttons[currentIndex].OnDeselect(null);
+                    currentIndex++;
+
+                    // If out of range loop around
+                    if (currentIndex >= buttons.Count) currentIndex = 0;
+
+                    // Selects new button
+                    buttons[currentIndex].Select();
+                    axisInUse = true;
+                }
+            }
+
+            if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
+
+            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame())
+            {
+
+                if (Actions[currentIndex] == "Back") { DeactivateActionMenu();  }
+                else if (Actions[currentIndex] == "EndTurn") { DeactivateActionMenu(); manageTurn.EndTurn(); }
+                moveGrid.inMenu = false;
+                break;
+            }
+
+
+            if (oneAction && playerInput.actions["Back"].WasPressedThisFrame())
+            {
+                DeactivateActionMenu(); 
+                moveGrid.inMenu = false;
+                break;
+            }
+
+            oneAction = true;
+
+            yield return null;
+        }
+
+        yield return null;
+    }
+
 //^-------------------------------------------------------ATTACK---------------------------------------------------------------------
     public void PlayerAttack() => StartCoroutine(WeaponList(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile));
 
