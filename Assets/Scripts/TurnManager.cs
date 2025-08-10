@@ -17,6 +17,7 @@ public class TurnManager : MonoBehaviour
     private bool playerTurn;
     private bool enemyTurn; //possibly add another one for ally later on
     private int currentCP;
+    private int currentActionCost;
     [SerializeField] PlayerGridMovement moveGrid;
     [SerializeField] GenerateGrid grid;
     [SerializeField] CombatMenuManager combatMenuManager;
@@ -38,6 +39,7 @@ public class TurnManager : MonoBehaviour
         currentTurn = Turn.Player;
         // playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
+        currentCP = _currentMap.GetCP();
         // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         // grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         // combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
@@ -56,7 +58,15 @@ public class TurnManager : MonoBehaviour
             currUnits.Add(temp[i]);
         }
 
-        if (_currentMap.UsingCP()) currentCP = _currentMap.GetCP();
+        List<UnitManager> tempU = _currentMap.GetMapUnits();
+
+        foreach (UnitManager t in tempU) {
+            t.ResetNumberTimesActed();
+        }
+
+        if (_currentMap.UsingCP()) {
+            currentCP = _currentMap.GetCP();
+        }
     }
 
     //Resets Enemy List after every enemy turn
@@ -79,7 +89,8 @@ public class TurnManager : MonoBehaviour
     //Possibly see if you can pass object as a parameter
     public void RemovePlayer(UnitStats player)
     {
-        currUnits.Remove(player);
+        if(!_currentMap.UsingCP())
+            currUnits.Remove(player);
     }
 
     public void AddPlayer(UnitStats player) => currUnits.Add(player);
@@ -111,6 +122,7 @@ public class TurnManager : MonoBehaviour
     private IEnumerator EnemyPhase() {
 
         combatMenuManager.DeactivateHoverMenu();
+        combatMenuManager.DeactivateCPMenu();
         
 
         yield return StartCoroutine(_currentMap.CheckEvents());
@@ -174,6 +186,8 @@ public class TurnManager : MonoBehaviour
         playerTurn = true;
         enemyTurn = false;
 
+        StartCoroutine(combatMenuManager.UpdateCommandPointMenu());
+
        
 
 
@@ -206,6 +220,7 @@ public class TurnManager : MonoBehaviour
     public void EndTurn() {
         currUnits.Clear();
         currentCP = 0;
+        SetCurrentActionCost(0);
         CheckPhase();
     }
 
@@ -236,6 +251,22 @@ public class TurnManager : MonoBehaviour
 
     public int GetTurns() {
         return turns;
+    }
+
+    public void SetCurrentActionCost(int cost) {
+        currentActionCost = cost;
+    }
+
+    public void AfterAction(UnitManager unit) {
+        currentCP -= currentActionCost;
+        SetCurrentActionCost(0);
+        unit.IncNumberTimesActed();
+        StartCoroutine(combatMenuManager.UpdateCommandPointMenu());
+        CheckPhase();
+    }
+
+    public int GetCP() {
+        return currentCP;
     }
     
 }

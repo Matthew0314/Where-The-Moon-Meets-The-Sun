@@ -420,6 +420,8 @@ public abstract class MapManager : MonoBehaviour
         yield return StartCoroutine(combatMenuManager.PhaseStart("Player"));
         yield return new WaitForSeconds(0.5f);
 
+        StartCoroutine(combatMenuManager.UpdateCommandPointMenu());
+
         // Starts the game
         playerCursor.startGame = true;
     }

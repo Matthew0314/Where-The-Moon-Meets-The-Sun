@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
+using System;
+
 
 public class CombatMenuManager : MonoBehaviour
 {
@@ -139,6 +141,13 @@ public class CombatMenuManager : MonoBehaviour
     CanvasGroup VictoryText;
     CanvasGroup DefeatText;
     GameObject background;
+
+
+
+    [Header("Command Points Menu")]
+    [SerializeField] Image CPBar;
+    [SerializeField] TextMeshProUGUI CPText;
+    [SerializeField] GameObject CPParent;
 
 
     Gamepad gamepad;
@@ -291,156 +300,156 @@ public class CombatMenuManager : MonoBehaviour
         }
     }
 
-    public IEnumerator ActivateActionMenu()
-    {
+    // public IEnumerator ActivateActionMenu()
+    // {
 
-        // Checks if unit can use weapons or faith
-        CheckWeapons(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
-        // CheckFaith(moveGrid.GetPlayerCollide().GetPlayer());
-        CheckFaith(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
+    //     // Checks if unit can use weapons or faith
+    //     CheckWeapons(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
+    //     // CheckFaith(moveGrid.GetPlayerCollide().GetPlayer());
+    //     CheckFaith(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile as PlayerUnit);
 
-        // Creates a list to store buttons and a string of what action they do
-        List<Button> buttons = new List<Button>();
-        List<string> Actions = new List<string>();
+    //     // Creates a list to store buttons and a string of what action they do
+    //     List<Button> buttons = new List<Button>();
+    //     List<string> Actions = new List<string>();
 
-        // Start position for where we are spawining the buttons
-        int startX = 700;
-        int startY = 400;
-        int ind = 0;
+    //     // Start position for where we are spawining the buttons
+    //     int startX = 700;
+    //     int startY = 400;
+    //     int ind = 0;
 
-        // Sets up variables to use for the action menu
-        GameObject actionMenu = GameObject.Find("Canvas/ActionMenu");
-        GameObject tempBtn;
-        Button atkBut;
-        actionMenuList = new List<GameObject>();
+    //     // Sets up variables to use for the action menu
+    //     GameObject actionMenu = GameObject.Find("Canvas/ActionMenu");
+    //     GameObject tempBtn;
+    //     Button atkBut;
+    //     actionMenuList = new List<GameObject>();
 
-        // If there are usable weapons create an attack button
-        if (usableWeapons.Count > 0)
-        {
-            // Instantiate and initialize its parent
-            tempBtn = (GameObject)Instantiate(attackButton);
-            tempBtn.transform.SetParent(actionMenu.transform, false);
+    //     // If there are usable weapons create an attack button
+    //     if (usableWeapons.Count > 0)
+    //     {
+    //         // Instantiate and initialize its parent
+    //         tempBtn = (GameObject)Instantiate(attackButton);
+    //         tempBtn.transform.SetParent(actionMenu.transform, false);
 
-            // Sets its position
-            tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+    //         // Sets its position
+    //         tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
 
-            // Add to list fo later user
-            atkBut = tempBtn.GetComponent<Button>();
-            buttons.Add(atkBut);
-            Actions.Add("Attack");
-            actionMenuList.Add(tempBtn);
+    //         // Add to list fo later user
+    //         atkBut = tempBtn.GetComponent<Button>();
+    //         buttons.Add(atkBut);
+    //         Actions.Add("Attack");
+    //         actionMenuList.Add(tempBtn);
 
-            ind++;
-        }
+    //         ind++;
+    //     }
 
-        // If unit can use faith create a faith button
-        if (usableFaith.Count > 0)
-        {
-            tempBtn = (GameObject)Instantiate(assistButton);
-            tempBtn.transform.SetParent(actionMenu.transform, false);
+    //     // If unit can use faith create a faith button
+    //     if (usableFaith.Count > 0)
+    //     {
+    //         tempBtn = (GameObject)Instantiate(assistButton);
+    //         tempBtn.transform.SetParent(actionMenu.transform, false);
 
-            tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
-            atkBut = tempBtn.GetComponent<Button>();
-            buttons.Add(atkBut);
-            Actions.Add("Assist");
-            actionMenuList.Add(tempBtn);
-            ind++;
-        }
+    //         tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+    //         atkBut = tempBtn.GetComponent<Button>();
+    //         buttons.Add(atkBut);
+    //         Actions.Add("Assist");
+    //         actionMenuList.Add(tempBtn);
+    //         ind++;
+    //     }
 
-        // Always creates an Item button, update code later if there are conditions to prevent this
-        tempBtn = (GameObject)Instantiate(itemButton);
-        tempBtn.transform.SetParent(actionMenu.transform, false);
-        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
-        atkBut = tempBtn.GetComponent<Button>();
-        buttons.Add(atkBut);
-        Actions.Add("Item");
-        actionMenuList.Add(tempBtn);
-        ind++;
+    //     // Always creates an Item button, update code later if there are conditions to prevent this
+    //     tempBtn = (GameObject)Instantiate(itemButton);
+    //     tempBtn.transform.SetParent(actionMenu.transform, false);
+    //     tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+    //     atkBut = tempBtn.GetComponent<Button>();
+    //     buttons.Add(atkBut);
+    //     Actions.Add("Item");
+    //     actionMenuList.Add(tempBtn);
+    //     ind++;
 
-        // Always creates a Wait button, update code later if there are conditions to prevent this
-        tempBtn = (GameObject)Instantiate(waitButton);
-        tempBtn.transform.SetParent(actionMenu.transform, false);
-        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
-        atkBut = tempBtn.GetComponent<Button>();
-        buttons.Add(atkBut);
-        Actions.Add("Wait");
-        actionMenuList.Add(tempBtn);
-        ind++;
+    //     // Always creates a Wait button, update code later if there are conditions to prevent this
+    //     tempBtn = (GameObject)Instantiate(waitButton);
+    //     tempBtn.transform.SetParent(actionMenu.transform, false);
+    //     tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+    //     atkBut = tempBtn.GetComponent<Button>();
+    //     buttons.Add(atkBut);
+    //     Actions.Add("Wait");
+    //     actionMenuList.Add(tempBtn);
+    //     ind++;
 
-        // Sets it to index 0
-        int currentIndex = 0;
-        buttons[currentIndex].Select();
+    //     // Sets it to index 0
+    //     int currentIndex = 0;
+    //     buttons[currentIndex].Select();
 
-        // Used to slow down movement between buttons
-        bool axisInUse = false;
-        bool oneAction = false;
+    //     // Used to slow down movement between buttons
+    //     bool axisInUse = false;
+    //     bool oneAction = false;
 
-        while (true)
-        {
+    //     while (true)
+    //     {
 
-            // Gets Vertical Input
-            float vertical = moveInput.y;
+    //         // Gets Vertical Input
+    //         float vertical = moveInput.y;
 
-            if (!axisInUse)
-            {
-                // Move Up
-                if (vertical > sensitivity)
-                {
-                    // If move up sets to next button
-                    buttons[currentIndex].OnDeselect(null);
-                    currentIndex--;
+    //         if (!axisInUse)
+    //         {
+    //             // Move Up
+    //             if (vertical > sensitivity)
+    //             {
+    //                 // If move up sets to next button
+    //                 buttons[currentIndex].OnDeselect(null);
+    //                 currentIndex--;
 
-                    // If out of range loop around
-                    if (currentIndex < 0) currentIndex = buttons.Count - 1;
+    //                 // If out of range loop around
+    //                 if (currentIndex < 0) currentIndex = buttons.Count - 1;
 
-                    // Selects new button
-                    buttons[currentIndex].Select();
-                    axisInUse = true;
-                }
-                // Move Down
-                else if (vertical < -sensitivity)
-                {
-                    // If move down sets to next button
-                    buttons[currentIndex].OnDeselect(null);
-                    currentIndex++;
+    //                 // Selects new button
+    //                 buttons[currentIndex].Select();
+    //                 axisInUse = true;
+    //             }
+    //             // Move Down
+    //             else if (vertical < -sensitivity)
+    //             {
+    //                 // If move down sets to next button
+    //                 buttons[currentIndex].OnDeselect(null);
+    //                 currentIndex++;
 
-                    // If out of range loop around
-                    if (currentIndex >= buttons.Count) currentIndex = 0;
+    //                 // If out of range loop around
+    //                 if (currentIndex >= buttons.Count) currentIndex = 0;
 
-                    // Selects new button
-                    buttons[currentIndex].Select();
-                    axisInUse = true;
-                }
-            }
+    //                 // Selects new button
+    //                 buttons[currentIndex].Select();
+    //                 axisInUse = true;
+    //             }
+    //         }
 
-            if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
+    //         if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
 
-            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame())
-            {
+    //         if (oneAction && playerInput.actions["Select"].WasPressedThisFrame())
+    //         {
 
-                if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack(); }
-                else if (Actions[currentIndex] == "Item") { DeactivateActionMenu(); PlayerItem(); }
-                else if (Actions[currentIndex] == "Wait") { DeactivateActionMenu(); PlayerWait(); }
-                else if (Actions[currentIndex] == "Assist") { DeactivateActionMenu(); PlayerAssist(); }
-                else continue;
+    //             if (Actions[currentIndex] == "Attack") { DeactivateActionMenu(); PlayerAttack(); }
+    //             else if (Actions[currentIndex] == "Item") { DeactivateActionMenu(); PlayerItem(); }
+    //             else if (Actions[currentIndex] == "Wait") { DeactivateActionMenu(); PlayerWait(); }
+    //             else if (Actions[currentIndex] == "Assist") { DeactivateActionMenu(); PlayerAssist(); }
+    //             else continue;
 
-                break;
-            }
+    //             break;
+    //         }
 
 
-            if (oneAction && playerInput.actions["Back"].WasPressedThisFrame())
-            {
-                moveGrid.OutOfMenu();
-                break;
-            }
+    //         if (oneAction && playerInput.actions["Back"].WasPressedThisFrame())
+    //         {
+    //             moveGrid.OutOfMenu();
+    //             break;
+    //         }
 
-            oneAction = true;
+    //         oneAction = true;
 
-            yield return null;
-        }
+    //         yield return null;
+    //     }
 
-        yield return null;
-    }
+    //     yield return null;
+    // }
 
     public void DeactivateActionMenu() {
         foreach(GameObject obj in actionMenuList) Destroy(obj);
@@ -454,94 +463,96 @@ public class CombatMenuManager : MonoBehaviour
         executeAction.unitWait();
 
         // Checks the phase and clear condition and if it has been met
-        manageTurn.CheckPhase();
+        // manageTurn.CheckPhase();
+        manageTurn.AfterAction(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile);
         _currentMap.CheckClearCondition();
     }
 
-
-
-
-
-    public IEnumerator PassiveMenu() {
+    private IEnumerator ShowActionMenu(List<(string Label, Action OnSelect)> menuItems, List<int> CPCost)
+    {
         List<Button> buttons = new List<Button>();
-        List<string> Actions = new List<string>();
-
-        // Start position for where we are spawining the buttons
         int startX = 700;
         int startY = 400;
         int ind = 0;
 
-        // Sets up variables to use for the action menu
         GameObject actionMenu = GameObject.Find("Canvas/ActionMenu");
-        GameObject tempBtn;
-        Button atkBut;
         actionMenuList = new List<GameObject>();
 
-        // Always creates an Item button, update code later if there are conditions to prevent this
-        tempBtn = (GameObject)Instantiate(itemButton);
-        tempBtn.transform.SetParent(actionMenu.transform, false);
-        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
-        atkBut = tempBtn.GetComponent<Button>();
-        buttons.Add(atkBut);
-        Actions.Add("Back");
-        actionMenuList.Add(tempBtn);
-        TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-        texts[0].text = "Back";
-        ind++;
+        for (int i = 0; i < menuItems.Count; i++)
+        {
+            var item = menuItems[i];
 
-        // Always creates a Wait button, update code later if there are conditions to prevent this
-        tempBtn = (GameObject)Instantiate(waitButton);
-        tempBtn.transform.SetParent(actionMenu.transform, false);
-        tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
-        atkBut = tempBtn.GetComponent<Button>();
-        buttons.Add(atkBut);
-        Actions.Add("EndTurn");
-        actionMenuList.Add(tempBtn);
-        ind++;
-        texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
-        texts[0].text = "EndTurn";
+            // Instantiate appropriate button prefab
+            GameObject prefab = item.Label switch
+            {
+                "Attack" => attackButton,
+                "Assist" => assistButton,
+                "Item"   => itemButton,
+                "Wait"   => waitButton,
+                _        => itemButton // fallback
+            };
 
-        // Sets it to index 0
+            GameObject tempBtn = Instantiate(prefab);
+            tempBtn.transform.SetParent(actionMenu.transform, false);
+            tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+
+            // Update button text (append cost if provided)
+            var texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+            bool selectable = true;
+
+            if (texts.Length > 0)
+            {
+                string labelText = item.Label;
+                if (CPCost != null && i < CPCost.Count)
+                {
+                    labelText += $" ({CPCost[i]})";
+
+                    // If cost is too high, disable selection
+                    if (CPCost[i] > manageTurn.GetCP())
+                    {
+                        selectable = false;
+                        // Optionally make it look disabled
+                        texts[0].color = Color.gray;
+                    }
+                }
+                texts[0].text = labelText;
+            }
+
+            Button btn = tempBtn.GetComponent<Button>();
+            if (!selectable)
+            {
+                btn.interactable = false;
+            }
+
+            buttons.Add(btn);
+            actionMenuList.Add(tempBtn);
+            ind++;
+
+        }
+
         int currentIndex = 0;
         buttons[currentIndex].Select();
 
-        // Used to slow down movement between buttons
         bool axisInUse = false;
         bool oneAction = false;
 
         while (true)
         {
-
-            // Gets Vertical Input
             float vertical = moveInput.y;
 
             if (!axisInUse)
             {
-                // Move Up
                 if (vertical > sensitivity)
                 {
-                    // If move up sets to next button
                     buttons[currentIndex].OnDeselect(null);
-                    currentIndex--;
-
-                    // If out of range loop around
-                    if (currentIndex < 0) currentIndex = buttons.Count - 1;
-
-                    // Selects new button
+                    currentIndex = (currentIndex - 1 + buttons.Count) % buttons.Count;
                     buttons[currentIndex].Select();
                     axisInUse = true;
                 }
-                // Move Down
                 else if (vertical < -sensitivity)
                 {
-                    // If move down sets to next button
                     buttons[currentIndex].OnDeselect(null);
-                    currentIndex++;
-
-                    // If out of range loop around
-                    if (currentIndex >= buttons.Count) currentIndex = 0;
-
-                    // Selects new button
+                    currentIndex = (currentIndex + 1) % buttons.Count;
                     buttons[currentIndex].Select();
                     axisInUse = true;
                 }
@@ -551,28 +562,230 @@ public class CombatMenuManager : MonoBehaviour
 
             if (oneAction && playerInput.actions["Select"].WasPressedThisFrame())
             {
-
-                if (Actions[currentIndex] == "Back") { DeactivateActionMenu();  }
-                else if (Actions[currentIndex] == "EndTurn") { DeactivateActionMenu(); manageTurn.EndTurn(); }
-                moveGrid.inMenu = false;
-                break;
+                if (buttons[currentIndex].interactable) // ✅ Only allow if button is interactable
+                {
+                    if (CPCost != null && currentIndex < CPCost.Count) {
+                        Debug.LogError("AHHHHHHHHHHHHHHHHHHHHH " + CPCost[currentIndex]);
+                        manageTurn.SetCurrentActionCost(CPCost[currentIndex]);
+                    }
+                    menuItems[currentIndex].OnSelect?.Invoke();
+                    break;
+                }
+                
+                
+                
             }
-
 
             if (oneAction && playerInput.actions["Back"].WasPressedThisFrame())
             {
-                DeactivateActionMenu(); 
-                moveGrid.inMenu = false;
+                DeactivateActionMenu();
+                moveGrid.OutOfMenu();
                 break;
             }
 
             oneAction = true;
-
             yield return null;
         }
-
-        yield return null;
     }
+
+    
+
+    public IEnumerator ActivateActionMenu()
+    {
+        UnitManager unit = generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile;
+        CheckWeapons(unit as PlayerUnit);
+        CheckFaith(unit as PlayerUnit);
+
+
+        var items = new List<(string, Action)>();
+        List<int> CPCost = new List<int>();
+
+        int tCos = 0;
+
+        if (usableWeapons.Count > 0) {
+            items.Add(("Attack", () => { DeactivateActionMenu(); PlayerAttack(); }));
+            // CPCost.Add(1);
+            // if (moveGrid.DidUnitMove()) CPCost[items.Count - 1] += 1;
+            tCos = 1;
+            if (moveGrid.DidUnitMove()) tCos++;
+            // CPCost[items.Count - 1] += GetCPCost(CPCost[items.Count - 1], unit);
+            CPCost.Add(GetCPCost(tCos, unit));
+        }
+
+
+        if (usableFaith.Count > 0) {
+            items.Add(("Assist", () => { DeactivateActionMenu(); PlayerAssist(); }));
+            // CPCost.Add(1);
+            // if (moveGrid.DidUnitMove()) CPCost[items.Count - 1] += 1;
+            tCos = 1;
+            if (moveGrid.DidUnitMove()) tCos++;
+            // CPCost[items.Count - 1] += GetCPCost(CPCost[items.Count - 1], unit);
+            CPCost.Add(GetCPCost(tCos, unit));
+
+
+        }
+
+        items.Add(("Item", () => { DeactivateActionMenu(); PlayerItem(); }));
+        // CPCost.Add(1);
+        // CPCost[items.Count - 1] += GetCPCost(CPCost[items.Count - 1], unit);
+        CPCost.Add(GetCPCost(1, unit));
+
+
+
+        items.Add(("Wait", () => { DeactivateActionMenu(); PlayerWait(); }));
+        // CPCost.Add(1);
+        // CPCost[items.Count - 1] += GetCPCost(CPCost[items.Count - 1], unit);
+        CPCost.Add(GetCPCost(1, unit));
+
+
+
+        yield return ShowActionMenu(items, CPCost);
+    }
+
+    // public int GetCPCost(int curCost, UnitManager unit) {
+    //     int unitActionCount = unit.GetNumberTimesActed();
+
+    //     while (unitActionCount > 1) {
+    //         curCost *= unitActionCount;
+    //         unitActionCount--;
+    //     }
+
+    //     return curCost;
+    // }
+
+    public int GetCPCost(int baseCost, UnitManager unit)
+    {
+        int unitActionCount = unit.GetNumberTimesActed();
+        return baseCost * (int)Mathf.Pow(2, unitActionCount);
+    }
+
+
+
+    public IEnumerator PassiveMenu()
+    {
+        var items = new List<(string, Action)>
+        {
+            ("Back",    () => { DeactivateActionMenu(); moveGrid.inMenu = false; }),
+            ("EndTurn", () => { DeactivateActionMenu(); manageTurn.EndTurn(); moveGrid.inMenu = false; })
+        };
+
+        yield return ShowActionMenu(items, null);
+    }
+
+
+
+
+    // public IEnumerator PassiveMenu() {
+    //     List<Button> buttons = new List<Button>();
+    //     List<string> Actions = new List<string>();
+
+    //     // Start position for where we are spawining the buttons
+    //     int startX = 700;
+    //     int startY = 400;
+    //     int ind = 0;
+
+    //     // Sets up variables to use for the action menu
+    //     GameObject actionMenu = GameObject.Find("Canvas/ActionMenu");
+    //     GameObject tempBtn;
+    //     Button atkBut;
+    //     actionMenuList = new List<GameObject>();
+
+    //     // Always creates an Item button, update code later if there are conditions to prevent this
+    //     tempBtn = (GameObject)Instantiate(itemButton);
+    //     tempBtn.transform.SetParent(actionMenu.transform, false);
+    //     tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+    //     atkBut = tempBtn.GetComponent<Button>();
+    //     buttons.Add(atkBut);
+    //     Actions.Add("Back");
+    //     actionMenuList.Add(tempBtn);
+    //     TextMeshProUGUI[] texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+    //     texts[0].text = "Back";
+    //     ind++;
+
+    //     // Always creates a Wait button, update code later if there are conditions to prevent this
+    //     tempBtn = (GameObject)Instantiate(waitButton);
+    //     tempBtn.transform.SetParent(actionMenu.transform, false);
+    //     tempBtn.transform.position += new Vector3(startX, startY + (-ind * 100), 0);
+    //     atkBut = tempBtn.GetComponent<Button>();
+    //     buttons.Add(atkBut);
+    //     Actions.Add("EndTurn");
+    //     actionMenuList.Add(tempBtn);
+    //     ind++;
+    //     texts = tempBtn.GetComponentsInChildren<TextMeshProUGUI>();
+    //     texts[0].text = "EndTurn";
+
+    //     // Sets it to index 0
+    //     int currentIndex = 0;
+    //     buttons[currentIndex].Select();
+
+    //     // Used to slow down movement between buttons
+    //     bool axisInUse = false;
+    //     bool oneAction = false;
+
+    //     while (true)
+    //     {
+
+    //         // Gets Vertical Input
+    //         float vertical = moveInput.y;
+
+    //         if (!axisInUse)
+    //         {
+    //             // Move Up
+    //             if (vertical > sensitivity)
+    //             {
+    //                 // If move up sets to next button
+    //                 buttons[currentIndex].OnDeselect(null);
+    //                 currentIndex--;
+
+    //                 // If out of range loop around
+    //                 if (currentIndex < 0) currentIndex = buttons.Count - 1;
+
+    //                 // Selects new button
+    //                 buttons[currentIndex].Select();
+    //                 axisInUse = true;
+    //             }
+    //             // Move Down
+    //             else if (vertical < -sensitivity)
+    //             {
+    //                 // If move down sets to next button
+    //                 buttons[currentIndex].OnDeselect(null);
+    //                 currentIndex++;
+
+    //                 // If out of range loop around
+    //                 if (currentIndex >= buttons.Count) currentIndex = 0;
+
+    //                 // Selects new button
+    //                 buttons[currentIndex].Select();
+    //                 axisInUse = true;
+    //             }
+    //         }
+
+    //         if (Mathf.Abs(vertical) < sensitivity) axisInUse = false;
+
+    //         if (oneAction && playerInput.actions["Select"].WasPressedThisFrame())
+    //         {
+
+    //             if (Actions[currentIndex] == "Back") { DeactivateActionMenu();  }
+    //             else if (Actions[currentIndex] == "EndTurn") { DeactivateActionMenu(); manageTurn.EndTurn(); }
+    //             moveGrid.inMenu = false;
+    //             break;
+    //         }
+
+
+    //         if (oneAction && playerInput.actions["Back"].WasPressedThisFrame())
+    //         {
+    //             DeactivateActionMenu(); 
+    //             moveGrid.inMenu = false;
+    //             break;
+    //         }
+
+    //         oneAction = true;
+
+    //         yield return null;
+    //     }
+
+    //     yield return null;
+    // }
 
 //^-------------------------------------------------------ATTACK---------------------------------------------------------------------
     public void PlayerAttack() => StartCoroutine(WeaponList(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile));
@@ -2436,6 +2649,19 @@ public class CombatMenuManager : MonoBehaviour
         yield return null;
         // yield return new WaitForSeconds(1f);
     }
+
+
+
+
+    public IEnumerator UpdateCommandPointMenu() {
+        ActivateCPMenu();
+        CPText.text = manageTurn.GetCP().ToString();
+        CPBar.fillAmount = (float)((float)manageTurn.GetCP() / (float)_currentMap.GetCP());
+        yield break;
+    }
+
+    public void DeactivateCPMenu() => CPParent.SetActive(false);
+    public void ActivateCPMenu() => CPParent.SetActive(true);
 
 
 

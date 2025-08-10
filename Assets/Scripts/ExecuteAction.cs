@@ -334,7 +334,9 @@ public class ExecuteAction : MonoBehaviour
             ResetAfterAction(AttackingUnit);
             yield return StartCoroutine(_currentMap.CheckClearCondition());
             yield return StartCoroutine(_currentMap.CheckDefeatCondition());
-            turnManager.CheckPhase();
+
+            // turnManager.CheckPhase();
+            turnManager.AfterAction(temp);
             
             
 
@@ -1094,9 +1096,11 @@ public class ExecuteAction : MonoBehaviour
             // unitWait();
             ResetAfterAction(AttackingUnit);
             
-            turnManager.CheckPhase();
             yield return StartCoroutine(_currentMap.CheckClearCondition());
             yield return StartCoroutine(_currentMap.CheckDefeatCondition());
+            // turnManager.CheckPhase();
+            turnManager.AfterAction(temp);
+
             
             
 

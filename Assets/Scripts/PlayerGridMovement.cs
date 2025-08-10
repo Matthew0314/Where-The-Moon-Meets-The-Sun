@@ -123,7 +123,10 @@ public class PlayerGridMovement : MonoBehaviour
             currUnit = gridControl.GetGridTile(x, z).UnitOnTile.gameObject;
 
             // pathFinder.calculateMovement(x, z, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-            pathFinder.calculateMovement(x, z, gridControl.GetGridTile(x, z).UnitOnTile.GetMove(), gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit);
+            int currMov = gridControl.GetGridTile(x, z).UnitOnTile.GetMove();
+            int unitActionCount = gridControl.GetGridTile(x, z).UnitOnTile.GetNumberTimesActed();
+            currMov = Mathf.FloorToInt((float)currMov * (1.0f / (float)Mathf.Pow(2, unitActionCount)));
+            pathFinder.calculateMovement(x, z, currMov, gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit);
 
             pathFinder.PrintArea();
 
@@ -409,12 +412,17 @@ public class PlayerGridMovement : MonoBehaviour
 
 
 
-        MoveUnit(orgX, orgZ);
         // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = gridControl.GetGridTile(x, z).UnitOnTile;
         // gridControl.GetGridTile(x, z).UnitOnTile = null;
         UnitManager temp = gridControl.GetGridTile(x, z).UnitOnTile;
 
-        if (temp == null) return;
+        if (temp == null) {
+            charSelected = false;
+
+            return;
+        }
+        MoveUnit(orgX, orgZ);
+
         gridControl.GetGridTile(x, z).UnitOnTile = null;
         gridControl.GetGridTile(orgX, orgZ).UnitOnTile = temp;
         // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
@@ -436,6 +444,8 @@ public class PlayerGridMovement : MonoBehaviour
             yield return null;
         }
     }
+
+    public bool DidUnitMove() => x != orgX || z != orgZ;
     
     
 

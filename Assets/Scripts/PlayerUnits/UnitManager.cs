@@ -13,6 +13,7 @@ public abstract class UnitManager : MonoBehaviour
     public Image extraHealth1;
     protected int numHealthBars = 0;
     protected int gaugeCharge = 0;
+    protected int numberTimesActed = 0;
 
     protected UnitStats stats;
     public string UnitType { get; set; }
@@ -252,6 +253,10 @@ public abstract class UnitManager : MonoBehaviour
     // Getters and setters for primary weapons
     public virtual Weapon GetPrimaryWeapon() => stats.GetPrimaryWeapon();
     public virtual void SetPrimaryWeapon(Weapon temp) => stats.SetPrimaryWeapon(temp);
+
+    public void IncNumberTimesActed() => numberTimesActed++;
+    public void ResetNumberTimesActed() => numberTimesActed = 1;
+    public int GetNumberTimesActed() => numberTimesActed;
 
 
     
