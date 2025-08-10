@@ -101,8 +101,8 @@ public class UnitRosterManager : MonoBehaviour
                     stats.faithRankList[i - 1] = faithFields[i];
                     // Debug.Log("Faith Created " + faithFields[i]);
                 }
-
-                if (stats.GetPrimaryWeapon() == null && stats.magic[0] != null) stats.SetPrimaryWeapon(stats.magic[0]);
+                Debug.LogError(chrName);
+                // if (stats.GetPrimaryWeapon() == null && stats.magic[0] != null) stats.SetPrimaryWeapon(stats.magic[0]);
             }
 
             fullRoster.Add(chrName, stats);
@@ -136,6 +136,13 @@ public class UnitRosterManager : MonoBehaviour
         {
             // playableRoster.Add(Name, fullRoster[Name]);
             playableList.Add(fullRoster[Name]);
+        }
+    }
+
+    public static void RemovePlayableUnit(string name) {
+        if (fullRoster.ContainsKey(name))
+        {
+            playableList.Remove(fullRoster[name]);
         }
     }
 

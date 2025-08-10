@@ -182,6 +182,15 @@ public class PlayerGridMovement : MonoBehaviour
 
             StartCoroutine(SwapUnits(gridControl.GetGridTile(x, z).UnitOnTile, x, z));
         }
+
+        // if (gridControl.GetGridTile(x,z).UnitOnTile?.UnitType != "Player") {
+        //     pathFinder.calculateMovement(x, z, gridControl.GetGridTile(x, z).UnitOnTile.GetMove(), gridControl.GetGridTile(x, z).UnitOnTile);
+        //     pathFinder.PrintArea();
+
+        // } else {
+        //     pathFinder.DestroyArea();
+
+        // }
     }
     private bool CanPlace() => gridControl.GetGridTile(x, z).UnitOnTile == null || gridControl.GetGridTile(x, z).UnitOnTile == currUnit.GetComponent<UnitManager>();
     public void OnMove(InputAction.CallbackContext context) => moveInput = context.ReadValue<Vector2>();

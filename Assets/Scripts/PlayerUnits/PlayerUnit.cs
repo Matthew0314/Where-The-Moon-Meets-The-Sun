@@ -17,7 +17,7 @@ public class PlayerUnit : UnitManager
         extraHealth1 = transform.Find("PlayerCircle/Canvas/UnitCircle/ExtraHealth1").GetComponent<Image>();
         extraHealth1.gameObject.SetActive(false);
         numHealthBars++;
-        AddHealthBar();
+        // AddHealthBar();
         unitCircle = transform.Find("PlayerCircle").gameObject;
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
         originalMaterial = healthBar.material;
@@ -36,11 +36,15 @@ public class PlayerUnit : UnitManager
 
             // Adjust grayscale intensity (fully grayscale in this example)
             healthBar.material.SetFloat("_GrayAmount", 1f);
+            // if (extraHealth.gameObject.activeInHierarchy) {
+            //     // extraHealth.material.SetFloat("_GrayAmount", 1f);
+            // }
         }
         else
         {
             // Reset to the original material
             healthBar.material = originalMaterial;
+            // extraHealth.material 
         }
     }
 
@@ -48,9 +52,9 @@ public class PlayerUnit : UnitManager
 
         PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
 
-        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience + 200));
+        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience));
 
-        stats.Experience += experience + 200;
+        stats.Experience += experience;
 
         PlayerStats pStats = (PlayerStats)stats;
         
@@ -114,7 +118,8 @@ public class PlayerUnit : UnitManager
         // maxHealth = stats.Health;
         // currentHealth = maxHealth;
         UnitType = "Player";
-        stats.SetPrimaryWeapon(stats.GetWeaponAt(0));
+        // stats.SetPrimaryWeapon(stats.GetWeaponAt(0));
+        stats.FindAPrimaryWeapon();
         // stats.CurrentHealth = 2;
     }
 

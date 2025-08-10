@@ -101,6 +101,8 @@ public abstract class UnitStats
     }
 
     public virtual Weapon GetWeaponAt(int x) => weapons[x];
+    // public virtual Weapon GetWeaponAt(int x) => (x >= 0 && x < weapons.Count) ? weapons[x] : null;
+
     public virtual void ResetHealth() => CurrentHealth = Health;
     public virtual Item GetItemAt(int x) => items[x];
 
