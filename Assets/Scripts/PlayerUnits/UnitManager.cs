@@ -255,7 +255,7 @@ public abstract class UnitManager : MonoBehaviour
     public virtual void SetPrimaryWeapon(Weapon temp) => stats.SetPrimaryWeapon(temp);
 
     public void IncNumberTimesActed() => numberTimesActed++;
-    public void ResetNumberTimesActed() => numberTimesActed = 1;
+    public void ResetNumberTimesActed() => numberTimesActed = 0;
     public int GetNumberTimesActed() => numberTimesActed;
 
 

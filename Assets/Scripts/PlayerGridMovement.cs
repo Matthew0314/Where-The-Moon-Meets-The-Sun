@@ -427,7 +427,10 @@ public class PlayerGridMovement : MonoBehaviour
         gridControl.GetGridTile(orgX, orgZ).UnitOnTile = temp;
         // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
         // pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-        pathFinder.calculateMovement(orgX, orgZ, gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetMove(), gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
+        int currMov = gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetMove();
+        int unitActionCount = gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetNumberTimesActed();
+        currMov = Mathf.FloorToInt((float)currMov * (1.0f / (float)Mathf.Pow(2, unitActionCount)));
+        pathFinder.calculateMovement(orgX, orgZ, currMov, gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
         pathFinder.PrintArea();
         
         // oneAction = false;

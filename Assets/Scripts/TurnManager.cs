@@ -61,6 +61,7 @@ public class TurnManager : MonoBehaviour
         List<UnitManager> tempU = _currentMap.GetMapUnits();
 
         foreach (UnitManager t in tempU) {
+            Debug.LogError("YAYAYAYAYAYAAY " + t.GetStats().UnitName);
             t.ResetNumberTimesActed();
         }
 
