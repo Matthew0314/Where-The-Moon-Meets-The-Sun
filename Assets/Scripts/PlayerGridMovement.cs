@@ -123,10 +123,10 @@ public class PlayerGridMovement : MonoBehaviour
             currUnit = gridControl.GetGridTile(x, z).UnitOnTile.gameObject;
 
             // pathFinder.calculateMovement(x, z, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-            int currMov = gridControl.GetGridTile(x, z).UnitOnTile.GetMove();
-            int unitActionCount = gridControl.GetGridTile(x, z).UnitOnTile.GetNumberTimesActed();
-            currMov = Mathf.FloorToInt((float)currMov * (1.0f / (float)Mathf.Pow(2, unitActionCount)));
-            pathFinder.calculateMovement(x, z, currMov, gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit);
+            // int currMov = gridControl.GetGridTile(x, z).UnitOnTile.GetMove();
+            // int unitActionCount = gridControl.GetGridTile(x, z).UnitOnTile.GetNumberTimesActed();
+            // currMov = Mathf.FloorToInt((float)currMov * (1.0f / (float)Mathf.Pow(2, unitActionCount)));
+            pathFinder.calculateMovement(x, z, gridControl.GetGridTile(x, z).UnitOnTile.GetMove(), gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit);
 
             pathFinder.PrintArea();
 
@@ -422,15 +422,18 @@ public class PlayerGridMovement : MonoBehaviour
             return;
         }
         MoveUnit(orgX, orgZ);
+        gridControl.MoveUnit(temp, x, z, orgX, orgZ);
 
-        gridControl.GetGridTile(x, z).UnitOnTile = null;
-        gridControl.GetGridTile(orgX, orgZ).UnitOnTile = temp;
+        // gridControl.GetGridTile(x, z).UnitOnTile = null;
+        // gridControl.GetGridTile(orgX, orgZ).UnitOnTile = temp;
+
+
         // pathFinder.CalcAttack(orgX, orgZ, attackRangeStat , playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
         // pathFinder.calculateMovement(orgX, orgZ, playerCollide.GetPlayerMove(), playerCollide.GetPlayer());
-        int currMov = gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetMove();
-        int unitActionCount = gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetNumberTimesActed();
-        currMov = Mathf.FloorToInt((float)currMov * (1.0f / (float)Mathf.Pow(2, unitActionCount)));
-        pathFinder.calculateMovement(orgX, orgZ, currMov, gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
+        // int currMov = gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetMove();
+        // int unitActionCount = gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetNumberTimesActed();
+        // currMov = Mathf.FloorToInt((float)currMov * (1.0f / (float)Mathf.Pow(2, unitActionCount)));
+        pathFinder.calculateMovement(orgX, orgZ, gridControl.GetGridTile(orgX, orgZ).UnitOnTile.GetMove(), gridControl.GetGridTile(orgX, orgZ).UnitOnTile);
         pathFinder.PrintArea();
         
         // oneAction = false;

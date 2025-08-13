@@ -9,8 +9,8 @@ public abstract class UnitStats
     public int UnitID { get; set; }
     public string Name { get; set; }
     public string UnitDescription { get; set; }
-    public string UnitClass { get; set; }
-    public string UnitType { get; set; } //Enemy or Unit
+    public string UnitClass { get; protected set; }
+    public string UnitType { get; protected set; } //Enemy or Unit
     public int Level { get; set; }
     public int Health { get; set; }               //base health
     public int CurrentHealth { get; set; }
@@ -33,6 +33,7 @@ public abstract class UnitStats
     public int HealthBars { get; set; }
 
     public int Experience { get; set; }
+    public int SP { get; protected set; }
 
     public Weapon primaryWeapon;
 
@@ -65,6 +66,7 @@ public abstract class UnitStats
         Evasion = EVA;
         Luck = LCK;
         Movement = MOV;
+        SP = 0;
 
         weapons = new List<Weapon>();
         magic = new List<Weapon>();
@@ -107,7 +109,7 @@ public abstract class UnitStats
     public virtual Item GetItemAt(int x) => items[x];
 
     
-    public abstract PlayerClass getClass();
+    public abstract PlayerClass GetClass();
     public abstract void SetFaith();
 
     public virtual void SetPrimaryWeapon(Weapon weap) {
@@ -137,9 +139,12 @@ public abstract class UnitStats
     }
 
     public virtual Weapon GetPrimaryWeapon() => primaryWeapon;
+    public virtual void AddSP(int ad) => SP += ad;
+    public virtual void SubSP(int su) => SP -= su;
     
 }
 
+[System.Serializable]
 public class PlayerStats : UnitStats {
     public int HealthGR {get; set;}                //base health
     public int AttackGR {get; set;}                //base attack
@@ -152,7 +157,7 @@ public class PlayerStats : UnitStats {
 
     // public int Experience {get; set;}
 
-    private PlayerClass ClassStats;
+    // private PlayerClass ClassStats;
     
 
 
@@ -170,12 +175,12 @@ public class PlayerStats : UnitStats {
         LuckGR = LCKGR;
         UnitType = "Player";
 
-        ClassStats = PlayerClassManager.GetUnitClass(uClass);
+        // ClassStats = PlayerClassManager.GetUnitClass(uClass);
 
-        AirBorn = ClassStats.AirBorn;
-        Mounted = ClassStats.Mounted;
-        Armored = ClassStats.Armored;
-        Whisper = ClassStats.Whisper;
+        AirBorn = GetClass().AirBorn;
+        Mounted = GetClass().Mounted;
+        Armored = GetClass().Armored;
+        Whisper = GetClass().Whisper;
 
         HealthBars = 1;
         faithRank = faiRank;
@@ -183,8 +188,20 @@ public class PlayerStats : UnitStats {
 
     }
 
-    public override PlayerClass getClass() {
-        return ClassStats;
+    public override PlayerClass GetClass() {
+        return PlayerClassManager.GetUnitClass(UnitClass);
+    }
+
+    public void SetClass(String cla) {
+        // PlayerClass temp = PlayerClassManager.GetUnitClass(cla);
+        // if (temp == null) return;
+
+        // ClassStats = temp;
+        UnitClass = cla;
+        AirBorn = GetClass().AirBorn;
+        Mounted = GetClass().Mounted;
+        Armored = GetClass().Armored;
+        Whisper = GetClass().Whisper;
     }
 
     public override void SetFaith()
@@ -228,6 +245,8 @@ public class PlayerStats : UnitStats {
             }
         }
     }
+
+    
 }
 
 public class EnemyStats : UnitStats {
@@ -247,7 +266,7 @@ public class EnemyStats : UnitStats {
         faithRank = 1;
     }
 
-    public override PlayerClass getClass() {
+    public override PlayerClass GetClass() {
         return null;
     }
 

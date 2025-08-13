@@ -86,7 +86,7 @@ public class PrologueMap : MapManager
     //Niether YoungFelix nor YoungLilith can die, check to see if alive
     public override IEnumerator CheckDefeatCondition()
     {
-        yield return StartCoroutine(MissingUnitsDefeat(new List<string> { "YoungFelix", "YoungLilith" }));
+        yield return StartCoroutine(MissingUnitsDefeat(new List<string> { "YoungFelix" }));
     }
 
     public override IEnumerator CheckEvents() {

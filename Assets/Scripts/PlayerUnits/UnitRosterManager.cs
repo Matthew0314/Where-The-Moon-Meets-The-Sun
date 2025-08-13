@@ -65,19 +65,12 @@ public class UnitRosterManager : MonoBehaviour
             {
                 string itemName = data[23 + j];
                 if (itemName == "NULL")
-                {
-                    // Debug.Log("Null Weapon");
                     break;
-                }
 
                 Weapon tempWeapon = WeaponManager.MakeWeapon(itemName);
-                if (tempWeapon != null)
-                {
-                    stats.AddWeapon(tempWeapon);
 
-                    if (j == 0) stats.SetPrimaryWeapon(tempWeapon);
-                    // Debug.Log("Added " + tempWeapon.WeaponName);
-                }
+                if (tempWeapon != null)
+                    stats.AddWeapon(tempWeapon);
                 else
                 {
                     Type itemType = Type.GetType(itemName);
@@ -99,11 +92,10 @@ public class UnitRosterManager : MonoBehaviour
                 {
                     stats.MagicRankList[i - 1] = magicFields[i];
                     stats.faithRankList[i - 1] = faithFields[i];
-                    // Debug.Log("Faith Created " + faithFields[i]);
                 }
-                Debug.LogError(chrName);
-                // if (stats.GetPrimaryWeapon() == null && stats.magic[0] != null) stats.SetPrimaryWeapon(stats.magic[0]);
             }
+
+            stats.FindAPrimaryWeapon();
 
             fullRoster.Add(chrName, stats);
             lineIndex++;
@@ -111,11 +103,7 @@ public class UnitRosterManager : MonoBehaviour
     }
 
     //Writes the new UnitStats object into a dictionally using the name of the character as a key
-    void WriteFullRoster(string Name, UnitStats stat)
-    {
-        fullRoster.Add(Name, stat);
-
-    }
+    void WriteFullRoster(string Name, UnitStats stat) => fullRoster.Add(Name, stat);
 
     //Returns the object based on the character's name
     public static UnitStats GetUnitStats(string Name)
@@ -147,12 +135,7 @@ public class UnitRosterManager : MonoBehaviour
     }
 
     public static List<UnitStats> GetPlayableUnits() => playableList;
-
-    public static UnitStats GetPlayableUnit(string name)
-    {
-        return playableList.Find(unit => unit.UnitName == name);
-    }
-    public int GetNumUnits() { return playableList.Count; }
+    public static UnitStats GetPlayableUnit(string name) => playableList.Find(unit => unit.UnitName == name);
 
     public void setFaithSpells()
     {
@@ -163,12 +146,7 @@ public class UnitRosterManager : MonoBehaviour
     }
 
     // Resets the Health of all units
-    public static void HealUnits()
-    {
-        // foreach (UnitStats unit in fullRoster.Values)
-        // {
-        //     unit.ResetHealth();
-        // }
+    public static void HealUnits() {
         foreach (UnitStats unit in playableList)
         {
             unit.ResetHealth();

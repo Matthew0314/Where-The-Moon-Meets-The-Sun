@@ -259,6 +259,9 @@ public abstract class UnitManager : MonoBehaviour
     public int GetNumberTimesActed() => numberTimesActed;
 
 
+    protected int AdjustMovement(int m) => Mathf.FloorToInt((float)m * (1.0f / (float)Mathf.Pow(2, numberTimesActed)));
+
+
     
 
 

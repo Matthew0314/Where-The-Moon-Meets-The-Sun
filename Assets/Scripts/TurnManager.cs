@@ -32,24 +32,23 @@ public class TurnManager : MonoBehaviour
 
     Turn currentTurn;
 
-
-    void Start()
-    {
-        playerTurn = true; enemyTurn = false; turns++;
-        currentTurn = Turn.Player;
-        // playerList = GameObject.Find("GridManager").GetComponent<UnitRosterManager>();
+    private void Awake() {
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
+        moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
+        combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+    }
+
+    private void Start() {
+        turns++;
+        currentTurn = Turn.Player;
         currentCP = _currentMap.GetCP();
-        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
-        // grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
-        // combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
 
     //Resets Player List after every player turn
     private void SetLists()
     {
         currUnits = new List<UnitStats>();
-
 
         List<UnitStats> temp = _currentMap.GetMapUnitStats();
  
@@ -184,8 +183,6 @@ public class TurnManager : MonoBehaviour
         Debug.Log("Turn: " + turns);
 
         currentTurn = Turn.Player;
-        playerTurn = true;
-        enemyTurn = false;
 
         StartCoroutine(combatMenuManager.UpdateCommandPointMenu());
 
@@ -197,19 +194,17 @@ public class TurnManager : MonoBehaviour
     //After every action the player makes it checks to see if there are still units, if not then it starts the enemy phase
     public void CheckPhase()
     {
-        if (playerTurn)
+        if (currentTurn == Turn.Player)
         {
             if (currUnits.Count == 0 || (_currentMap.UsingCP() && currentCP == 0))
             {
-                playerTurn = false;
-                enemyTurn = true;
                 currentTurn = Turn.Enemy1;
                 SetLists();
                 Debug.Log("ENEMY PHASE");
-                // currentTurn = Turn.Enemy1;
+                currentTurn = Turn.Enemy1;
             }
         }
-        if (enemyTurn)
+        if (currentTurn == Turn.Enemy1)
         {
 
             StartCoroutine(EnemyPhase());

@@ -13,8 +13,6 @@ public class BattleStartMenu : MonoBehaviour
 {
     private Button[,] buttons;
     private string[,] actions;
-    private int rows = 2;
-    private int columns = 2;
     [SerializeField] Button unitButton;
     [SerializeField] Button mapButton;
     [SerializeField] Button startButton;
@@ -27,11 +25,9 @@ public class BattleStartMenu : MonoBehaviour
     [SerializeField] TextMeshProUGUI unitNumber;
     private List<UnitStats> playableRoster = new List<UnitStats>();
 
-    private int currentRow = 0;
-    private int currentCol = 0;
-    public float sensitivity = 0.5f;
-    public Vector2 moveInput;
-    public PlayerInput playerInput;
+    private float sensitivity = 0.5f;
+    private Vector2 moveInput;
+    [SerializeField] PlayerInput playerInput;
     private bool inStartMenu = false;
     private bool inMapMenu = false;
     private PlayerGridMovement playerGridMovement;
@@ -44,8 +40,6 @@ public class BattleStartMenu : MonoBehaviour
     private int selectedIndex = 0;
     private int buttonsPerRow = 2;
 
-    private float inputCooldown = 0.2f;
-    private float lastInputTime;
 
 
 
@@ -205,8 +199,6 @@ public class BattleStartMenu : MonoBehaviour
 
             yield return null;
         }
-
-        yield return null;
     }
 
 

@@ -123,7 +123,16 @@ public class PlayerUnit : UnitManager
         // stats.CurrentHealth = 2;
     }
 
-    public override int GetMove() => Mathf.Max(0, stats.getClass().Movement + base.GetMove());
+    public PlayerStats GetPlayerStats() => stats as PlayerStats;
+
+    public PlayerClass GetPlayerClass() => GetPlayerStats().GetClass();
+
+    public override int GetMove() => AdjustMovement(Mathf.Max(0, stats.GetClass().Movement + base.GetMove()));
+    // Returns info about the characters unit/class type
+    public override bool GetAirBorn() => GetPlayerClass().AirBorn;
+    public override bool GetArmored() => GetPlayerClass().Armored;
+    public override bool GetMounted() => GetPlayerClass().Mounted;
+    public override bool GetWhisper() => GetPlayerClass().Whisper;
 
 
     
