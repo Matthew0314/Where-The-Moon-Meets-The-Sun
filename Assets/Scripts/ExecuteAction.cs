@@ -597,7 +597,6 @@ public class ExecuteAction : MonoBehaviour
         Quaternion targetRotation;
 
         
-        
 
         if (attackingUnit.GetUnitType() == "Player" && playerUnit.GetCurrentHealth() > 0) {
             // Transforms the camera to face the player, but have them slightly to the right
@@ -642,8 +641,19 @@ public class ExecuteAction : MonoBehaviour
             // If the player recieved 0 or less than EXP, give them 1
             if (expObtained <= 0) { expObtained = 1; }
 
+            int numberTimesAttacked= 0;
+
+            if (attackingUnit == playerUnit) numberTimesAttacked = leftCou;
+            else numberTimesAttacked = rightCou;
+
+            string weaponType;
+
+            if(attackingUnit.GetPrimaryWeapon() != null) weaponType = attackingUnit.GetPrimaryWeapon().WeaponType;
+            else weaponType = "none";
+
+
             // Send over the EXP
-            yield return StartCoroutine(playerUnit.ExperienceGain(expObtained)); 
+            yield return StartCoroutine(playerUnit.ExperienceGain(expObtained, numberTimesAttacked, weaponType, enemyUnit.GetCurrentHealth() <= 0, false)); 
         }
 
         

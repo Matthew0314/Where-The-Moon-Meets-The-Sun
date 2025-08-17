@@ -119,7 +119,7 @@ public abstract class UnitManager : MonoBehaviour
 
 
     // Only used for player unit
-    public virtual IEnumerator ExperienceGain(int experience) { yield return null; }
+    public virtual IEnumerator ExperienceGain(int experience, int numberTimesAttacked, string skillType1, bool killedEnemy, bool healed) { yield return null; }
 
     // Handles removing the extra health bars
     public virtual IEnumerator ExtraHealthBar()

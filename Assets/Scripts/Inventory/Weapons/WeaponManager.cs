@@ -5,11 +5,12 @@ using System;
 
 public class WeaponManager : MonoBehaviour
 {
-    [SerializeField] TextAsset weaponTextData;
+    private static TextAsset weaponTextData;
     private static Dictionary<string, Weapon> Weapons = new Dictionary<string, Weapon>();
 
     //Reads in data from the Weapons CSV file
-    public void ReadCSV() {
+    public static void ReadCSV() {
+        weaponTextData = Resources.Load<TextAsset>("TextData/InventoryCSV/WeaponsCSV");
         string[] data = weaponTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
 
         for(int i = 24; i < data.Length - 1; i += 24) {

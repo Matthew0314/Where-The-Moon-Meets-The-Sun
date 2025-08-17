@@ -4,16 +4,58 @@ using UnityEngine;
 using System.Linq;
 using System;
 
+// Holds how much experience is needed to obtain each skill level
+public struct SkillLevelData
+{
+    public int level;           
+    public int experienceNeeded; 
+
+    public SkillLevelData(int level, int experienceNeeded)
+    {
+        this.level = level;
+        this.experienceNeeded = experienceNeeded;
+    }
+}
+
 public class UnitRosterManager : MonoBehaviour
 {
-    [SerializeField] TextAsset statTextData;
-    [SerializeField] TextAsset faithTextData;
-    [SerializeField] TextAsset magicTextData;
+    private static TextAsset statTextData;
+    private static TextAsset faithTextData;
+    private static TextAsset magicTextData;
     private static Dictionary<string, UnitStats> fullRoster = new Dictionary<string, UnitStats>();
     private static List<UnitStats> playableList = new List<UnitStats>();
+    private static SkillLevelData[] skillLevels = new SkillLevelData[10];
 
-    public void ReadCSV()
+
+    private void Awake() {
+        // skillLevels[0] = new SkillLevelData(1, 0);
+        // skillLevels[1] = new SkillLevelData(2, 40);
+        // skillLevels[2] = new SkillLevelData(3, 90);
+        // skillLevels[3] = new SkillLevelData(4, 150);
+        // skillLevels[4] = new SkillLevelData(5, 400);
+        // skillLevels[5] = new SkillLevelData(6, 1100);
+        // skillLevels[6] = new SkillLevelData(7, 1500);
+        // skillLevels[7] = new SkillLevelData(8, 2000);
+        // skillLevels[8] = new SkillLevelData(9, 2800);
+        // skillLevels[9] = new SkillLevelData(10, 3500);
+        skillLevels[0] = new SkillLevelData(1, 0);
+        skillLevels[1] = new SkillLevelData(2, 40);
+        skillLevels[2] = new SkillLevelData(3, 130);
+        skillLevels[3] = new SkillLevelData(4, 280);
+        skillLevels[4] = new SkillLevelData(5, 680);
+        skillLevels[5] = new SkillLevelData(6, 1780);
+        skillLevels[6] = new SkillLevelData(7, 3280);
+        skillLevels[7] = new SkillLevelData(8, 5280);
+        skillLevels[8] = new SkillLevelData(9, 8080);
+        skillLevels[9] = new SkillLevelData(10, 11580);
+    }
+
+    public static void ReadCSV()
     {
+        statTextData = Resources.Load<TextAsset>("TextData/PlayerInfoCSV/RosterStats");
+        faithTextData = Resources.Load<TextAsset>("TextData/PlayerInfoCSV/FaithList");
+        magicTextData = Resources.Load<TextAsset>("TextData/PlayerInfoCSV/MagicList");
+
         string[] lines = statTextData.text.Trim().Split('\n');
         string[] faithLines = faithTextData.text.Trim().Split('\n');
         string[] magicLines = magicTextData.text.Trim().Split('\n');
@@ -100,6 +142,32 @@ public class UnitRosterManager : MonoBehaviour
             fullRoster.Add(chrName, stats);
             lineIndex++;
         }
+    }
+
+    /// <summary>
+    /// Gets the amount of experience required to reach the next level
+    /// given the unit's current experience.
+    /// </summary>
+    public static int GetNextLevelExpRequirement(int currentExp)
+    {
+        // Loop through the table to find the next threshold
+        for (int i = 0; i < skillLevels.Length; i++)
+        {
+            if (currentExp < skillLevels[i].experienceNeeded)
+            {
+                return skillLevels[i].experienceNeeded;
+            }
+        }
+
+        // If we’re above the last threshold, return the last one
+        Debug.LogWarning("Already at or above max skill level.");
+        return skillLevels[skillLevels.Length - 1].experienceNeeded;
+    }
+
+    public static int GetExpToNextLevel(int currentExp)
+    {
+        int nextLevelExp = GetNextLevelExpRequirement(currentExp);
+        return Mathf.Max(0, nextLevelExp - currentExp);
     }
 
     //Writes the new UnitStats object into a dictionally using the name of the character as a key

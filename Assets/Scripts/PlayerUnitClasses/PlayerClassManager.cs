@@ -6,18 +6,19 @@ using UnityEngine;
 //Purpose of this class is to inilize the stats for each class, store them, and allow for player units to call them
 public class PlayerClassManager : MonoBehaviour
 {
-    public TextAsset classTextData;
+    private static TextAsset classTextData;
     public static Dictionary<string, PlayerClass> fullClassList = new Dictionary<string, PlayerClass>();
 
 
-    public void Init()
+    public static void Init()
     {
+        classTextData = Resources.Load<TextAsset>("TextData/PlayerInfoCSV/PlayerClasses");
         ReadCSV();
     }
 
     //Reads the data from the csv file and stores it in an object for each class
     //NEVER CALL THIS AFTER PROLOGUE MAP
-    void ReadCSV()
+    private static void ReadCSV()
     {
         string[] data = classTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
 

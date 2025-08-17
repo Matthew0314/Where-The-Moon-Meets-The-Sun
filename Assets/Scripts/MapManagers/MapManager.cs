@@ -105,11 +105,15 @@ public abstract class MapManager : MonoBehaviour
         executeAction = GameObject.Find("Player").GetComponent<ExecuteAction>();
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
         battleStartMenu = GameObject.Find("Canvas").GetComponent<BattleStartMenu>();
+
+        
+        InitializeTextData.InitData();
+
     }
 
     protected virtual void Start()
     {
-        // Init();
+        
     }
 
     protected virtual void Init()

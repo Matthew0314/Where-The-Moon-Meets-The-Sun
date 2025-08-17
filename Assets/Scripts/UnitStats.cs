@@ -141,6 +141,7 @@ public abstract class UnitStats
     public virtual Weapon GetPrimaryWeapon() => primaryWeapon;
     public virtual void AddSP(int ad) => SP += ad;
     public virtual void SubSP(int su) => SP -= su;
+    public virtual int GetSkillExperience(string skillType) => 0;
     
 }
 
@@ -158,6 +159,8 @@ public class PlayerStats : UnitStats {
     // public int Experience {get; set;}
 
     // private PlayerClass ClassStats;
+
+    public Dictionary<string, int> SkillExperience {get; protected set;}
     
 
 
@@ -185,6 +188,15 @@ public class PlayerStats : UnitStats {
         HealthBars = 1;
         faithRank = faiRank;
         magicRank = magRank;
+
+        SkillExperience = new Dictionary<string, int>();
+
+        SkillExperience.Add("Sword", 0);
+        SkillExperience.Add("Lance", 0);
+        SkillExperience.Add("Bow", 0);
+        SkillExperience.Add("Magic", 0);
+        SkillExperience.Add("Faith", 0);
+        SkillExperience.Add("Brawl", 0);
 
     }
 
@@ -245,6 +257,34 @@ public class PlayerStats : UnitStats {
             }
         }
     }
+
+    
+
+    public override int GetSkillExperience(string skillType)
+    {
+        if (string.IsNullOrEmpty(skillType))
+        {
+            Debug.LogWarning("GetSkillExperience called with a null or empty skillType.");
+            return 0;
+        }
+
+        if (SkillExperience == null)
+        {
+            Debug.LogError("SkillExperience dictionary is null. Make sure it is initialized.");
+            return 0;
+        }
+
+        if (SkillExperience.TryGetValue(skillType, out int exp))
+        {
+            return exp;
+        }
+        else
+        {
+            Debug.LogWarning($"Skill '{skillType}' not found in SkillExperience dictionary. Returning 0.");
+            return 0;
+        }
+    }
+
 
     
 }

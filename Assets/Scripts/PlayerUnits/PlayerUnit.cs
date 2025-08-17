@@ -48,11 +48,17 @@ public class PlayerUnit : UnitManager
         }
     }
 
-    public override IEnumerator ExperienceGain(int experience) {
+    public override IEnumerator ExperienceGain(int experience, int numberTimesAttacked, string skillType1, bool killedEnemy, bool healed) {
 
         PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
 
-        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience));
+        int sp = CalculateSP(experience, killedEnemy);
+
+        int skillInc = CalculateSkillEXP(numberTimesAttacked);
+
+        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience, skillType1, 100, sp));
+
+        stats.AddSP(sp);
 
         stats.Experience += experience;
 
@@ -108,6 +114,16 @@ public class PlayerUnit : UnitManager
         }
 
         yield return null;
+    }
+
+    private int CalculateSkillEXP(int numAtk) {
+        return numAtk * 2;
+    }
+
+    private int CalculateSP(int EXPObt, bool killEne) {
+
+        // return EXPObt / 2;
+        return killEne ? EXPObt : EXPObt / 2;
     }
 
 
