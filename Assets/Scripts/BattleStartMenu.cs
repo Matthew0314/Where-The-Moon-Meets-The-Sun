@@ -43,9 +43,11 @@ public class BattleStartMenu : MonoBehaviour
 
 
 
+
     [SerializeField] private GameObject InfoTextData;
     [SerializeField] private Image expBar;
     [SerializeField] private GameObject unitItemBar;
+    // [SerializeField] UnityEngine.UI.Slider expBar; 
     private List<GameObject> unitItemBarsList = new List<GameObject>();
 
     void Awake()
@@ -79,18 +81,13 @@ public class BattleStartMenu : MonoBehaviour
 
     public IEnumerator StartMenu()
     {
-        // _currentMap.InitStartTiles();
         battleStartMenu.SetActive(true);
         inStartMenu = true;
 
         bool axisInUse = false;
-        bool oneAction = false;
-
-        int currentRow = 0;
-        int currentCol = 0;
-
-        int rowCount = buttons.GetLength(0); // 2
-        int colCount = buttons.GetLength(1); // 2
+        int currentRow = 0, currentCol = 0;
+        int rowCount = buttons.GetLength(0);
+        int colCount = buttons.GetLength(1);
 
         // Select initial button
         buttons[currentRow, currentCol].Select();
@@ -102,84 +99,47 @@ public class BattleStartMenu : MonoBehaviour
 
             if (!axisInUse)
             {
-                // Move Up
-                if (vertical > sensitivity)
-                {
-                    currentRow = (currentRow - 1 + rowCount) % rowCount;
-                    axisInUse = true;
-                }
-                // Move Down
-                else if (vertical < -sensitivity)
-                {
-                    currentRow = (currentRow + 1) % rowCount;
-                    axisInUse = true;
-                }
-                // Move Left
-                else if (horizontal < -sensitivity)
-                {
-                    currentCol = (currentCol - 1 + colCount) % colCount;
-                    axisInUse = true;
-                }
-                // Move Right
-                else if (horizontal > sensitivity)
-                {
-                    currentCol = (currentCol + 1) % colCount;
-                    axisInUse = true;
-                }
+                currentRow = (currentRow - Mathf.RoundToInt(vertical) + rowCount) % rowCount;
+                currentCol = (currentCol + Mathf.RoundToInt(horizontal) + colCount) % colCount;
 
-                // Debug.Log(currentRow + " " + currentCol);
-
-                // Select new button
-                buttons[currentRow, currentCol].Select();
+                if (vertical != 0 || horizontal != 0)
+                {
+                    axisInUse = true;
+                    buttons[currentRow, currentCol].Select();
+                }
             }
 
-            // Reset axis flag when joystick is released
             if (Mathf.Abs(vertical) < sensitivity && Mathf.Abs(horizontal) < sensitivity)
                 axisInUse = false;
 
-            // Handle Selection
-            if (oneAction && playerInput.actions["Select"].WasPressedThisFrame())
+            if (playerInput.actions["Select"].WasPressedThisFrame())
             {
                 string selectedAction = actions[currentRow, currentCol];
 
-                // if (selectedAction == "Start") { StartGame(); break; }
-                // else if (selectedAction == "Exit") { ExitGame(); break; }
-                // else if (selectedAction == "Units") { OpenUnits(); break; }
-                // else if (selectedAction == "Map") { OpenMap(); break; }
-                // else continue;
+                switch (selectedAction)
+                {
+                    case "Start":
+                        break;
+                    case "Map":
+                        yield return StartCoroutine(InMapMenu());
+                        break;
+                    case "Units":
+                        yield return StartCoroutine(UnitSelect());
+                        buttons[currentRow, currentCol].Select();
+                        break;
+                }
 
                 if (selectedAction == "Start")
-                {
                     break;
-                }
-                else if (selectedAction == "Map")
-                {
-                    yield return StartCoroutine(InMapMenu());
-                }
-                else if (selectedAction == "Units")
-                {
-                    yield return StartCoroutine(UnitSelect());
-                }
             }
-
-            // Handle Back
-            // if (oneAction && playerInput.actions["Back"].WasPressedThisFrame())
-            // {
-            //     CloseMenu();
-            //     break;
-            // }
-
-            oneAction = true;
 
             yield return null;
         }
 
-        // _currentMap.DestroyStartTiles();
         battleStartMenu.SetActive(false);
         inStartMenu = false;
-
-        yield return null;
     }
+
 
     private IEnumerator InMapMenu()
     {
@@ -205,136 +165,168 @@ public class BattleStartMenu : MonoBehaviour
     public bool GetInStartMenu() => inStartMenu;
     public bool GetInMapMenu() => inMapMenu;
 
-    private IEnumerator UnitSelect()
-    {
-        BuildUnitSelectMenu();
+    // private IEnumerator UnitSelect()
+    // {
+    //     BuildUnitSelectMenu();
 
-        yield return null;
-        if (unitButtons.Count == 0)
-            yield break;
+    //     yield return null;
+    //     if (unitButtons.Count == 0)
+    //         yield break;
 
-        selectedIndex = 0;
-        unitButtons[selectedIndex].Select();
-        UpdateUnitInfo(combinedList[selectedIndex]);
+    //     selectedIndex = 0;
+    //     unitButtons[selectedIndex].Select();
+    //     UpdateUnitInfo(combinedList[selectedIndex]);
 
-        float inputCooldown = 0.2f;
-        float lastInputTime = -inputCooldown;
+    //     float inputCooldown = 0.2f;
+    //     float lastInputTime = -inputCooldown;
 
-        while (true)
-        {
-            // Vector2 moveInput = playerInput.actions["Move"].ReadValue<Vector2>();
+    //     while (true)
+    //     {
+    //         // Vector2 moveInput = playerInput.actions["Move"].ReadValue<Vector2>();
 
-            if (Time.unscaledTime - lastInputTime > inputCooldown)
-            {
-                if (moveInput.x > 0.5f)
-                {
-                    CycleSelection(1); // right
-                    lastInputTime = Time.unscaledTime;
-                }
-                else if (moveInput.x < -0.5f)
-                {
-                    CycleSelection(-1); // left
-                    lastInputTime = Time.unscaledTime;
-                }
-                else if (moveInput.y > 0.5f)
-                {
-                    CycleSelection(-buttonsPerRow); // up
-                    lastInputTime = Time.unscaledTime;
-                }
-                else if (moveInput.y < -0.5f)
-                {
-                    CycleSelection(buttonsPerRow); // down
-                    lastInputTime = Time.unscaledTime;
-                }
+    //         if (Time.unscaledTime - lastInputTime > inputCooldown)
+    //         {
+    //             if (moveInput.x > 0.5f)
+    //             {
+    //                 CycleSelection(1); // right
+    //                 lastInputTime = Time.unscaledTime;
+    //             }
+    //             else if (moveInput.x < -0.5f)
+    //             {
+    //                 CycleSelection(-1); // left
+    //                 lastInputTime = Time.unscaledTime;
+    //             }
+    //             else if (moveInput.y > 0.5f)
+    //             {
+    //                 CycleSelection(-buttonsPerRow); // up
+    //                 lastInputTime = Time.unscaledTime;
+    //             }
+    //             else if (moveInput.y < -0.5f)
+    //             {
+    //                 CycleSelection(buttonsPerRow); // down
+    //                 lastInputTime = Time.unscaledTime;
+    //             }
 
-            }
+    //         }
 
-            if (playerInput.actions["Select"].WasPressedThisFrame())
-            {
-                // unitButtons[selectedIndex].onClick.Invoke();
-                // yield break; // Exit coroutine after selection
+    //         if (playerInput.actions["Select"].WasPressedThisFrame())
+    //         {
+    //             // unitButtons[selectedIndex].onClick.Invoke();
+    //             // yield break; // Exit coroutine after selection
 
-                // List<UnitManager> units = _currentMap.GetMapUnits();
+    //             // List<UnitManager> units = _currentMap.GetMapUnits();
 
-                // string selectedUnitName = unitList[selectedIndex].stats.UnitName;
+    //             // string selectedUnitName = unitList[selectedIndex].stats.UnitName;
 
-                // UnitManager matchingUnit = units.FirstOrDefault(u => u.stats.UnitName == selectedUnitName);
+    //             // UnitManager matchingUnit = units.FirstOrDefault(u => u.stats.UnitName == selectedUnitName);
 
-                // List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
+    //             // List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
 
-                // if (cantUse.Contains(matchingUnit.stats.UnitName)) {
-                //     yield return null;
-                //     continue;
-                // }
+    //             // if (cantUse.Contains(matchingUnit.stats.UnitName)) {
+    //             //     yield return null;
+    //             //     continue;
+    //             // }
 
-                // if (matchingUnit != null)
-                // {
-                //     _currentMap.DespawnUnit(matchingUnit);
-                //     BuildUnitSelectMenu();
-                //     yield return null;
-                // }
+    //             // if (matchingUnit != null)
+    //             // {
+    //             //     _currentMap.DespawnUnit(matchingUnit);
+    //             //     BuildUnitSelectMenu();
+    //             //     yield return null;
+    //             // }
 
-                // UnitManager matchingUnit = units.FirstOrDefault(u => u.stats.UnitName == units[selectedIndex]);
+    //             // UnitManager matchingUnit = units.FirstOrDefault(u => u.stats.UnitName == units[selectedIndex]);
 
-                // List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
+    //             // List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
 
-                // if (matchingUnit != null)
-                // {
-                //     _currentMap.DespawnUnit(matchingUnit);
-                //     BuildUnitSelectMenu();
-                //     yield return null;
-                // }
+    //             // if (matchingUnit != null)
+    //             // {
+    //             //     _currentMap.DespawnUnit(matchingUnit);
+    //             //     BuildUnitSelectMenu();
+    //             //     yield return null;
+    //             // }
 
-                UnitStats unit = UnitRosterManager.GetPlayableUnit(units[selectedIndex]);
+    //             UnitStats unit = UnitRosterManager.GetPlayableUnit(units[selectedIndex]);
 
-                List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
+    //             List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
 
-                if (cantUse.Contains(unit.UnitName))
-                {
-                    yield return null;
-                    continue;
-                }
+    //             if (cantUse.Contains(unit.UnitName))
+    //             {
+    //                 yield return null;
+    //                 continue;
+    //             }
 
-                List<UnitManager> unitsMan = _currentMap.GetMapUnits();
-                UnitManager matchUnit = unitsMan.FirstOrDefault(u => u.GetUnitName() == unit.UnitName);
+    //             List<UnitManager> unitsMan = _currentMap.GetMapUnits();
+    //             UnitManager matchUnit = unitsMan.FirstOrDefault(u => u.GetUnitName() == unit.UnitName);
 
-                if (matchUnit != null)
-                {
-                    _currentMap.DespawnUnit(matchUnit);
-                    // BuildUnitSelectMenu();
-                    ChangeTextColor(unitButtons[selectedIndex], "default", matchUnit.GetName());
-                    yield return null;
-                }
+    //             if (matchUnit != null)
+    //             {
+    //                 _currentMap.DespawnUnit(matchUnit);
+    //                 // BuildUnitSelectMenu();
+    //                 ChangeTextColor(unitButtons[selectedIndex], "default", matchUnit.GetName());
+    //                 yield return null;
+    //             }
 
-                else if ((_currentMap.GetMapUnits().Count < _currentMap.GetPlayerStartPositions().Length))
-                {
+    //             else if ((_currentMap.GetMapUnits().Count < _currentMap.GetPlayerStartPositions().Length))
+    //             {
 
-                    _currentMap.SpawnUnit(unit, _currentMap.FindNextStartPosition());
-                    // BuildUnitSelectMenu();
-                    ChangeTextColor(unitButtons[selectedIndex], "blue", combinedList[selectedIndex].Name);
+    //                 _currentMap.SpawnUnit(unit, _currentMap.FindNextStartPosition());
+    //                 // BuildUnitSelectMenu();
+    //                 ChangeTextColor(unitButtons[selectedIndex], "blue", combinedList[selectedIndex].Name);
 
-                    yield return null;
-                }
-            }
+    //                 yield return null;
+    //             }
+    //         }
 
-            if (playerInput.actions["Back"].WasPressedThisFrame())
-            {
-                // CloseUnitSelect();
-                foreach (Button but in unitButtons)
-                {
-                    Destroy(but.gameObject);
-                }
-                unitButtons.Clear();
-                unitList.Clear();
-                units.Clear();
-                combinedList.Clear();
-                UnitSelectBox.SetActive(false);
-                yield break; // Exit coroutine on cancel
-            }
+    //         if (playerInput.actions["Back"].WasPressedThisFrame())
+    //         {
+    //             // CloseUnitSelect();
+    //             foreach (Button but in unitButtons)
+    //             {
+    //                 Destroy(but.gameObject);
+    //             }
+    //             unitButtons.Clear();
+    //             unitList.Clear();
+    //             units.Clear();
+    //             combinedList.Clear();
+    //             UnitSelectBox.SetActive(false);
+    //             yield break; // Exit coroutine on cancel
+    //         }
 
-            yield return null;
-        }
-    }
+    //         yield return null;
+    //     }
+    // }
+
+    // // private void CycleSelection(int delta)
+    // // {
+    // //     int newIndex = selectedIndex + delta;
+
+    // //     if (newIndex >= 0 && newIndex < unitButtons.Count)
+    // //     {
+    // //         selectedIndex = newIndex;
+    // //         unitButtons[selectedIndex].Select();
+    // //     }
+
+
+    // // }
+
+    // private void ScrollToButton(RectTransform targetButton)
+    // {
+    //     Canvas.ForceUpdateCanvases();
+
+    //     float contentHeight = content.rect.height;
+    //     float viewportHeight = scrollRect.viewport.rect.height;
+
+    //     // Convert button's position to local space
+    //     float buttonCenterY = -targetButton.localPosition.y + (targetButton.rect.height / 2);
+
+    //     float upperBound = scrollRect.content.anchoredPosition.y;
+    //     float lowerBound = upperBound + viewportHeight;
+
+    //     float scrollY = Mathf.Clamp(buttonCenterY - viewportHeight / 1.25f, 0, contentHeight - viewportHeight);
+    //     float normalized = 1 - Mathf.Clamp01(scrollY / (contentHeight - viewportHeight));
+
+    //     scrollRect.verticalNormalizedPosition = normalized;
+    // }
 
     // private void CycleSelection(int delta)
     // {
@@ -344,10 +336,385 @@ public class BattleStartMenu : MonoBehaviour
     //     {
     //         selectedIndex = newIndex;
     //         unitButtons[selectedIndex].Select();
+
+    //         // Scroll to the button
+    //         RectTransform btnRect = unitButtons[selectedIndex].GetComponent<RectTransform>();
+    //         ScrollToButton(btnRect);
+    //     }
+    //     UpdateUnitInfo(combinedList[selectedIndex]);
+    // }
+
+
+
+    // private void ChangeTextColor(Button button, string color, string name)
+    // {
+    //     TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+    //     foreach (var text in texts)
+    //     {
+    //         if (text.name.ToLower().Contains("name"))
+    //         {
+    //             Debug.LogWarning("Changing " + text.text + " to " + name);
+
+    //             if (color == "green")
+    //             {
+    //                 color = "<color=#228B22>";  // Green
+    //             }
+    //             else if (color == "blue")
+    //             {
+    //                 color = "<color=#0000FF>"; // Blue
+    //             }
+
+    //             else if (color == "red")
+    //             {
+    //                 color = "<color=#FF0000>"; // Red
+    //             }
+    //             else
+    //             {
+    //                 color = "";
+    //             }
+
+    //             text.text = color + name + (color != "" ? "</color>" : "");
+
+    //         }
     //     }
 
+    //     unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
 
     // }
+
+
+
+
+    // private void BuildUnitSelectMenu()
+    // {
+    //     UnitSelectBox.SetActive(true);
+
+
+    //     int buttonsPerRow = 2;
+    //     float xSpacing = 450f;
+    //     float ySpacing = 100f;
+
+    //     Vector2 startPos = new Vector2(-225f, 400f);
+
+    //     List<UnitStats> playableRoster = UnitRosterManager.GetPlayableUnits(); // ✅ Still UnitStats
+
+    //     List<string> requiredUnits = _currentMap.GetRequiredUnits();
+    //     List<UnitManager> mapUnits = _currentMap.GetMapUnits(); // ✅ UnitManagers
+    //     List<string> forbiddenUnits = _currentMap.GetForbiddenUnits();
+
+    //     // Split into groups using UnitName comparisons
+    //     var requiredList = playableRoster
+    //         .Where(unit => requiredUnits.Contains(unit.UnitName))
+    //         .ToList();
+
+    //     var mapUnitsOnlyList = playableRoster
+    //         .Where(unit => !requiredUnits.Contains(unit.UnitName)
+    //                     && !forbiddenUnits.Contains(unit.UnitName)
+    //                     && mapUnits.Any(mu => mu.GetUnitName() == unit.UnitName))
+    //         .ToList();
+
+    //     var restList = playableRoster
+    //         .Where(unit => !requiredUnits.Contains(unit.UnitName)
+    //                     && !forbiddenUnits.Contains(unit.UnitName)
+    //                     && !mapUnits.Any(mu => mu.GetUnitName() == unit.UnitName))
+    //         .ToList();
+
+    //     var forbiddenList = playableRoster
+    //         .Where(unit => forbiddenUnits.Contains(unit.UnitName))
+    //         .ToList();
+
+    //     // Combine lists in order
+    //     combinedList = requiredList
+    //         .Concat(mapUnitsOnlyList)
+    //         .Concat(restList)
+    //         .Concat(forbiddenList)
+    //         .ToList();
+
+    //     foreach (Button but in unitButtons)
+    //     {
+    //         Destroy(but.gameObject);
+    //     }
+    //     unitButtons.Clear();
+    //     unitList.Clear();
+
+    //     for (int i = 0; i < combinedList.Count; i++)
+    //     {
+    //         int row = i / buttonsPerRow;
+    //         int col = i % buttonsPerRow;
+
+    //         float x = startPos.x + (col * xSpacing);
+    //         float y = startPos.y - (row * ySpacing);
+
+    //         GameObject button = Instantiate(UnitSelectButton, content);
+    //         // RectTransform rect = button.GetComponent<RectTransform>();
+    //         // rect.anchoredPosition = new Vector2(x, y);
+
+    //         UnitStats stats = combinedList[i];
+    //         TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+
+    //         foreach (var text in texts)
+    //         {
+    //             if (text.name.ToLower().Contains("name"))
+    //             {
+    //                 string color = "";
+
+    //                 if (requiredUnits.Contains(stats.UnitName))
+    //                 {
+    //                     color = "<color=#228B22>"; // Green
+    //                     UnitManager matchingUnit = mapUnits.Find(u => u.GetUnitName() == stats.UnitName);
+    //                     unitList.Add(matchingUnit);
+    //                 }
+    //                 else if (mapUnits.Any(mu => mu.GetUnitName() == stats.UnitName)
+    //                     && !requiredUnits.Contains(stats.UnitName)
+    //                     && !forbiddenUnits.Contains(stats.UnitName))
+    //                 {
+    //                     color = "<color=#0000FF>"; // Blue
+
+    //                     UnitManager matchingUnit = mapUnits.Find(u => u.GetUnitName() == stats.UnitName);
+    //                     unitList.Add(matchingUnit);
+    //                 }
+
+    //                 else if (forbiddenUnits.Contains(stats.UnitName))
+    //                     color = "<color=#FF0000>"; // Red
+    //                 else
+    //                     color = ""; // Default
+
+    //                 text.text = color + stats.Name + (color != "" ? "</color>" : "");
+    //             }
+    //             else if (text.name.ToLower().Contains("health"))
+    //             {
+    //                 text.text = $"{stats.CurrentHealth}/{stats.Health}";
+    //             }
+    //         }
+
+    //         Button btn = button.GetComponent<Button>();
+    //         unitButtons.Add(btn);
+    //         // unitList.Add()
+    //         units.Add(stats.UnitName);
+
+    //     }
+
+    //     // Resize content height based on rows
+    //     int totalRows = Mathf.CeilToInt(combinedList.Count / (float)buttonsPerRow);
+    //     float contentHeight = totalRows * ySpacing + 50f;
+    //     content.sizeDelta = new Vector2(content.sizeDelta.x, contentHeight);
+
+    //     unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
+    // }
+
+
+
+    // public void UpdateUnitInfo(UnitStats stats)
+    // {
+
+
+    //     TMPro.TextMeshProUGUI[] texts = InfoTextData.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+    //     foreach (var text in texts)
+    //     {
+    //         if (text.name.ToLower().Contains("level"))
+    //         {
+    //             text.text = stats.Level.ToString();
+    //         }
+    //         else if (text.name.ToLower().Contains("name"))
+    //         {
+    //             text.text = stats.Name;
+    //         }
+    //         else if (text.name.ToLower().Contains("exp"))
+    //         {
+    //             text.text = stats.Experience.ToString();
+    //         }
+    //         else if (text.name.ToLower().Contains("health"))
+    //         {
+    //             text.text = stats.CurrentHealth + "/" + stats.Health;
+    //         }
+    //         else if (text.name.ToLower().Contains("class"))
+    //         {
+    //             text.text = stats.UnitClass;
+    //         }
+    //     }
+
+    //     foreach (GameObject g in unitItemBarsList) Destroy(g);
+    //     unitItemBarsList.Clear();
+
+    //     List<Weapon> weapons = stats.GetWeaponsList();
+    //     List<Item> items = stats.GetItems();
+    //     int count = 0;
+    //     int offset = -52;
+
+    //     foreach (Weapon w in weapons)
+    //     {
+    //         GameObject temp = Instantiate(unitItemBar);
+    //         temp.transform.SetParent(InfoTextData.transform, false);
+    //         temp.transform.position += new Vector3(0, count * offset, 0);
+
+    //         TMPro.TextMeshProUGUI[] weapTexts = temp.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+    //         foreach (var text in weapTexts)
+    //         {
+    //             if (text.name.ToLower().Contains("item"))
+    //             {
+    //                 text.text = w.WeaponName;
+    //                 if (stats.GetPrimaryWeapon() == w) text.text += " (e)";
+
+    //             }
+    //             else if (text.name.ToLower().Contains("uses"))
+    //             {
+    //                 text.text = w.Uses + "/" + w.MaxUses;
+    //             }
+    //         }
+
+    //         count++;
+    //         unitItemBarsList.Add(temp);
+    //     }
+
+    //     foreach (Item w in items)
+    //     {
+    //         GameObject temp = Instantiate(unitItemBar);
+    //         temp.transform.SetParent(InfoTextData.transform, false);
+    //         temp.transform.position += new Vector3(0, count * offset, 0);
+
+    //         TMPro.TextMeshProUGUI[] itemTexts = temp.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+    //         foreach (var text in itemTexts)
+    //         {
+    //             if (text.name.ToLower().Contains("item"))
+    //             {
+    //                 text.text = w.Name;
+    //             }
+    //             else if (text.name.ToLower().Contains("uses"))
+    //             {
+    //                 text.text = w.Uses + "/" + w.MaxUses;
+    //             }
+    //         }
+
+    //         count++;
+    //         unitItemBarsList.Add(temp);
+    //     }
+    // }
+
+
+
+    private IEnumerator UnitSelect()
+    {
+        BuildUnitSelectMenu();
+
+        if (unitButtons.Count == 0) yield break;
+
+        selectedIndex = 0;
+        SelectUnit(selectedIndex);
+
+        unitNumber.text = $"{_currentMap.GetMapUnits().Count}/{_currentMap.GetPlayerStartPositions().Length}";
+
+
+        float inputCooldown = 0.2f;
+        float lastInputTime = -inputCooldown;
+
+        while (true)
+        {
+            // Handle navigation
+            if (Time.unscaledTime - lastInputTime > inputCooldown)
+            {
+                Vector2 input = moveInput;
+                int delta = 0;
+
+                if (input.x > 0.5f) delta = 1;
+                else if (input.x < -0.5f) delta = -1;
+                else if (input.y > 0.5f) delta = -buttonsPerRow;
+                else if (input.y < -0.5f) delta = buttonsPerRow;
+
+                if (delta != 0)
+                {
+                    CycleSelection(delta);
+                    lastInputTime = Time.unscaledTime;
+                }
+            }
+
+            // Handle selection
+            if (playerInput.actions["Select"].WasPressedThisFrame())
+            {
+                UnitStats unit = UnitRosterManager.GetPlayableUnit(units[selectedIndex]);
+                List<string> cantUse = _currentMap.GetRequiredUnits().Concat(_currentMap.GetForbiddenUnits()).ToList();
+
+                if (cantUse.Contains(unit.UnitName))
+                {
+                    yield return null;
+                    continue;
+                }
+
+                List<UnitManager> mapUnits = _currentMap.GetMapUnits();
+                UnitManager matchUnit = mapUnits.FirstOrDefault(u => u.GetUnitName() == unit.UnitName);
+
+                if (matchUnit != null)
+                {
+                    _currentMap.DespawnUnit(matchUnit);
+                    ChangeTextColor(unitButtons[selectedIndex], "default", matchUnit.GetName());
+                }
+                else if (mapUnits.Count < _currentMap.GetPlayerStartPositions().Length)
+                {
+                    _currentMap.SpawnUnit(unit, _currentMap.FindNextStartPosition());
+                    ChangeTextColor(unitButtons[selectedIndex], "blue", unit.Name);
+                }
+
+                yield return null;
+            }
+
+            // Handle cancel
+            if (playerInput.actions["Back"].WasPressedThisFrame())
+            {
+                ClearUnitSelect();
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
+    private void ClearUnitSelect()
+    {
+        foreach (var but in unitButtons) Destroy(but.gameObject);
+        unitButtons.Clear();
+        unitList.Clear();
+        units.Clear();
+        combinedList.Clear();
+        UnitSelectBox.SetActive(false);
+    }
+
+    private void SelectUnit(int index)
+    {
+        selectedIndex = index;
+        unitButtons[selectedIndex].Select();
+        ScrollToButton(unitButtons[selectedIndex].GetComponent<RectTransform>());
+        UpdateUnitInfo(combinedList[selectedIndex]);
+    }
+
+    private void CycleSelection(int delta)
+    {
+        int newIndex = Mathf.Clamp(selectedIndex + delta, 0, unitButtons.Count - 1);
+        SelectUnit(newIndex);
+    }
+
+    private void ChangeTextColor(Button button, string color, string name)
+    {
+        TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+        string colorTag = color switch
+        {
+            "green" => "<color=#228B22>",
+            "blue" => "<color=#0000FF>",
+            "red" => "<color=#FF0000>",
+            _ => ""
+        };
+
+        foreach (var text in texts)
+        {
+            if (text.name.ToLower().Contains("name"))
+                text.text = colorTag + name + (colorTag != "" ? "</color>" : "");
+        }
+
+        unitNumber.text = $"{_currentMap.GetMapUnits().Count}/{_currentMap.GetPlayerStartPositions().Length}";
+    }
 
     private void ScrollToButton(RectTransform targetButton)
     {
@@ -356,75 +723,71 @@ public class BattleStartMenu : MonoBehaviour
         float contentHeight = content.rect.height;
         float viewportHeight = scrollRect.viewport.rect.height;
 
-        // Convert button's position to local space
-        float buttonCenterY = -targetButton.localPosition.y + (targetButton.rect.height / 2);
-
-        float upperBound = scrollRect.content.anchoredPosition.y;
-        float lowerBound = upperBound + viewportHeight;
-
+        // Center the button in the viewport
+        float buttonCenterY = -targetButton.localPosition.y + targetButton.rect.height / 2f;
         float scrollY = Mathf.Clamp(buttonCenterY - viewportHeight / 1.25f, 0, contentHeight - viewportHeight);
-        float normalized = 1 - Mathf.Clamp01(scrollY / (contentHeight - viewportHeight));
 
-        scrollRect.verticalNormalizedPosition = normalized;
+        scrollRect.verticalNormalizedPosition = 1f - Mathf.Clamp01(scrollY / (contentHeight - viewportHeight));
     }
 
-    private void CycleSelection(int delta)
+    public void UpdateUnitInfo(UnitStats stats)
     {
-        int newIndex = selectedIndex + delta;
-
-        if (newIndex >= 0 && newIndex < unitButtons.Count)
+        // Update basic info
+        foreach (var text in InfoTextData.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
         {
-            selectedIndex = newIndex;
-            unitButtons[selectedIndex].Select();
-
-            // Scroll to the button
-            RectTransform btnRect = unitButtons[selectedIndex].GetComponent<RectTransform>();
-            ScrollToButton(btnRect);
-        }
-        UpdateUnitInfo(combinedList[selectedIndex]);
-    }
-
-
-
-    private void ChangeTextColor(Button button, string color, string name)
-    {
-        TMPro.TextMeshProUGUI[] texts = button.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-
-        foreach (var text in texts)
-        {
-            if (text.name.ToLower().Contains("name"))
+            string lname = text.name.ToLower();
+            text.text = lname switch
             {
-                Debug.LogWarning("Changing " + text.text + " to " + name);
-
-                if (color == "green")
-                {
-                    color = "<color=#228B22>";  // Green
-                }
-                else if (color == "blue")
-                {
-                    color = "<color=#0000FF>"; // Blue
-                }
-
-                else if (color == "red")
-                {
-                    color = "<color=#FF0000>"; // Red
-                }
-                else
-                {
-                    color = "";
-                }
-
-                text.text = color + name + (color != "" ? "</color>" : "");
-
-            }
+                var n when n.Contains("level") => stats.Level.ToString(),
+                var n when n.Contains("name") => stats.Name,
+                var n when n.Contains("exp") => stats.Experience.ToString(),
+                var n when n.Contains("health") => $"{stats.CurrentHealth}/{stats.Health}",
+                var n when n.Contains("class") => stats.UnitClass,
+                _ => text.text
+            };
         }
+        if (expBar != null )
+        {
+            expBar.fillAmount = Mathf.Clamp01((float)stats.Experience / 100.0f);
+        } 
 
-        unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
+        // Clear old item bars
+        foreach (var g in unitItemBarsList) Destroy(g);
+        unitItemBarsList.Clear();
 
+        int count = 0;
+        int offset = -52;
+
+        // Combine weapons and items for display
+        foreach (var entry in stats.GetWeaponsList().Cast<object>().Concat(stats.GetItems()))
+        {
+            GameObject bar = Instantiate(unitItemBar, InfoTextData.transform, false);
+            bar.transform.localPosition += new Vector3(0, count * offset, 0);
+
+            foreach (var text in bar.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
+            {
+                string lname = text.name.ToLower();
+
+                if (lname.Contains("item"))
+                    text.text = entry switch
+                    {
+                        Weapon w => w.WeaponName + (stats.GetPrimaryWeapon() == w ? " (e)" : ""),
+                        Item i => i.Name,
+                        _ => ""
+                    };
+                else if (lname.Contains("uses"))
+                    text.text = entry switch
+                    {
+                        Weapon w => $"{w.Uses}/{w.MaxUses}",
+                        Item i => $"{i.Uses}/{i.MaxUses}",
+                        _ => ""
+                    };
+            }
+
+            unitItemBarsList.Add(bar);
+            count++;
+        }
     }
-
-
-
 
     private void BuildUnitSelectMenu()
     {
@@ -534,104 +897,6 @@ public class BattleStartMenu : MonoBehaviour
             // unitList.Add()
             units.Add(stats.UnitName);
 
-        }
-
-        // Resize content height based on rows
-        int totalRows = Mathf.CeilToInt(combinedList.Count / (float)buttonsPerRow);
-        float contentHeight = totalRows * ySpacing + 50f;
-        content.sizeDelta = new Vector2(content.sizeDelta.x, contentHeight);
-
-        unitNumber.text = _currentMap.GetMapUnits().Count + "/" + _currentMap.GetPlayerStartPositions().Length;
-    }
-
-
-
-    public void UpdateUnitInfo(UnitStats stats)
-    {
-
-
-        TMPro.TextMeshProUGUI[] texts = InfoTextData.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-
-        foreach (var text in texts)
-        {
-            if (text.name.ToLower().Contains("level"))
-            {
-                text.text = stats.Level.ToString();
-            }
-            else if (text.name.ToLower().Contains("name"))
-            {
-                text.text = stats.Name;
-            }
-            else if (text.name.ToLower().Contains("exp"))
-            {
-                text.text = stats.Experience.ToString();
-            }
-            else if (text.name.ToLower().Contains("health"))
-            {
-                text.text = stats.CurrentHealth + "/" + stats.Health;
-            }
-            else if (text.name.ToLower().Contains("class"))
-            {
-                text.text = stats.UnitClass;
-            }
-        }
-
-        foreach (GameObject g in unitItemBarsList) Destroy(g);
-        unitItemBarsList.Clear();
-
-        List<Weapon> weapons = stats.weapons;
-        List<Item> items = stats.items;
-        int count = 0;
-        int offset = -52;
-
-        foreach (Weapon w in weapons)
-        {
-            GameObject temp = Instantiate(unitItemBar);
-            temp.transform.SetParent(InfoTextData.transform, false);
-            temp.transform.position += new Vector3(0, count * offset, 0);
-
-            TMPro.TextMeshProUGUI[] weapTexts = temp.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-
-            foreach (var text in weapTexts)
-            {
-                if (text.name.ToLower().Contains("item"))
-                {
-                    text.text = w.WeaponName;
-                    if (stats.GetPrimaryWeapon() == w) text.text += " (e)";
-
-                }
-                else if (text.name.ToLower().Contains("uses"))
-                {
-                    text.text = w.Uses + "/" + w.MaxUses;
-                }
-            }
-
-            count++;
-            unitItemBarsList.Add(temp);
-        }
-
-        foreach (Item w in items)
-        {
-            GameObject temp = Instantiate(unitItemBar);
-            temp.transform.SetParent(InfoTextData.transform, false);
-            temp.transform.position += new Vector3(0, count * offset, 0);
-
-            TMPro.TextMeshProUGUI[] itemTexts = temp.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-
-            foreach (var text in itemTexts)
-            {
-                if (text.name.ToLower().Contains("item"))
-                {
-                    text.text = w.Name;
-                }
-                else if (text.name.ToLower().Contains("uses"))
-                {
-                    text.text = w.Uses + "/" + w.MaxUses;
-                }
-            }
-
-            count++;
-            unitItemBarsList.Add(temp);
         }
     }
 

@@ -6,12 +6,11 @@ using UnityEngine;
 public class GenerateGrid : MonoBehaviour
 {
     private GridTile[,] grid;
-    private PlayerGridMovement playerGridMovement;
-    private FindPath findPath;
-    private float cellSize = 4;
+    private const float cellSize = 4; // Size of each grid cell, keep at 4
     private int length;
     private int width;
-
+    private PlayerGridMovement playerGridMovement;
+    private FindPath findPath;
   
     private void Awake()
     {

@@ -148,26 +148,46 @@ public class UnitRosterManager : MonoBehaviour
     /// Gets the amount of experience required to reach the next level
     /// given the unit's current experience.
     /// </summary>
-    public static int GetNextLevelExpRequirement(int currentExp)
+    // Get current level from total experience
+    public static int GetCurrentLevel(int currentExp)
     {
-        // Loop through the table to find the next threshold
-        for (int i = 0; i < skillLevels.Length; i++)
+        for (int i = skillLevels.Length - 1; i >= 0; i--)
         {
-            if (currentExp < skillLevels[i].experienceNeeded)
-            {
-                return skillLevels[i].experienceNeeded;
-            }
+            if (currentExp >= skillLevels[i].experienceNeeded)
+                return skillLevels[i].level;
         }
-
-        // If we’re above the last threshold, return the last one
-        Debug.LogWarning("Already at or above max skill level.");
-        return skillLevels[skillLevels.Length - 1].experienceNeeded;
+        return 1;
     }
 
+    // Get total experience required to reach a given level
+    public static int GetTotalExpForLevel(int level)
+    {
+        var data = System.Array.Find(skillLevels, s => s.level == level);
+        return data.experienceNeeded;
+    }
+
+    // Get experience required to go from (level) → (level+1)
+    public static int GetExpBetweenLevels(int level)
+    {
+        if (level < 1 || level >= skillLevels.Length)
+            return 0;
+
+        int currentLevelExp = skillLevels[level - 1].experienceNeeded;
+        int nextLevelExp = skillLevels[level].experienceNeeded;
+
+        return nextLevelExp - currentLevelExp;
+    }
+
+    // Get exp still needed until the next level from currentExp
     public static int GetExpToNextLevel(int currentExp)
     {
-        int nextLevelExp = GetNextLevelExpRequirement(currentExp);
-        return Mathf.Max(0, nextLevelExp - currentExp);
+        int currentLevel = GetCurrentLevel(currentExp);
+
+        if (currentLevel >= skillLevels[skillLevels.Length - 1].level)
+            return 0; // maxed out
+
+        int nextLevelExp = GetTotalExpForLevel(currentLevel + 1);
+        return nextLevelExp - currentExp;
     }
 
     //Writes the new UnitStats object into a dictionally using the name of the character as a key

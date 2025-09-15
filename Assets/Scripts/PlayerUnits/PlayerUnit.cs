@@ -56,16 +56,24 @@ public class PlayerUnit : UnitManager
 
         int skillInc = CalculateSkillEXP(numberTimesAttacked);
 
-        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience, skillType1, 100, sp));
+        yield return StartCoroutine(combatMenuManager.GainExperienceMenu(this, experience, skillType1, skillInc, sp));
 
         stats.AddSP(sp);
+
+        
 
         stats.Experience += experience;
 
         PlayerStats pStats = (PlayerStats)stats;
         
+        pStats.AddSkillExperience(skillType1, skillInc);
 
-        while (stats.Experience >= 100) {
+        //TODO: Maybe add a popup confirming that they leveled up a skill 
+        //TODO: Make sure that experience isn't added if maxed out
+        
+
+        while (stats.Experience >= 100)
+        {
 
             int hlt = 0;
             int atk = 0;
@@ -76,7 +84,8 @@ public class PlayerUnit : UnitManager
             int luk = 0;
             int spd = 0;
 
-            while (true) {
+            while (true)
+            {
                 hlt = 0;
                 atk = 0;
                 mag = 0;

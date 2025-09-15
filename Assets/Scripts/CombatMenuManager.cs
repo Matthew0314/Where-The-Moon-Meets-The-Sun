@@ -1612,167 +1612,506 @@ public class CombatMenuManager : MonoBehaviour
     //     yield return new WaitForSeconds(1f);
     //     DeactivateExperienceMenu();
     // }
-    public IEnumerator GainExperienceMenu(UnitManager unit, int gainExp, string skillType1, int skillInc, int SPInc)
+    // public IEnumerator GainExperienceMenu(UnitManager unit, int gainExp, string skillType1, int skillInc, int SPInc)
+    // {
+    //     experienceMenu.SetActive(true);
+    //     expUnitName.text = unit.GetName();
+
+    //     // gainExp = 200;
+
+    //     // ===== EXP SETUP =====
+    //     int currentExp = unit.GetExperience();
+    //     int remainingExp = gainExp;
+    //     int expThreshold = 100;
+    //     int initialExpNext = expThreshold - currentExp;
+
+    //     expGained.text = "+" + remainingExp.ToString();
+    //     expNext.text = initialExpNext.ToString();
+
+    //     // ===== SKILL SETUP =====
+    //     int currentSkillExp = unit.GetStats().GetSkillExperience(skillType1);
+    //     int remainingSkillExp = skillInc;
+
+    //     int skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
+    //     int initialSkillNext = UnitRosterManager.GetExpToNextLevel(currentSkillExp);
+
+    //     skillName.text = skillType1;
+    //     skillGained.text = "+" + remainingSkillExp.ToString();
+    //     skillNext.text = initialSkillNext.ToString();
+
+    //     // ===== SP SETUP (animated) =====
+    //     // int spThreshold = 100; // optional cap, adjust if needed
+    //     // int currentSP = unit.GetStats().SP; 
+    //     // int targetSP = currentSP + SPInc;
+
+    //     // SPGained.text = SPInc.ToString(); // start with full SP gained
+    //     // SPNext.text = (spThreshold - currentSP).ToString(); // how much left before cap
+
+    //     // // Animate SP gain
+    //     // float spDuration = 1f; // how long SP should animate
+    //     // float spElapsed = 0f;
+
+    //     int currentSP = unit.GetStats().SP;
+    //     int gainedSP = SPInc;
+
+    //     // int remainingSPGain = SPInc;
+
+    //     // initialize UI
+    //     SPNext.text = currentSP.ToString();
+    //     SPGained.text = "+ " + gainedSP.ToString();
+
+    //     // ===== LOOP: animate EXP + SKILL together =====
+    //     while (remainingExp > 0 || remainingSkillExp > 0)
+    //     {
+    //         int expToAdd = Mathf.Min(expThreshold - currentExp, remainingExp);
+    //         // skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
+
+    //         int skillToAdd = Mathf.Min(skillThreshold - currentSkillExp, remainingSkillExp);
+
+    //         float startFillExp = (float)currentExp / expThreshold;
+    //         float targetFillExp = (float)(currentExp + expToAdd) / expThreshold;
+
+    //         float startFillSkill = (float)currentSkillExp / skillThreshold;
+    //         float targetFillSkill = (float)(currentSkillExp + skillToAdd) / skillThreshold;
+
+    //         float duration = Mathf.Max(
+    //             (targetFillExp - startFillExp),
+    //             (targetFillSkill - startFillSkill)
+    //         ) * 1.5f; 
+    //         float elapsed = 0f;
+
+    //         // Animate both bars simultaneously
+    //         while (elapsed < duration)
+    //         {
+    //             elapsed += Time.deltaTime;
+    //             float t = elapsed / duration;
+
+    //             // EXP updates
+    //             if (remainingExp > 0)
+    //             {
+    //                 expBar.fillAmount = Mathf.Lerp(startFillExp, targetFillExp, t);
+
+    //                 int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(remainingExp, remainingExp - expToAdd, t));
+    //                 int interpolatedNext = Mathf.RoundToInt(Mathf.Lerp(initialExpNext, initialExpNext - expToAdd, t));
+
+    //                 expGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : "0";
+    //                 expNext.text = interpolatedNext.ToString();
+    //             }
+
+    //             // SKILL updates
+    //             if (remainingSkillExp > 0)
+    //             {
+    //                 skillBar.fillAmount = Mathf.Lerp(startFillSkill, targetFillSkill, t);
+
+    //                 int interpolatedSkillGain = Mathf.RoundToInt(Mathf.Lerp(remainingSkillExp, remainingSkillExp - skillToAdd, t));
+    //                 int interpolatedSkillNext = Mathf.RoundToInt(Mathf.Lerp(initialSkillNext, initialSkillNext - skillToAdd, t));
+
+    //                 skillGained.text = interpolatedSkillGain > 0 ? $"+{interpolatedSkillGain}" : "0";
+    //                 skillNext.text = interpolatedSkillNext.ToString();
+    //             }
+
+    //             // SP updates (increasing text over time)
+    //             if (SPInc > 0)
+    //             {
+    //                 elapsed += Time.deltaTime;
+    //                 float tSP = Mathf.Clamp01(elapsed / duration);
+
+    //                 int interpolatedSP = Mathf.RoundToInt(Mathf.Lerp(currentSP, currentSP + SPInc, tSP));
+    //                 int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(SPInc, 0, tSP));
+
+    //                 SPNext.text = interpolatedSP.ToString();          // current SP increasing
+    //                 SPGained.text = "+ " + interpolatedGain.ToString(); // SP gain decreasing
+    //             }
+
+    //             if (playerInput.actions["SkipCutscene"].WasPressedThisFrame()) break;
+    //             yield return null;
+    //         }
+
+    //         // Finalize cycle
+    //         if (remainingExp > 0)
+    //         {
+    //             expBar.fillAmount = targetFillExp;
+    //             currentExp += expToAdd;
+    //             remainingExp -= expToAdd;
+
+    //             if (currentExp >= expThreshold && remainingExp > 0)
+    //             {
+    //                 currentExp = 0;
+    //                 initialExpNext = expThreshold;
+    //             }
+    //         }
+
+    //         if (remainingSkillExp > 0)
+    //         {
+    //             skillBar.fillAmount = targetFillSkill;
+    //             currentSkillExp += skillToAdd;
+    //             remainingSkillExp -= skillToAdd;
+
+    //             if (currentSkillExp >= skillThreshold && remainingSkillExp > 0)
+    //             {
+    //                 currentSkillExp = 0;
+    //                 initialSkillNext = skillThreshold;
+    //             }
+    //         }
+    //     }
+
+    //     // ===== Final UI state =====
+    //     expGained.text = "0";
+    //     expNext.text = (expThreshold - currentExp).ToString();
+
+    //     skillGained.text = "0";
+    //     skillNext.text = (skillThreshold - currentSkillExp).ToString();
+
+
+    //     // SPNext.text = $"+{SPInc}";
+    //     // SPNext.text = finalSP.ToString();
+    //     SPGained.text = "+ 0";                          // all SP gained has been "used"
+    //     SPNext.text = (currentSP + SPInc).ToString();   
+
+    //     yield return new WaitForSeconds(1f);
+    //     DeactivateExperienceMenu();
+    // }
+
+    public IEnumerator GainExperienceMenu(UnitManager unit, int gainExp, string skillType, int skillInc, int SPInc)
     {
         experienceMenu.SetActive(true);
         expUnitName.text = unit.GetName();
 
-        // gainExp = 200;
-
-        // ===== EXP SETUP =====
-        int currentExp = unit.GetExperience();
-        int remainingExp = gainExp;
-        int expThreshold = 100;
-        int initialExpNext = expThreshold - currentExp;
-
-        expGained.text = "+" + remainingExp.ToString();
-        expNext.text = initialExpNext.ToString();
-
-        // ===== SKILL SETUP =====
-        int currentSkillExp = unit.GetStats().GetSkillExperience(skillType1);
-        int remainingSkillExp = skillInc;
-
-        int skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
-        int initialSkillNext = UnitRosterManager.GetExpToNextLevel(currentSkillExp);
-
-        skillName.text = skillType1;
-        skillGained.text = "+" + remainingSkillExp.ToString();
-        skillNext.text = initialSkillNext.ToString();
-
-        // ===== SP SETUP (animated) =====
-        // int spThreshold = 100; // optional cap, adjust if needed
-        // int currentSP = unit.GetStats().SP; 
-        // int targetSP = currentSP + SPInc;
-
-        // SPGained.text = SPInc.ToString(); // start with full SP gained
-        // SPNext.text = (spThreshold - currentSP).ToString(); // how much left before cap
-
-        // // Animate SP gain
-        // float spDuration = 1f; // how long SP should animate
-        // float spElapsed = 0f;
-
-        int currentSP = unit.GetStats().SP;
-        int gainedSP = SPInc;
-
-        // int remainingSPGain = SPInc;
-
-        // initialize UI
-        SPNext.text = currentSP.ToString();
-        SPGained.text = "+ " + gainedSP.ToString();
-
-        // ===== LOOP: animate EXP + SKILL together =====
-        while (remainingExp > 0 || remainingSkillExp > 0)
-        {
-            int expToAdd = Mathf.Min(expThreshold - currentExp, remainingExp);
-            // skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
-
-            int skillToAdd = Mathf.Min(skillThreshold - currentSkillExp, remainingSkillExp);
-
-            float startFillExp = (float)currentExp / expThreshold;
-            float targetFillExp = (float)(currentExp + expToAdd) / expThreshold;
-
-            float startFillSkill = (float)currentSkillExp / skillThreshold;
-            float targetFillSkill = (float)(currentSkillExp + skillToAdd) / skillThreshold;
-
-            float duration = Mathf.Max(
-                (targetFillExp - startFillExp),
-                (targetFillSkill - startFillSkill)
-            ) * 1.5f; 
-            float elapsed = 0f;
-
-            // Animate both bars simultaneously
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = elapsed / duration;
-
-                // EXP updates
-                if (remainingExp > 0)
-                {
-                    expBar.fillAmount = Mathf.Lerp(startFillExp, targetFillExp, t);
-
-                    int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(remainingExp, remainingExp - expToAdd, t));
-                    int interpolatedNext = Mathf.RoundToInt(Mathf.Lerp(initialExpNext, initialExpNext - expToAdd, t));
-
-                    expGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : "0";
-                    expNext.text = interpolatedNext.ToString();
-                }
-
-                // SKILL updates
-                if (remainingSkillExp > 0)
-                {
-                    skillBar.fillAmount = Mathf.Lerp(startFillSkill, targetFillSkill, t);
-
-                    int interpolatedSkillGain = Mathf.RoundToInt(Mathf.Lerp(remainingSkillExp, remainingSkillExp - skillToAdd, t));
-                    int interpolatedSkillNext = Mathf.RoundToInt(Mathf.Lerp(initialSkillNext, initialSkillNext - skillToAdd, t));
-
-                    skillGained.text = interpolatedSkillGain > 0 ? $"+{interpolatedSkillGain}" : "0";
-                    skillNext.text = interpolatedSkillNext.ToString();
-                }
-
-                // SP updates (increasing text over time)
-                if (SPInc > 0)
-                {
-                    elapsed += Time.deltaTime;
-                    float tSP = Mathf.Clamp01(elapsed / duration);
-
-                    int interpolatedSP = Mathf.RoundToInt(Mathf.Lerp(currentSP, currentSP + SPInc, tSP));
-                    int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(SPInc, 0, tSP));
-
-                    SPNext.text = interpolatedSP.ToString();          // current SP increasing
-                    SPGained.text = "+ " + interpolatedGain.ToString(); // SP gain decreasing
-                }
-
-                if (playerInput.actions["SkipCutscene"].WasPressedThisFrame()) break;
-                yield return null;
-            }
-
-            // Finalize cycle
-            if (remainingExp > 0)
-            {
-                expBar.fillAmount = targetFillExp;
-                currentExp += expToAdd;
-                remainingExp -= expToAdd;
-
-                if (currentExp >= expThreshold && remainingExp > 0)
-                {
-                    currentExp = 0;
-                    initialExpNext = expThreshold;
-                }
-            }
-
-            if (remainingSkillExp > 0)
-            {
-                skillBar.fillAmount = targetFillSkill;
-                currentSkillExp += skillToAdd;
-                remainingSkillExp -= skillToAdd;
-
-                if (currentSkillExp >= skillThreshold && remainingSkillExp > 0)
-                {
-                    currentSkillExp = 0;
-                    initialSkillNext = skillThreshold;
-                }
-            }
-        }
-
-        // ===== Final UI state =====
-        expGained.text = "0";
-        expNext.text = (expThreshold - currentExp).ToString();
-
-        skillGained.text = "0";
-        skillNext.text = (skillThreshold - currentSkillExp).ToString();
-
-
-        // SPNext.text = $"+{SPInc}";
-        // SPNext.text = finalSP.ToString();
-        SPGained.text = "+ 0";                          // all SP gained has been "used"
-        SPNext.text = (currentSP + SPInc).ToString();   
+        // launch all 3 animations in parallel
+        yield return StartCoroutine(RunAll(
+            AnimateExperience(unit, gainExp),
+            AnimateSkill(unit, skillType, skillInc),
+            AnimateSP(unit, SPInc)
+        ));
 
         yield return new WaitForSeconds(1f);
         DeactivateExperienceMenu();
     }
 
-   
+    private IEnumerator AnimateExperience(UnitManager unit, int gainExp)
+    {
+        int currentExp = unit.GetExperience();
+        int expThreshold = 100;
+        int remainingExp = gainExp;
+
+        int initialExpNext = expThreshold - currentExp;
+        expGained.text = "+" + remainingExp;
+        expNext.text = initialExpNext.ToString();
+
+        while (remainingExp > 0)
+        {
+            int expToAdd = Mathf.Min(expThreshold - currentExp, remainingExp);
+
+            float startFill = (float)currentExp / expThreshold;
+            float targetFill = (float)(currentExp + expToAdd) / expThreshold;
+            float duration = (targetFill - startFill) * 1.5f;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+
+                expBar.fillAmount = Mathf.Lerp(startFill, targetFill, t);
+
+                int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(remainingExp, remainingExp - expToAdd, t));
+                int interpolatedNext = Mathf.RoundToInt(Mathf.Lerp(initialExpNext, initialExpNext - expToAdd, t));
+
+                expGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : "0";
+                expNext.text = interpolatedNext.ToString();
+
+                yield return null;
+            }
+
+            // finalize this cycle
+            expBar.fillAmount = targetFill;
+            currentExp += expToAdd;
+            remainingExp -= expToAdd;
+
+            if (currentExp >= expThreshold && remainingExp > 0)
+            {
+                currentExp = 0;
+                initialExpNext = expThreshold;
+            }
+        }
+
+        expGained.text = "0";
+        expNext.text = (expThreshold - currentExp).ToString();
+    }
+
+    // private IEnumerator AnimateSkill(UnitManager unit, string skillType, int skillInc)
+    // {
+    //     // get exp that the unit is currently at for this skill
+    //     int currentSkillExp = unit.GetStats().GetSkillExperience(skillType);
+
+    //     // assigns how much exp they are gaining
+    //     int remainingSkillExp = skillInc;
+
+    //     // get initial thresholds
+    //     int skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
+    //     int initialSkillNext = UnitRosterManager.GetExpToNextLevel(currentSkillExp);
+
+    //     // Sets the initial text
+    //     skillName.text = skillType;
+    //     skillGained.text = "+" + remainingSkillExp;
+    //     skillNext.text = initialSkillNext.ToString();
+
+    //     while (remainingSkillExp > 0)
+    //     {
+    //         int skillToAdd = Mathf.Min(skillThreshold - currentSkillExp, remainingSkillExp);
+
+    //         float startFill = (float)currentSkillExp / skillThreshold;
+    //         float targetFill = (float)(currentSkillExp + skillToAdd) / skillThreshold;
+    //         float duration = (targetFill - startFill) * 1.5f;
+    //         float elapsed = 0f;
+
+    //         while (elapsed < duration)
+    //         {
+    //             elapsed += Time.deltaTime;
+    //             float t = elapsed / duration;
+
+    //             skillBar.fillAmount = Mathf.Lerp(startFill, targetFill, t);
+
+    //             int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(remainingSkillExp, remainingSkillExp - skillToAdd, t));
+    //             int interpolatedNext = Mathf.RoundToInt(Mathf.Lerp(initialSkillNext, initialSkillNext - skillToAdd, t));
+
+    //             skillGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : "0";
+    //             skillNext.text = interpolatedNext.ToString();
+
+    //             yield return null;
+    //         }
+
+    //         // finalize this cycle
+    //         skillBar.fillAmount = targetFill;
+    //         currentSkillExp += skillToAdd;
+    //         remainingSkillExp -= skillToAdd;
+
+    //         // ✅ Recalculate threshold if leveled up
+    //         if (currentSkillExp >= skillThreshold && remainingSkillExp > 0)
+    //         {
+
+    //             // recalc next level requirements
+    //             skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
+    //             initialSkillNext = UnitRosterManager.GetExpToNextLevel(currentSkillExp);
+
+    //             // reset UI for the new level
+    //             skillBar.fillAmount = 0f;
+    //             skillNext.text = initialSkillNext.ToString();
+
+    //             currentSkillExp = 0;
+
+    //         }
+    //     }
+
+    //     skillGained.text = "0";
+    //     skillNext.text = (skillThreshold - currentSkillExp).ToString();
+    // }
+
+    // private IEnumerator AnimateSkill(UnitManager unit, string skillType, int skillInc)
+    // {
+    //     // get exp that the unit is currently at for this skill
+    //     int skillExp = unit.GetStats().GetSkillExperience(skillType);
+
+    //     int currLevel = UnitRosterManager.GetCurrentLevel(skillExp);
+
+    //     int skillThreshold = UnitRosterManager.GetExpBetweenLevels(currLevel);
+
+    //     int prevTotalExpForLevel = UnitRosterManager.GetTotalExpForLevel(currLevel);
+    //     int currentSkillExp = skillExp - prevTotalExpForLevel;
+
+    //     int remainingSkillExp = skillInc;
+
+    //     // int skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
+
+
+    //     skillName.text = skillType;
+    //     skillGained.text = "+" + remainingSkillExp;
+    //     skillNext.text = UnitRosterManager.GetExpToNextLevel(skillExp).ToString();
+
+    //     while (remainingSkillExp > 0)
+    //     {
+    //         int skillToAdd = Mathf.Min(skillThreshold - currentSkillExp, remainingSkillExp);
+
+    //         float startFill = (float)currentSkillExp / skillThreshold;
+    //         float targetFill = (float)(currentSkillExp + skillToAdd) / skillThreshold;
+    //         float duration = (targetFill - startFill) * 1.5f;
+    //         float elapsed = 0f;
+
+    //         while (elapsed < duration)
+    //         {
+    //             elapsed += Time.deltaTime;
+    //             float t = elapsed / duration;
+
+    //             skillBar.fillAmount = Mathf.Lerp(startFill, targetFill, t);
+
+    //             int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(remainingSkillExp, remainingSkillExp - skillToAdd, t));
+    //             int interpolatedNext = Mathf.RoundToInt(Mathf.Lerp(initialSkillNext, initialSkillNext - skillToAdd, t));
+
+    //             skillGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : "0";
+    //             skillNext.text = interpolatedNext.ToString();
+
+    //             yield return null;
+    //         }
+
+    //         // finalize this cycle
+    //         skillBar.fillAmount = targetFill;
+    //         currentSkillExp += skillToAdd;
+    //         remainingSkillExp -= skillToAdd;
+
+    //         // ✅ Recalculate threshold if leveled up
+    //         if (currentSkillExp >= skillThreshold && remainingSkillExp > 0)
+    //         {
+
+    //             // recalc next level requirements
+    //             skillThreshold = UnitRosterManager.GetNextLevelExpRequirement(currentSkillExp);
+    //             initialSkillNext = UnitRosterManager.GetExpToNextLevel(currentSkillExp);
+
+    //             // reset UI for the new level
+    //             skillBar.fillAmount = 0f;
+    //             skillNext.text = initialSkillNext.ToString();
+
+    //             currentSkillExp = 0;
+
+    //         }
+    //     }
+
+    //     skillGained.text = "0";
+    //     skillNext.text = (skillThreshold - currentSkillExp).ToString();
+    // }
+
+    private IEnumerator AnimateSkill(UnitManager unit, string skillType, int skillInc)
+    {
+        // total exp the unit currently has
+        int skillExp = unit.GetStats().GetSkillExperience(skillType);
+
+        // determine current level & thresholds
+        int currLevel = UnitRosterManager.GetCurrentLevel(skillExp);
+        int prevTotalExpForLevel = UnitRosterManager.GetTotalExpForLevel(currLevel);
+        int skillThreshold = UnitRosterManager.GetExpBetweenLevels(currLevel);
+
+        // exp already gained into this level
+        int currentSkillExp = skillExp - prevTotalExpForLevel;
+
+        // exp still to animate
+        int remainingSkillExp = skillInc;
+
+        // setup UI
+        skillName.text = skillType;
+        skillGained.text = "+" + remainingSkillExp;
+        skillNext.text = UnitRosterManager.GetExpToNextLevel(skillExp).ToString();
+
+        while (remainingSkillExp > 0)
+        {
+            // how much we can add before reaching next level
+            int skillToAdd = Mathf.Min(skillThreshold - currentSkillExp, remainingSkillExp);
+
+            float startFill = (float)currentSkillExp / skillThreshold;
+            float targetFill = (float)(currentSkillExp + skillToAdd) / skillThreshold;
+            float duration = (targetFill - startFill) * 1.5f;
+            float elapsed = 0f;
+
+            int startRemaining = remainingSkillExp;
+            int startNext = UnitRosterManager.GetExpToNextLevel(skillExp);
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+
+                // fill bar animation
+                skillBar.fillAmount = Mathf.Lerp(startFill, targetFill, t);
+
+                // animate text updates
+                int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(startRemaining, startRemaining - skillToAdd, t));
+                int interpolatedNext = Mathf.RoundToInt(Mathf.Lerp(startNext, startNext - skillToAdd, t));
+
+                skillGained.text = interpolatedGain > 0 ? $"+{interpolatedGain}" : "0";
+                skillNext.text = interpolatedNext.ToString();
+
+                yield return null;
+            }
+
+            // finalize this cycle
+            skillBar.fillAmount = targetFill;
+            currentSkillExp += skillToAdd;
+            remainingSkillExp -= skillToAdd;
+            skillExp += skillToAdd;
+
+            // leveled up?
+            if (currentSkillExp >= skillThreshold && remainingSkillExp > 0)
+            {
+                currLevel++;
+                prevTotalExpForLevel = UnitRosterManager.GetTotalExpForLevel(currLevel);
+                skillThreshold = UnitRosterManager.GetExpBetweenLevels(currLevel);
+
+                // reset bar for next level
+                currentSkillExp = 0;
+                skillBar.fillAmount = 0f;
+                skillNext.text = UnitRosterManager.GetExpToNextLevel(skillExp).ToString();
+            }
+        }
+
+        // clean up UI at the end
+        skillGained.text = "0";
+        skillNext.text = (skillThreshold - currentSkillExp).ToString();
+    }
+
+
+
+
+    private IEnumerator AnimateSP(UnitManager unit, int spInc)
+    {
+        int currentSP = unit.GetStats().SP;
+        int targetSP = currentSP + spInc;
+
+        SPNext.text = currentSP.ToString();
+        SPGained.text = $"+{spInc}";
+
+        float duration = 1f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            int interpolatedSP = Mathf.RoundToInt(Mathf.Lerp(currentSP, targetSP, t));
+            int interpolatedGain = Mathf.RoundToInt(Mathf.Lerp(spInc, 0, t));
+
+            SPNext.text = interpolatedSP.ToString();
+            SPGained.text = "+ " + interpolatedGain;
+
+            yield return null;
+        }
+
+        SPNext.text = targetSP.ToString();
+        SPGained.text = "+0";
+    }
+
+
+
+    private IEnumerator RunAll(params IEnumerator[] coroutines)
+    {
+        int finished = 0;
+
+        foreach (var coroutine in coroutines)
+        {
+            StartCoroutine(RunSingle(coroutine, () => finished++));
+        }
+
+        // wait until all finish
+        while (finished < coroutines.Length)
+            yield return null;
+    }
+
+    private IEnumerator RunSingle(IEnumerator coroutine, System.Action onComplete)
+    {
+        yield return StartCoroutine(coroutine);
+        onComplete?.Invoke();
+    }
+
+
+
 
 
 
@@ -1780,7 +2119,8 @@ public class CombatMenuManager : MonoBehaviour
 
 // -----------------------------------------------Level Up Menu------------------------------------------------------
 
-    public void DeactivateLevelUpMenu() {
+    public void DeactivateLevelUpMenu()
+    {
         lvHPGR.gameObject.SetActive(false);
         lvStrGR.gameObject.SetActive(false);
         lvMagGR.gameObject.SetActive(false);

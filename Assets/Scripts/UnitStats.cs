@@ -21,8 +21,6 @@ public abstract class UnitStats
     public int Speed { get; set; }                  //base speed, determines if unit attacks first
     public int Evasion { get; set; }                //base evasion, how often the unit dodges
     public int Luck { get; set; }                   //base luck, increases chance of critical
-    // public int EnemyID { get; set; }
-
     public bool AirBorn { get; set; }                //if unit is airborn, will be ablee to pass over impassble tiles and weak to bows/air magic
     public bool Mounted { get; set; }                //if unit is mounted
     public bool Armored { get; set; }                //if unit is armored, weak to magic and other armor breaking weapons
@@ -35,16 +33,18 @@ public abstract class UnitStats
     public int Experience { get; set; }
     public int SP { get; protected set; }
 
-    public Weapon primaryWeapon;
+    private Weapon primaryWeapon;
 
-    public List<Weapon> weapons;
-    public List<Weapon> magic;
-    public List<Item> items;
-    public List<Faith> faith;
+    protected List<Weapon> weapons;
+    protected List<Weapon> magic;
+    protected List<Item> items;
+    protected List<Faith> faith;
     public int faithRank { get; set; }
     public int magicRank { get; set; }
     public string[] faithRankList = new string[10];
     public string[] MagicRankList = new string[10];
+
+    public List<UnitAbility> abilities;
 
 
 
@@ -108,11 +108,12 @@ public abstract class UnitStats
     public virtual void ResetHealth() => CurrentHealth = Health;
     public virtual Item GetItemAt(int x) => items[x];
 
-    
+
     public abstract PlayerClass GetClass();
     public abstract void SetFaith();
 
-    public virtual void SetPrimaryWeapon(Weapon weap) {
+    public virtual void SetPrimaryWeapon(Weapon weap)
+    {
         primaryWeapon = weap;
 
         // if (primaryWeapon == null) return;
@@ -122,13 +123,16 @@ public abstract class UnitStats
 
     }
 
-    public virtual void FindAPrimaryWeapon() {
-        if (weapons.Count >= 1) {
+    public virtual void FindAPrimaryWeapon()
+    {
+        if (weapons.Count >= 1)
+        {
             SetPrimaryWeapon(weapons[0]);
             return;
         }
 
-        if (magic.Count >= 1) {
+        if (magic.Count >= 1)
+        {
             SetPrimaryWeapon(magic[0]);
             return;
         }
@@ -142,32 +146,39 @@ public abstract class UnitStats
     public virtual void AddSP(int ad) => SP += ad;
     public virtual void SubSP(int su) => SP -= su;
     public virtual int GetSkillExperience(string skillType) => 0;
+
+    public virtual List<Weapon> GetWeaponsList() => weapons;
+    public virtual List<Weapon> GetMagicList() => magic;
+    public virtual List<Item> GetItems() => items;
+    public virtual List<Faith> GetFaith() => faith;
     
 }
 
 [System.Serializable]
-public class PlayerStats : UnitStats {
-    public int HealthGR {get; set;}                //base health
-    public int AttackGR {get; set;}                //base attack
-    public int MagicGR {get; set;}                //base magic
-    public int DefenseGR {get; set;}               //base defense
-    public int ResistanceGR {get; set;}           //base resistance to magic
-    public int SpeedGR {get; set;}                 //base speed, determines if unit attacks first
-    public int EvasionGR {get; set;}               //base evasion, how often the unit dodges
-    public int LuckGR {get; set;}               //base luck, increases chance of critical
+public class PlayerStats : UnitStats
+{
+    public int HealthGR { get; set; }                //base health
+    public int AttackGR { get; set; }                //base attack
+    public int MagicGR { get; set; }                //base magic
+    public int DefenseGR { get; set; }               //base defense
+    public int ResistanceGR { get; set; }           //base resistance to magic
+    public int SpeedGR { get; set; }                 //base speed, determines if unit attacks first
+    public int EvasionGR { get; set; }               //base evasion, how often the unit dodges
+    public int LuckGR { get; set; }               //base luck, increases chance of critical
+    public int AbilityPoints { get; protected set; }
 
     // public int Experience {get; set;}
 
     // private PlayerClass ClassStats;
 
-    public Dictionary<string, int> SkillExperience {get; protected set;}
-    
+    public Dictionary<string, int> SkillExperience { get; protected set; }
+
 
 
     public PlayerStats(int uID, string uName, string dName, string uDesc, int LV, int HLTGR, int ATKGR, int MGGR, int DEFGR, int RESGR, int SPDGR, int EVGR, int LCKGR, int HLT, int ATK, int MG, int DEF, int RES, int SPD, int EVA, int LCK, int MOV, string uClass, int faiRank, int magRank) : base(uID, uName, dName, uDesc, LV, HLT, ATK, MG, DEF, RES, SPD, EVA, LCK, MOV, uClass)
     {
 
-        Experience = 0;
+        Experience = 60;
         HealthGR = HLTGR;
         AttackGR = ATKGR;
         MagicGR = MGGR;
@@ -200,11 +211,13 @@ public class PlayerStats : UnitStats {
 
     }
 
-    public override PlayerClass GetClass() {
+    public override PlayerClass GetClass()
+    {
         return PlayerClassManager.GetUnitClass(UnitClass);
     }
 
-    public void SetClass(String cla) {
+    public void SetClass(String cla)
+    {
         // PlayerClass temp = PlayerClassManager.GetUnitClass(cla);
         // if (temp == null) return;
 
@@ -220,7 +233,8 @@ public class PlayerStats : UnitStats {
     {
         faith = new List<Faith>();
         magic = new List<Weapon>();
-        for(int i = 0; i < faithRank; i++) {
+        for (int i = 0; i < faithRank; i++)
+        {
             // if (faithRankList[i] != "null") {
             //     Type faithType = Type.GetType(faithRankList[i]);
             //     Faith tempFai = (Faith)Activator.CreateInstance(faithType);
@@ -228,37 +242,43 @@ public class PlayerStats : UnitStats {
             //         faith.Add(tempFai);
             //     }
             // }    
-            if (faithRankList[i] != "null") {
+            if (faithRankList[i] != "null")
+            {
                 Faith tempFai = null;
-                
-                try {
+
+                try
+                {
                     Type faithType = Type.GetType(faithRankList[i]);
                     tempFai = (Faith)Activator.CreateInstance(faithType);
-                    if (tempFai != null) {
+                    if (tempFai != null)
+                    {
                         faith.Add(tempFai);
                     }
                 }
                 catch (Exception)
                 {
                     Weapon temp = WeaponManager.MakeWeapon(faithRankList[i]);
-                    if (temp != null) {
+                    if (temp != null)
+                    {
                         magic.Add(temp);
                         // weapons.Add(temp);
                     }
-                } 
+                }
             }
         }
 
-        
-        for(int i = 0; i < magicRank; i++) {
-            if (MagicRankList[i] != "null") {
+
+        for (int i = 0; i < magicRank; i++)
+        {
+            if (MagicRankList[i] != "null")
+            {
                 Weapon temp = WeaponManager.MakeWeapon(MagicRankList[i]);
                 magic.Add(temp);
             }
         }
     }
 
-    
+
 
     public override int GetSkillExperience(string skillType)
     {
@@ -282,6 +302,31 @@ public class PlayerStats : UnitStats {
         {
             Debug.LogWarning($"Skill '{skillType}' not found in SkillExperience dictionary. Returning 0.");
             return 0;
+        }
+    }
+    
+    public void AddSkillExperience(string skillType, int exp)
+    {
+        if (string.IsNullOrEmpty(skillType))
+        {
+            Debug.LogWarning("AddSkillExperience called with a null or empty skillType.");
+            return;
+        }
+
+        if (SkillExperience == null)
+        {
+            Debug.LogError("SkillExperience dictionary is null. Make sure it is initialized.");
+            return;
+        }
+
+        if (SkillExperience.ContainsKey(skillType))
+        {
+            SkillExperience[skillType] += exp;
+            Debug.Log($"Added {exp} experience to skill '{skillType}'. New total: {SkillExperience[skillType]}");
+        }
+        else
+        {
+            Debug.LogWarning($"Skill '{skillType}' not found in SkillExperience dictionary. Cannot add experience.");
         }
     }
 

@@ -222,7 +222,7 @@ public abstract class UnitManager : MonoBehaviour
     // Returns both physical weapons and magical weapons
     public virtual List<Weapon> GetWeapons()
     {
-        List<Weapon> temp = stats.weapons.Concat(stats.magic).ToList();
+        List<Weapon> temp = stats.GetWeaponsList().Concat(stats.GetMagicList()).ToList();
 
         if (stats.GetPrimaryWeapon() == null) return temp;
 
@@ -235,9 +235,9 @@ public abstract class UnitManager : MonoBehaviour
     // Returns only physical weapons
     public virtual List<Weapon> GetPhysicalWeapons()
     {
-        List<Weapon> temp = stats.weapons;
+        List<Weapon> temp = stats.GetWeaponsList();
 
-        if (stats.GetPrimaryWeapon() == null || stats.magic.Contains(stats.GetPrimaryWeapon())) return temp;
+        if (stats.GetPrimaryWeapon() == null || stats.GetMagicList().Contains(stats.GetPrimaryWeapon())) return temp;
 
         temp.Remove(stats.GetPrimaryWeapon());
         temp.Insert(0, stats.GetPrimaryWeapon());
@@ -246,9 +246,9 @@ public abstract class UnitManager : MonoBehaviour
     }
 
     // Returns the rest of the lists
-    public virtual List<Item> GetItems() => stats.items;
-    public virtual List<Weapon> GetMagicList() => stats.magic;
-    public virtual List<Faith> GetFaith() => stats.faith;
+    public virtual List<Item> GetItems() => stats.GetItems();
+    public virtual List<Weapon> GetMagicList() => stats.GetMagicList();
+    public virtual List<Faith> GetFaith() => stats.GetFaith();
 
     // Getters and setters for primary weapons
     public virtual Weapon GetPrimaryWeapon() => stats.GetPrimaryWeapon();
