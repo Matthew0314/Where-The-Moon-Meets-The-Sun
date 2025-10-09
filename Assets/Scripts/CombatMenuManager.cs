@@ -1777,6 +1777,7 @@ public class CombatMenuManager : MonoBehaviour
         experienceMenu.SetActive(true);
         expUnitName.text = unit.GetName();
 
+
         // launch all 3 animations in parallel
         yield return StartCoroutine(RunAll(
             AnimateExperience(unit, gainExp),
@@ -1794,9 +1795,14 @@ public class CombatMenuManager : MonoBehaviour
         int expThreshold = 100;
         int remainingExp = gainExp;
 
+        expBar.fillAmount = (float)currentExp / expThreshold;
+
         int initialExpNext = expThreshold - currentExp;
         expGained.text = "+" + remainingExp;
         expNext.text = initialExpNext.ToString();
+
+        yield return new WaitForSeconds(0.4f);
+
 
         while (remainingExp > 0)
         {
@@ -2000,6 +2006,11 @@ public class CombatMenuManager : MonoBehaviour
         skillGained.text = "+" + remainingSkillExp;
         skillNext.text = UnitRosterManager.GetExpToNextLevel(skillExp).ToString();
 
+        skillBar.fillAmount = (float)currentSkillExp / skillThreshold;
+
+        yield return new WaitForSeconds(0.4f);
+
+
         while (remainingSkillExp > 0)
         {
             // how much we can add before reaching next level
@@ -2070,6 +2081,7 @@ public class CombatMenuManager : MonoBehaviour
         float duration = 1f;
         float elapsed = 0f;
 
+        yield return new WaitForSeconds(0.4f);
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;

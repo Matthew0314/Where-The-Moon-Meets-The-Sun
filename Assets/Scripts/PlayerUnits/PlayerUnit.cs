@@ -52,6 +52,8 @@ public class PlayerUnit : UnitManager
 
         PlayerClass unitClass = PlayerClassManager.GetUnitClass(stats.UnitClass);
 
+        
+
         int sp = CalculateSP(experience, killedEnemy);
 
         int skillInc = CalculateSkillEXP(numberTimesAttacked);
