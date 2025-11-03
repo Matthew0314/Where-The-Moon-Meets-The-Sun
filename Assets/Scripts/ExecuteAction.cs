@@ -476,11 +476,13 @@ public class ExecuteAction : MonoBehaviour
 
         if (attackingUnit.GetUnitType() == "Player") {
             playerUnit = attackingUnit;
+            Debug.LogError("Attacker Player");
             enemyUnit = (EnemyUnit)defendingUnit;
         }
 
         if (defendingUnit.GetUnitType() == "Player") {
             playerUnit = defendingUnit;
+            Debug.LogError("Defender Player");
             enemyUnit = (EnemyUnit)attackingUnit;
         }
         
@@ -648,7 +650,10 @@ public class ExecuteAction : MonoBehaviour
 
             string weaponType;
 
-            if(attackingUnit.GetPrimaryWeapon() != null) weaponType = attackingUnit.GetPrimaryWeapon().WeaponType;
+            // if(attackingUnit.GetPrimaryWeapon() != null) weaponType = attackingUnit.GetPrimaryWeapon().WeaponType;
+            // else weaponType = "none";
+
+            if(playerUnit.GetPrimaryWeapon() != null) weaponType = playerUnit.GetPrimaryWeapon().WeaponType;
             else weaponType = "none";
 
 

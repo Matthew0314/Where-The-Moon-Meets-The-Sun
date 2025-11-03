@@ -30,7 +30,7 @@ public class BattleStartMenu : MonoBehaviour
     [SerializeField] PlayerInput playerInput;
     private bool inStartMenu = false;
     private bool inMapMenu = false;
-    private PlayerGridMovement playerGridMovement;
+    [SerializeField] PlayerGridMovement playerGridMovement;
     private MapManager _currentMap;
 
     private List<Button> unitButtons = new List<Button>();
@@ -52,7 +52,7 @@ public class BattleStartMenu : MonoBehaviour
 
     void Awake()
     {
-        playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // playerGridMovement = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
 
         if (unitButton == null || mapButton == null || startButton == null || exitButton == null)

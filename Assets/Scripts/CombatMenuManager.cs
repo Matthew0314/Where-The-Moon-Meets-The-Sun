@@ -49,6 +49,12 @@ public class CombatMenuManager : MonoBehaviour
     private Image EHealth;
     private Image PHealthLost;
     private Image PHealth;
+
+    private Image InfoEnemy1Left;
+    private Image InfoEnemy1Right;
+    private Image InfoPlayerLeft;
+    private Image InfoPlayerRight;
+    
     private GameObject Menu;
 
     private TextMeshProUGUI PlayerName;
@@ -189,6 +195,11 @@ public class CombatMenuManager : MonoBehaviour
         EHealth = GameObject.Find("EnemyHealthBar").GetComponent<Image>();
         PHealthLost = GameObject.Find("PHealthLostBar").GetComponent<Image>();
         PHealth = GameObject.Find("PlayerHealthBar").GetComponent<Image>();
+        InfoEnemy1Left = GameObject.Find("Canvas/ExpectedBattleMenu/LeftEnemy1Info").GetComponent<Image>();
+        InfoEnemy1Right = GameObject.Find("Canvas/ExpectedBattleMenu/RightEnemy1Info").GetComponent<Image>();
+        InfoPlayerLeft = GameObject.Find("Canvas/ExpectedBattleMenu/LeftPlayerInfo").GetComponent<Image>();
+        InfoPlayerRight = GameObject.Find("Canvas/ExpectedBattleMenu/RightPlayerInfo").GetComponent<Image>();
+
         Menu = GameObject.Find("Canvas/ExpectedBattleMenu");
 
         //Canvas/ExpectBattleMenu/Text/Player/
@@ -1304,6 +1315,11 @@ public class CombatMenuManager : MonoBehaviour
         int enemyHit = -1;
         int playerCrit = -1;
         int enemyCrit = -1;
+
+        InfoEnemy1Left.gameObject.SetActive(false);
+        InfoEnemy1Right.gameObject.SetActive(true);
+        InfoPlayerLeft.gameObject.SetActive(true);
+        InfoPlayerRight.gameObject.SetActive(false);
 
         if (player.GetPrimaryWeapon() != null) {
             playerHit = player.GetBattleHit(enemy);
@@ -2879,24 +2895,35 @@ public class CombatMenuManager : MonoBehaviour
         lLostBar = PHealthLost;
         rLostBar = EHealthLost;
 
-        if (left.UnitType == "Player") {
+
+        if (left.GetUnitType() == "Player") {
             lBar = PHealth;
             PHealth.gameObject.SetActive(true);
             PHealthSwapped.gameObject.SetActive(false);
+            InfoEnemy1Left.gameObject.SetActive(false);
+            InfoPlayerLeft.gameObject.SetActive(true);
         } else {
             lBar = PHealthSwapped;
             PHealthSwapped.gameObject.SetActive(true);
             PHealth.gameObject.SetActive(false);
+            InfoEnemy1Left.gameObject.SetActive(true);
+            InfoPlayerLeft.gameObject.SetActive(false);
         }
 
-        if (right.UnitType == "Player") {
+        if (right.GetUnitType() == "Player") {
             rBar = EHealthSwapped;
             EHealthSwapped.gameObject.SetActive(true);
             EHealth.gameObject.SetActive(false);
+            InfoPlayerRight.gameObject.SetActive(true);
+            InfoEnemy1Right.gameObject.SetActive(false);
+
         } else {
             rBar = EHealth;
             EHealth.gameObject.SetActive(true);
             EHealthSwapped.gameObject.SetActive(false);
+            InfoPlayerRight.gameObject.SetActive(false);
+            InfoEnemy1Right.gameObject.SetActive(true);
+
         }
         
         if (expectedLeftHP < 0) { expectedLeftHP = 0; }

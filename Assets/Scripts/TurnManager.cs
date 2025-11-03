@@ -34,7 +34,7 @@ public class TurnManager : MonoBehaviour
 
     private void Awake() {
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
-        moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
+        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
