@@ -41,9 +41,6 @@ public class BattleStartMenu : MonoBehaviour
     private int buttonsPerRow = 2;
 
 
-
-
-
     [SerializeField] private GameObject InfoTextData;
     [SerializeField] private Image expBar;
     [SerializeField] private GameObject unitItemBar;

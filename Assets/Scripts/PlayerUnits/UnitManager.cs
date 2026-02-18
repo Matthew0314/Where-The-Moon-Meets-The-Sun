@@ -4,11 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using System.Reflection;
 
 public abstract class UnitManager : MonoBehaviour
 {
     protected CombatMenuManager combatMenuManager;
     public GameObject unitCircle;
+    protected Animator animator;
     public Image healthBar;
     public Image extraHealth1;
     protected int numHealthBars = 0;
@@ -30,6 +32,7 @@ public abstract class UnitManager : MonoBehaviour
 
     protected virtual void Start()
     {
+        animator = GetComponent<Animator>();
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
 
@@ -96,6 +99,8 @@ public abstract class UnitManager : MonoBehaviour
     public virtual string GetUnitType() => stats.UnitType + numHealthBars;
 
     public virtual void AddHealthBar() => numHealthBars++;
+
+    public virtual Animator GetAnimator() => animator;
 
     // Returns info about the characters unit/class type
     public virtual bool GetAirBorn() => stats.AirBorn;

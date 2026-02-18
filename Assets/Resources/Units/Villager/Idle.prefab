@@ -55,5 +55,95 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 94922c26465526849a5ce29ca34cdbeb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -8739455694435214080}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 94922c26465526849a5ce29ca34cdbeb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -2552923465325796503}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 94922c26465526849a5ce29ca34cdbeb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4328388756634205509}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 94922c26465526849a5ce29ca34cdbeb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8084708435615468199}
   m_SourcePrefab: {fileID: 100100000, guid: 94922c26465526849a5ce29ca34cdbeb, type: 3}
+--- !u!1 &5809200235549109908 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 94922c26465526849a5ce29ca34cdbeb, type: 3}
+  m_PrefabInstance: {fileID: 6656044289300632517}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &-8739455694435214080
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5809200235549109908}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 5021ff1ee528884489235900605e0331, type: 3}
+  m_Controller: {fileID: 9100000, guid: 9b1432380b3f1b74e9f78b04b074711e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &-2552923465325796503
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5809200235549109908}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 2, z: 2}
+  m_Center: {x: -0.0037897825, y: 1.0238087, z: 0}
+--- !u!114 &4328388756634205509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5809200235549109908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ff08f779e7b66408c71d135f1cd0b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitCircle: {fileID: 0}
+  healthBar: {fileID: 0}
+  extraHealth1: {fileID: 0}
+  unitName: YoungLilith
+  grayscaleMaterial: {fileID: 2100000, guid: 73b147a209899be4881610c2a2055897, type: 2}
+--- !u!114 &8084708435615468199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5809200235549109908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 434bba8e6be8d0a448641923348f91a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: -8739455694435214080}

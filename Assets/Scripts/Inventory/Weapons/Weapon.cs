@@ -28,6 +28,7 @@ public abstract class Weapon : InventoryItem
     public bool CanCounter { get; set; }
     public bool UseMagic { get; set; }
     public string WeaponClass { get; }
+    public string AnimationType { get; set; }
 
 
     public Queue<UnitManager> AttackingQueue { get; set; }
@@ -40,7 +41,7 @@ public abstract class Weapon : InventoryItem
     private FindPath pathFinder = GameObject.Find("Player").GetComponent<FindPath>();
 
     //Constructor
-    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass)
+    public Weapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string aniType, string weapClass)
     {
         WeaponName = name;
         WeaponDescription = desc;
@@ -65,6 +66,7 @@ public abstract class Weapon : InventoryItem
         CanCounter = counter;
         UseMagic = useMagic;
         WeaponClass = weapClass;
+        AnimationType = aniType;
 
         AttackingQueue = new Queue<UnitManager>();
         DefendingQueue = new Queue<UnitManager>();
@@ -191,13 +193,13 @@ public abstract class Weapon : InventoryItem
 //Class for all weapons without a special ability
 public class NormalWeapon : Weapon
 {
-    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, weapClass) {}
+    public NormalWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string aniType, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, aniType, weapClass) {}
     
 }
 
 public class PoisonWeapon : Weapon
 {
-    public PoisonWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, weapClass) { }
+    public PoisonWeapon(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string aniType, string weapClass) : base(name, desc, Wtype, WRank, ATK, HitR, crit, wei, use, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, aniType, weapClass) { }
 
 
 
