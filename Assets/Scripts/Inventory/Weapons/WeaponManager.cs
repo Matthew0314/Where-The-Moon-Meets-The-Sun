@@ -14,7 +14,7 @@ public class WeaponManager : MonoBehaviour
         weaponTextData = Resources.Load<TextAsset>("TextData/InventoryCSV/WeaponsCSV");
         string[] data = weaponTextData.text.Split(new string[] { ",", "\n" }, StringSplitOptions.None);
 
-        for(int i = 25; i < data.Length - 1; i += 25) {
+        for(int i = 26; i < data.Length - 1; i += 26) {
             //Stores data
             string weaponClass = data[i];
             string name = data[i + 1];
@@ -40,6 +40,7 @@ public class WeaponManager : MonoBehaviour
             bool canCounter = bool.Parse(data[i + 21]);
             bool useMagic = bool.Parse(data[i + 22]);
             string animationType = data[i + 23];
+            string modType = data[i + 24];
 
             Type weaponType = Type.GetType(weaponClass);
 
@@ -51,7 +52,7 @@ public class WeaponManager : MonoBehaviour
                 range1, range2, range3, range,
                 MultMounted, MultAirBorn, MultArmored, MultWhisper, MultInfantry,
                 numHits, canCounter, useMagic,
-                animationType, weaponClass
+                animationType, modType, weaponClass
             );
 
             //Stores in a dictionary with the name of the wepaon as the key
@@ -137,6 +138,6 @@ public class WeaponManager : MonoBehaviour
 
         Type weaponType = Type.GetType(temp.WeaponClass);
 
-        return (Weapon)Activator.CreateInstance(weaponType, temp.WeaponName, temp.WeaponDescription, temp.WeaponType, temp.WeaponRank, temp.Attack, temp.HitRate, temp.CritRate, temp.Weight, temp.MaxUses, temp.Range1, temp.Range2, temp.Range3, temp.Range, temp.MultMounted, temp.MultAirBorn, temp.MultArmored, temp.MultWhisper, temp.MultInfantry, temp.NumHits, temp.CanCounter, temp.UseMagic, temp.AnimationType, temp.WeaponClass);
+        return (Weapon)Activator.CreateInstance(weaponType, temp.WeaponName, temp.WeaponDescription, temp.WeaponType, temp.WeaponRank, temp.Attack, temp.HitRate, temp.CritRate, temp.Weight, temp.MaxUses, temp.Range1, temp.Range2, temp.Range3, temp.Range, temp.MultMounted, temp.MultAirBorn, temp.MultArmored, temp.MultWhisper, temp.MultInfantry, temp.NumHits, temp.CanCounter, temp.UseMagic, temp.AnimationType, temp.ModelType, temp.WeaponClass);
     }
 }

@@ -510,6 +510,8 @@ public class ExecuteAction : MonoBehaviour
         // Get the Count of the queue at its original state
         int coun = AttackingQueue.Count;
 
+        bool miss = false;
+
         for (int i = 0; i < coun; i++) {
             // Dequeue both the attacker and defender
             UnitManager atk = AttackingQueue.Dequeue();
@@ -518,6 +520,12 @@ public class ExecuteAction : MonoBehaviour
             // Calculates the damage
             int damage = atk.GetPrimaryWeapon().UnitAttack(atk, def, false);
             if(damage < 0) { damage = 0; }
+
+            if (atk.GetPrimaryWeapon().miss) {
+                miss = true;
+            } else {
+                miss = false;
+            }
 
             // Damages the defender
             def.TakeDamage(damage);
@@ -564,8 +572,10 @@ public class ExecuteAction : MonoBehaviour
                 //play animation
                 // PlayAttack(atk.GetAnimator(), atk.GetPrimaryWeapon().AnimationType);
                 UnitAnimationController animController = atk.gameObject.GetComponent<UnitAnimationController>();
+                UnitAnimationController animControllerDef = def.gameObject.GetComponent<UnitAnimationController>();
+                animControllerDef.animator.SetBool("Guard", true);
                 animController.PlayAttack(atk.GetPrimaryWeapon().AnimationType);
-                while (animController.IsAnimating)
+                while (animController.IsAnimating || animControllerDef.IsAnimating)
                 {
                     Debug.LogWarning("Waiting for animation to finish...");
                     if (animController.IsUpdatingHealth)
@@ -573,9 +583,20 @@ public class ExecuteAction : MonoBehaviour
                         Debug.LogWarning("Updating Battle Menu Health...");
                         StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.GetCurrentHealth(), defendingUnit.GetCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
                         animController.IsUpdatingHealth = false;
+
+                        if(miss) continue;
+
+                        if (def.GetCurrentHealth() <= 0) {
+                            animControllerDef.PlayAttack("Die");
+
+                        } else {
+                            animControllerDef.PlayAttack("Damage");
+                        }
+                        // animControllerDef.animator.SetTrigger("Damage");
                     }
                     yield return null; // Wait until the animation is finished
                 }
+                animControllerDef.animator.SetBool("Guard", false);
 
                 yield return new WaitForSeconds(0.5f); // Small delay after the animation
             }
@@ -620,7 +641,7 @@ public class ExecuteAction : MonoBehaviour
 
         Quaternion targetRotation;
 
-        
+        UnitAnimationController aController = null;
 
         if (attackingUnit.GetUnitType() == "Player" && playerUnit.GetCurrentHealth() > 0) {
             // Transforms the camera to face the player, but have them slightly to the right
@@ -642,8 +663,9 @@ public class ExecuteAction : MonoBehaviour
             // Set LookAt target to maintain focus on the object
             combatCam.LookAt = atkObj.transform;
 
-            UnitAnimationController animController = attackingUnit.gameObject.GetComponent<UnitAnimationController>();
-            animController.PlayAttack("Victory_" + attackingUnit.GetPrimaryWeapon().AnimationType);
+            aController = attackingUnit.gameObject.GetComponent<UnitAnimationController>();
+            // animController.PlayAttack("Victory_" + attackingUnit.GetPrimaryWeapon().AnimationType);
+            aController.animator.SetBool("Victory_" + attackingUnit.GetPrimaryWeapon().AnimationType, true);
         }
 
         
@@ -688,6 +710,11 @@ public class ExecuteAction : MonoBehaviour
 
         
         yield return new WaitForSeconds(1f);
+        if (aController != null) {
+            aController.animator.SetBool("Victory_" + attackingUnit.GetPrimaryWeapon().AnimationType, false);
+
+        }
+
 
         // Set the circle to active again, and the player to its original rotationb
         if (atkObj != null) {

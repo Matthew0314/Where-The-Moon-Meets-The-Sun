@@ -147,6 +147,7 @@ public class PlayerUnit : UnitManager
         UnitType = "Player";
         // stats.SetPrimaryWeapon(stats.GetWeaponAt(0));
         stats.FindAPrimaryWeapon();
+        SetPrimaryWeapon(stats.GetPrimaryWeapon());
         // stats.CurrentHealth = 2;
     }
 

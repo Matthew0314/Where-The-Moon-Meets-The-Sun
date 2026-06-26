@@ -8,7 +8,8 @@ using UnityEngine;
 
 public class PrologueMap : MapManager
 {
-    string[] newUnits = { "YoungLilith", "Janine", "Felix", "YoungFelix", "Meyneth", "Mia", "Noah" };
+    // string[] newUnits = { "YoungLilith", "Janine", "Felix", "YoungFelix", "Meyneth", "Mia", "Noah" };
+    string[] newUnits = { "YoungLilith", "YoungFelix" };
     private bool calledReinforcements = false;
 
 

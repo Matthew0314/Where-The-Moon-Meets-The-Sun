@@ -11,8 +11,8 @@ public class CombatArts : Weapon
 
     // Optional: description field
     // protected string description = "";
-    public CombatArts(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string aniType, string weapClass)
-        : base(name, desc, Wtype, WRank, ATK, HitR, crit, 0, 0, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, aniType, weapClass)
+    public CombatArts(string name, string desc, string Wtype, char WRank, int ATK, int HitR, int crit, int wei, int use, bool R1, bool R2, bool R3, int R, float MMou, float MAB, float MArm, float MWhisp, float MInf, int nHit, bool counter, bool useMagic, string aniType, string modType, string weapClass)
+        : base(name, desc, Wtype, WRank, ATK, HitR, crit, 0, 0, R1, R2, R3, R, MMou, MAB, MArm, MWhisp, MInf, nHit, counter, useMagic, aniType, modType, weapClass)
     {
         // Constructor
     }
@@ -22,7 +22,7 @@ public class CA_BaneOfWispers : CombatArts
 {
     // Constructor
     public CA_BaneOfWispers() 
-        : base("Bane of Whispers", "Effective against Whispers", "Sword", 'C', 5, 0, 10, 0, 10, true, false, false, 1, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1, true, false, "Sword", "Physical")
+        : base("Bane of Whispers", "Effective against Whispers", "Sword", 'C', 5, 0, 10, 0, 10, true, false, false, 1, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, 1, true, false, "Sword", null, "Physical")
     {
         APCost = 3;
         CPCost = 2;

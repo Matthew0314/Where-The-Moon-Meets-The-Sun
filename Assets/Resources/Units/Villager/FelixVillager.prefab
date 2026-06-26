@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &356507719216950804
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5305267582551114341}
+  m_Layer: 0
+  m_Name: weapon_socket_r
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5305267582551114341
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356507719216950804}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.7065229, y: -0.0019939528, z: -0.0029653115, w: 0.70768124}
+  m_LocalPosition: {x: 0.064030066, y: 0.24799728, z: -0.15537247}
+  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8278551401657115853}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &7734649137382972165
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -70,6 +101,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5021ff1ee528884489235900605e0331, type: 3}
       insertIndex: 0
       addedObject: {fileID: 7065693816903046141}
+    - targetCorrespondingSourceObject: {fileID: 1852576806548013000, guid: 5021ff1ee528884489235900605e0331, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5305267582551114341}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5021ff1ee528884489235900605e0331, type: 3}
       insertIndex: -1
@@ -123,7 +157,7 @@ MonoBehaviour:
   unitCircle: {fileID: 0}
   healthBar: {fileID: 0}
   extraHealth1: {fileID: 0}
-  unitName: YoungFelix
+  unitName: Felix
   grayscaleMaterial: {fileID: 2100000, guid: 73b147a209899be4881610c2a2055897, type: 2}
 --- !u!114 &-5371850619713172758
 MonoBehaviour:
@@ -141,6 +175,11 @@ MonoBehaviour:
 --- !u!4 &7844222803963493614 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5021ff1ee528884489235900605e0331, type: 3}
+  m_PrefabInstance: {fileID: 7734649137382972165}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8278551401657115853 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: 5021ff1ee528884489235900605e0331, type: 3}
   m_PrefabInstance: {fileID: 7734649137382972165}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8527742829547944644
@@ -161,6 +200,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1465574218727483705, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}
       propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1465574218727483705, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}
+      propertyPath: m_LocalScale.y
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1465574218727483705, guid: c8fa823628f7d044e8ed200f13db1048, type: 3}

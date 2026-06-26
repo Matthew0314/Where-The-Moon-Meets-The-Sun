@@ -15,6 +15,7 @@ public class UnitAnimationController : MonoBehaviour
     // THIS is what you're confused about calling
     public void OnAnimationFinished()
     {
+        Debug.LogError("AHHHHHHHHHHHHHHHHHHHH!!!!!!!!!!");
         IsAnimating = false;
     }
 

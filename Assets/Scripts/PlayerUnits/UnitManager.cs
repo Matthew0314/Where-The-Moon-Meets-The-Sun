@@ -9,6 +9,7 @@ using System.Reflection;
 public abstract class UnitManager : MonoBehaviour
 {
     protected CombatMenuManager combatMenuManager;
+    protected GameObject weaponSocket;
     public GameObject unitCircle;
     protected Animator animator;
     public Image healthBar;
@@ -16,6 +17,8 @@ public abstract class UnitManager : MonoBehaviour
     protected int numHealthBars = 0;
     protected int gaugeCharge = 0;
     protected int numberTimesActed = 0;
+    GameObject weaponInstance;
+    // UnitAnimationController unitAnimationController;
 
     protected UnitStats stats;
     public string UnitType { get; set; }
@@ -34,6 +37,12 @@ public abstract class UnitManager : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
+        
+
+        
+
+        
+
     }
 
 
@@ -257,7 +266,51 @@ public abstract class UnitManager : MonoBehaviour
 
     // Getters and setters for primary weapons
     public virtual Weapon GetPrimaryWeapon() => stats.GetPrimaryWeapon();
-    public virtual void SetPrimaryWeapon(Weapon temp) => stats.SetPrimaryWeapon(temp);
+    public virtual void SetPrimaryWeapon(Weapon temp) {
+        stats.SetPrimaryWeapon(temp);
+        Destroy(weaponInstance);
+        // Transform weaponSocketTran = transform.Find("mixamorig1:Hips/mixamorig1:Spine/mixamorig1:Spine1/mixamorig1:Spine2/mixamorig1:RightShoulder/mixamorig1:RightArm/mixamorig1:RightForeArm/mixamorig1:RightHand/weapon_socket_r");
+        Transform weaponSocketTran = FindDeepChild(transform, "weapon_socket_r");
+        if (weaponSocketTran != null) {
+            weaponSocket = weaponSocketTran.gameObject;
+            GameObject weaponPrefab = Resources.Load<GameObject>("Weapons/" + stats.GetPrimaryWeapon().ModelType);
+            if (weaponPrefab == null)
+            {
+                Debug.LogError($"!!!!!Weapon prefab not found at Resources/Weapons/{stats.GetPrimaryWeapon().ModelType}");
+                return;
+            }
+
+            // Instantiate as a child of the socket
+            weaponInstance = Instantiate(weaponPrefab, weaponSocket.transform);
+            Debug.LogError("Made Weapon " + weaponInstance);
+
+            RuntimeAnimatorController controller = Resources.Load<RuntimeAnimatorController>("Animations/Controller/" + temp.AnimationType);
+            animator = GetComponent<Animator>();
+
+            if (animator == null)
+                Debug.Log("Animator is NULL");
+
+            if (controller == null)
+                Debug.Log("Controller is NULL");
+
+            if (controller != null)
+            {
+                animator.runtimeAnimatorController = controller;
+            }
+            else
+            {
+                Debug.LogError("Animator Controller not found!");
+            }
+
+            // Reset local transform
+            // weaponInstance.transform.localPosition = Vector3.zero;
+            // weaponInstance.transform.localRotation = Quaternion.identity;
+            // weaponInstance.transform.localScale = Vector3.one; 
+        } else {
+            Debug.LogError("Howdy");
+        }
+
+    }
 
     public void IncNumberTimesActed() => numberTimesActed++;
     public void ResetNumberTimesActed() => numberTimesActed = 0;
@@ -268,7 +321,21 @@ public abstract class UnitManager : MonoBehaviour
 
 
     
+    private Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
 
+            Transform result = FindDeepChild(child, name);
+
+            if (result != null)
+                return result;
+        }
+
+        return null;
+    }
 
     
 }

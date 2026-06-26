@@ -310,6 +310,7 @@ public abstract class MapManager : MonoBehaviour
         mapGameUnits.Add(gridUnit.GetComponent<UnitManager>());
 
         manageTurn.AddPlayer(stats);
+        
     }
 
     public void DespawnUnit(UnitManager unit)
