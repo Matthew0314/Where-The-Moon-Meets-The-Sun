@@ -3,6 +3,175 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
+// [Serializable]
+// public struct CoreStats
+// {
+//     public int health;
+//     public int attack;
+//     public int magic;
+//     public int defense;
+//     public int resistance;
+//     public int speed;
+//     public int evasion;
+//     public int luck;
+//     public int movement;
+// }
+
+// [Serializable]
+// public struct GrowthRates
+// {
+//     public int healthGR;
+//     public int attackGR;
+//     public int magicGR;
+//     public int defenseGR;
+//     public int resistanceGR;
+//     public int speedGR;
+//     public int evasionGR;
+//     public int luckGR;
+// }
+
+// [Flags] // Pack booleans into a single 1-byte memory footprint
+// public enum UnitAttributes : byte
+// {
+//     None     = 0,
+//     Airborn  = 1 << 0,
+//     Mounted  = 1 << 1,
+//     Armored  = 1 << 2,
+//     Whisper  = 1 << 3
+// }
+
+// public abstract class UnitStats
+// {
+//     // Identity Data
+//     public int UnitID { get; set; }
+//     public string UnitName { get; set; }
+//     public string Name { get; set; }
+//     public string UnitDescription { get; set; }
+//     public string UnitClass { get; protected set; }
+//     public string UnitType { get; protected set; }
+//     public int Level { get; set; }
+
+//     // Core Stats Data Structs
+//     public CoreStats BaseStats;
+//     public int CurrentHealth { get; set; }
+//     public int HealthBars { get; set; } = 1;
+//     public int Experience { get; set; }
+//     public int SP { get; protected set; }
+
+//     // Packed Attributes
+//     public UnitAttributes Attributes { get; set; }
+
+//     // Unified Inventory tracking to replace multiple lists checking bounds
+//     protected List<Weapon> weapons = new(6);
+//     protected List<Weapon> magic = new(6);
+//     protected List<Item> items = new(6);
+//     protected List<Faith> faith = new(6);
+
+//     private Weapon primaryWeapon;
+
+//     protected UnitStats(int id, string uName, string dName, string desc, int level, CoreStats baseStats, string uClass)
+//     {
+//         UnitID = id;
+//         UnitName = uName;
+//         Name = dName;
+//         UnitDescription = desc;
+//         Level = level;
+//         BaseStats = baseStats;
+//         CurrentHealth = baseStats.health;
+//         UnitClass = uClass;
+//     }
+
+//     // Fast attribute utility checks
+//     public bool HasAttribute(UnitAttributes flag) => (Attributes & flag) == flag;
+
+//     public virtual void TakeDamage(int damage)
+//     {
+//         CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
+//     }
+
+//     public virtual void HealUnit(int amount)
+//     {
+//         CurrentHealth = Mathf.Min(BaseStats.health, CurrentHealth + amount);
+//     }
+
+//     // Optimized item limit checking without adding list counts constantly
+//     public bool HasInventorySpace => (weapons.Count + items.Count) < 6;
+
+//     public virtual void AddWeapon(Weapon weapon) { if (HasInventorySpace) weapons.Add(weapon); }
+//     public virtual void AddItem(Item item) { if (HasInventorySpace) items.Add(item); }
+
+//     public Weapon GetPrimaryWeapon() => primaryWeapon;
+//     public void SetPrimaryWeapon(Weapon weapon) => primaryWeapon = weapon;
+// }
+
+// [Serializable]
+// public class PlayerStats : UnitStats
+// {
+//     public GrowthRates Growths { get; private set; }
+//     public Dictionary<string, int> SkillExperience { get; private set; }
+
+//     // Clean, compact construction
+//     public PlayerStats(int id, string uName, string dName, string desc, int level, CoreStats baseStats, GrowthRates growths, string uClass) 
+//         : base(id, uName, dName, desc, level, baseStats, uClass)
+//     {
+//         UnitType = "Player";
+//         Experience = 60;
+//         Growths = growths;
+
+//         // Initialize dictionaries with explicit capacity to reduce re-allocations
+//         SkillExperience = new Dictionary<string, int>(6)
+//         {
+//             { "Sword", 0 }, { "Lance", 0 }, { "Bow", 0 },
+//             { "Magic", 0 }, { "Faith", 0 }, { "Brawl", 0 }
+//         };
+        
+//         RefreshClassAttributes();
+//     }
+
+//     public void SetClass(string newClass)
+//     {
+//         UnitClass = newClass;
+//         RefreshClassAttributes();
+//     }
+
+//     private void RefreshClassAttributes()
+//     {
+//         var classData = PlayerClassManager.GetUnitClass(UnitClass);
+//         if (classData == null) return;
+
+//         // Mapping class parameters cleanly to our packed byte attribute mask
+//         Attributes = UnitAttributes.None;
+//         if (classData.AirBorn) Attributes |= UnitAttributes.Airborn;
+//         if (classData.Mounted) Attributes |= UnitAttributes.Mounted;
+//         if (classData.Armored) Attributes |= UnitAttributes.Armored;
+//         if (classData.Whisper) Attributes |= UnitAttributes.Whisper;
+//     }
+
+//     // Safe dictionary fetch
+//     public override int GetSkillExperience(string skillType) => 
+//         SkillExperience.TryGetValue(skillType, out int exp) ? exp : 0;
+// }
+
+// public class EnemyStats : UnitStats
+// {
+//     public bool IsBoss { get; set; }
+
+//     public EnemyStats(int id, string uName, string desc, string uClass, int level, CoreStats baseStats, UnitAttributes attributes, int hBars, bool boss) 
+//         : base(id, uName, uName, desc, level, baseStats, uClass)
+//     {
+//         UnitType = "Enemy";
+//         Attributes = attributes;
+//         HealthBars = hBars;
+//         IsBoss = boss;
+//     }
+// }
+
+
+
+
+
+
 public abstract class UnitStats
 {
     public string UnitName { get; set; }

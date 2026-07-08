@@ -53,6 +53,8 @@ public class ExecuteAction : MonoBehaviour
     public void unitWait()
     {
         // Makes sure that the action menu and any path is deactivated
+        // ActionMenu actionMenu = GameObject.Find("Canvas").GetComponent<ActionMenu>();
+        // actionMenu.DeactivateActionMenu();
         combatMenuManager.DeactivateActionMenu();
         findPath.DestroyRange();
 
@@ -65,7 +67,7 @@ public class ExecuteAction : MonoBehaviour
         temp.ZPos = playerGridMovement.GetCurZ();
 
         playerGridMovement.charSelected = false;
-        playerGridMovement.inMenu = false;
+        playerGridMovement.SetInMenu(false);
 
         // playerGridMovement.GetPlayerCollide().removePlayer();
 
@@ -88,7 +90,7 @@ public class ExecuteAction : MonoBehaviour
         
         playerGridMovement.isAttacking = false;
         playerGridMovement.charSelected = false;
-        playerGridMovement.inMenu = false; 
+        playerGridMovement.SetInMenu(false);
         // playerGridMovement.GetPlayerCollide().removePlayer();
     }
 
@@ -223,11 +225,11 @@ public class ExecuteAction : MonoBehaviour
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
                 AttackingUnit.SetPrimaryWeapon(orgPrimWeapon);
-                StartCoroutine(combatMenuManager.WeaponList(generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile));
+                StartCoroutine(combatMenuManager.AttackingList(generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile));
 
                 
                 
-                playerGridMovement.inMenu = true;
+                playerGridMovement.SetInMenu(true);
                 break;
             }
 
@@ -940,7 +942,7 @@ public class ExecuteAction : MonoBehaviour
         int attackerZ = playerGridMovement.GetCurZ();
         // int defenderX = UnitsInRange[currentIndex].GetGridX();
         // int defenderZ = UnitsInRange[currentIndex].GetGridZ();
-        playerGridMovement.inMenu = true;
+        playerGridMovement.SetInMenu(true);
         
     
         
@@ -974,6 +976,7 @@ public class ExecuteAction : MonoBehaviour
                 playerGridMovement.IsAttacking = true;
                 yield return StartCoroutine(faithInUse.Use(AttackingUnit, DefendingEnemy));
                 Debug.LogWarning("Howdy");
+                
                 break;
             }
 
@@ -982,11 +985,10 @@ public class ExecuteAction : MonoBehaviour
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
                 // AttackingUnit.primaryWeapon = orgPrimWeapon;
-                combatMenuManager.PlayerAssist();
+                // combatMenuManager.PlayerAssist(AttackingUnit);
+                StartCoroutine(combatMenuManager.AssistMenu(AttackingUnit));
 
-                
-                
-                playerGridMovement.inMenu = true;
+                playerGridMovement.SetInMenu(true);
                 break;
             }
 
@@ -1073,13 +1075,13 @@ public class ExecuteAction : MonoBehaviour
             // turnManager.CheckPhase();
             turnManager.AfterAction(temp);
 
-            
+            playerGridMovement.SetInMenu(false);
+                playerGridMovement.IsAttacking = false;
             
 
         }
         // Debug.Log(generateGrid.GetGridTile(5, 4).UnitOnTile.stats.UnitName);
-        playerGridMovement.inMenu = false;
-        playerGridMovement.IsAttacking = false;
+        
         yield return null;
     }
 
