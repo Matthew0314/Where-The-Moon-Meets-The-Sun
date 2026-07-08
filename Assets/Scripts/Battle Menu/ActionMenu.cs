@@ -78,7 +78,7 @@ public class ActionMenu : MonoBehaviour
                     labelText += $" ({CPCost[i]})";
 
                     // If cost is too high, disable selection
-                    if (CPCost[i] > manageTurn.GetCP())
+                    if (_currentMap.UsingCP() && CPCost[i] > manageTurn.GetCP())
                     {
                         selectable = false;
                         // Optionally make it look disabled
@@ -228,7 +228,7 @@ public class ActionMenu : MonoBehaviour
 
     public void PlayerWait() {
         // Removes player from actives list
-        manageTurn.RemovePlayer(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile.GetStats());
+        manageTurn.RemovePlayer(generateGrid.GetGridTile(moveGrid.getX(), moveGrid.getZ()).UnitOnTile);
 
         // Calls the unit wait function
         executeAction.unitWait();

@@ -119,7 +119,7 @@ public class PlayerGridMovement : MonoBehaviour
 
 
         // else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && playerCollide.collPlayer && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
-        else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && gridControl.GetGridTile(x, z).UnitOnTile?.UnitType == "Player" && manageTurn.IsActive((gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit)?.GetStats()))
+        else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && gridControl.GetGridTile(x, z).UnitOnTile?.UnitType == "Player" && manageTurn.IsActive((gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit)))
         {
             pathFinder.ResetArea();
             // currUnit = playerCollide.GetPlayerObject();

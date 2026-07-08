@@ -1,154 +1,69 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
+
+
+public struct ClassStatGrowths 
+{
+    public int health;
+    public int attack;
+    public int magic;
+    public int defense;
+    public int resistance;
+    public int speed;
+    public int evasion;
+    public int luck;
+    public int movement; //fixed, doesn't have a stat growth
+}
+
+[Flags] // Can store a max of 8 attributes at the moment
+public enum ClassAttributes : byte
+{
+    None     = 0,
+    Airborn  = 1 << 0,
+    Mounted  = 1 << 1,
+    Armored  = 1 << 2,
+    Whisper  = 1 << 3
+}
 
 public class PlayerClass 
 {
-    //Class for all player units
-    private string className;           //Name of class
-    private string classDescription;    //class description
-    private string classType;           //Unique, base, intermediate, advanced, master
+    public string ClassName { get; private set; }
+    public string ClassDescription { get; set; }
+    public string ClassType { get; set; } // Unique, base, intermediate, etc.
 
-    //Stat growths (-100 to 100)
-    private int health;                 //base health
-    private int attack;                 //base attack
-    private int magic;                  //base magic
-    private int defense;                //base defense
-    private int resistance;             //base resistance to magic
-    private int speed;                  //base speed, determines if unit attacks first
-    //private int dexterity;              //base dexterity, how often the unit hits
-    private int evasion;                //base evasion, how often the unit dodges
-    private int luck;                   //base luck, increases chance of critical
+    public ClassStatGrowths Growths { get; private set; }
+    public ClassAttributes Attributes { get; private set; }
 
-    private int movement;               //movement, fixed and doesn't have a stat growth
-
-    private bool airBorn;               //if unit is airborn, will be ablee to pass over impassble tiles and weak to bows/air magic
-    private bool mounted;               //if unit is mounted
-    private bool armored;               //if unit is armored, weak to magic and other armor breaking weapons
-    private bool whisper;               //Whisper type
-
-    //Will probably have to include what type of weapons can be equipped
-
-    public PlayerClass(string cName,string cDesc,string cType,int HP,int ATK,int MAG,int DEF,int RES,int SPD,int EVA,int LUCK,int MOVE,bool air,bool mount,bool arm,bool whisp)
+    // Clean, streamlined constructor
+    public PlayerClass(string name, string desc, string type, ClassStatGrowths growths, ClassAttributes attributes)
     {
-        className = cName; 
-        classDescription = cDesc; 
-        classType = cType; 
-        health = HP; 
-        attack = ATK; 
-        magic = MAG; 
-        defense = DEF;
-        resistance = RES;
-        speed = SPD; 
-        evasion = EVA;
-        luck = LUCK;
-        movement = MOVE; 
-        airBorn = air;
-        mounted = mount;
-        armored = arm;
-        whisper = whisp;        
+        ClassName = name;
+        ClassDescription = desc;
+        ClassType = type;
+        Growths = growths;
+        Attributes = attributes;
     }
 
-    public string ClassName
+    public bool HassAttribute(ClassAttributes attribute) => (Attributes & attribute) == attribute;
+
+    public int GetGrowth(StatType statType)
     {
-        get { return className; }
-        //set { className = value; }
+        return statType switch
+        {
+            StatType.Health     => Growths.health,
+            StatType.Attack     => Growths.attack,
+            StatType.Magic      => Growths.magic,
+            StatType.Defense    => Growths.defense,
+            StatType.Resistance => Growths.resistance,
+            StatType.Speed      => Growths.speed,
+            StatType.Evasion    => Growths.evasion,
+            StatType.Luck       => Growths.luck,
+            StatType.Movement   => Growths.movement, // Returns 0 or fixed class movement base
+            _ => 0
+        };
     }
 
-    public string ClassDesrciption
-    {
-        get { return classDescription; }
-        set { classDescription = value; }
-    }
-
-    public string ClassType
-    {
-        get { return classType; }
-        set { classType = value; }
-    }
-
-    public int Health
-    {
-        get { return health; }
-        //set { health = value; }
-    }
-
-    public int Attack
-    {
-        get { return attack; }
-        //set { attack = value; }
-    }
-
-    public int Magic
-    {
-        get { return magic; }
-        //set { magic = value; }
-    }
-
-    public int Defense
-    {
-        get { return defense; }
-        //set { defense = value; }
-    }
-
-    public int Resistance
-    {
-        get { return resistance; }
-        //set { resistance = value; }
-    }
-
-    public int Speed
-    {
-        get { return speed; }
-        //set { speed = value; }
-    }
-
-    /*public int Dexterity
-    {
-        get { return dexterity; }
-        //set { dexterity = value; }
-    }*/
-
-    public int Evasion
-    {
-        get { return evasion; }
-        //set { evasion = value; }
-    }
-
-    public int Luck
-    {
-        get { return luck; }
-        //set { luck = value; }
-    }
-
-    public int Movement
-    {
-        get { return movement; }
-        //set { movement = value; }
-    }
-
-    public bool AirBorn
-    {
-        get { return airBorn; }
-        //set { airBorn = value; }
-    }
-
-    public bool Mounted
-    {
-        get { return mounted; }
-        //set { mounted = value; }
-    }
-
-    public bool Armored
-    {
-        get { return armored; }
-        //set { armored = value; }
-    }
-
-    public bool Whisper
-    {
-        get { return whisper; }
-        //set { whisper = value; }
-    }
 }

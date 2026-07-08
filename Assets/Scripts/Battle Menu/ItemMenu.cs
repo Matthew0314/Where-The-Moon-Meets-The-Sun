@@ -42,7 +42,6 @@ public class ItemMenu : MonoBehaviour
 
 
     List<Button> itemButtons = new List<Button>();
-    int currWeapIndex = 0;
     [SerializeField] FindPath findPath;
     [SerializeField] PlayerInput playerInput;
     float sensitivity = 0.2f;

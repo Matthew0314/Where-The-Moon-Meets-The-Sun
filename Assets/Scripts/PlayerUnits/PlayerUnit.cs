@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+// using LTWB.UnitStats;
 
 public class PlayerUnit : UnitManager
 {
@@ -31,7 +33,7 @@ public class PlayerUnit : UnitManager
     protected void Update() {
         healthBar.fillAmount = (float)GetCurrentHealth() / (float)GetHealth(); 
 
-        if (!turnManager.IsActive(this.stats))
+        if (!turnManager.IsActive(this))
         {
             // Apply grayscale material
             healthBar.material = grayscaleMaterial;
@@ -70,60 +72,74 @@ public class PlayerUnit : UnitManager
 
         PlayerStats pStats = (PlayerStats)stats;
         
-        pStats.AddSkillExperience(skillType1, skillInc);
+        pStats.AddSkillExperience(Enum.TryParse<SkillType>(skillType1, out var skillType) ? skillType : SkillType.Sword, skillInc);
 
         //TODO: Maybe add a popup confirming that they leveled up a skill 
         //TODO: Make sure that experience isn't added if maxed out
         
 
-        while (stats.Experience >= 100)
+        while (pStats.Experience >= 100)
         {
-
-            int hlt = 0;
-            int atk = 0;
-            int mag = 0;
-            int def = 0;
-            int res = 0;
-            int eva = 0;
-            int luk = 0;
-            int spd = 0;
+            CoreStats gains = new CoreStats();
 
             while (true)
             {
-                hlt = 0;
-                atk = 0;
-                mag = 0;
-                def = 0;
-                res = 0;
-                eva = 0;
-                luk = 0;
-                spd = 0;
-                if (Random.Range(0, 101) <= unitClass.Health + pStats.HealthGR) hlt++;
-                if (Random.Range(0, 101) <= unitClass.Attack + pStats.AttackGR) atk++;
-                if (Random.Range(0, 101) <= unitClass.Magic + pStats.MagicGR) mag++;
-                if (Random.Range(0, 101) <= unitClass.Defense + pStats.DefenseGR) def++;
-                if (Random.Range(0, 101) <= unitClass.Resistance + pStats.ResistanceGR) res++;
-                if (Random.Range(0, 101) <= unitClass.Evasion + pStats.EvasionGR) eva++;
-                if (Random.Range(0, 101) <= unitClass.Luck + pStats.LuckGR) luk++;
-                if (Random.Range(0, 101) <= unitClass.Speed + pStats.SpeedGR) spd++;
+                gains = new CoreStats();
+                int totalGainsCount = 0;
 
-                if (hlt + atk + mag + def + res + eva + luk + spd >= 2) break;
+                // Loop through our core stat types dynamically
+                // Exclude Movement (index 8) since it doesn't level up randomly
+                for (int i = 0; i < 8; i++)
+                {
+                    StatType currentStat = (StatType)i;
+                    int combinedGrowth = pStats.GetGrowthRate(currentStat);
 
+                    if (UnityEngine.Random.Range(0, 101) <= combinedGrowth)
+                    {
+                        totalGainsCount++;
+                        
+                        switch (currentStat)
+                        {
+                            case StatType.Health:     gains.health++; break;
+                            case StatType.Attack:     gains.attack++; break;
+                            case StatType.Magic:      gains.magic++; break;
+                            case StatType.Defense:    gains.defense++; break;
+                            case StatType.Resistance: gains.resistance++; break;
+                            case StatType.Speed:      gains.speed++; break;
+                            case StatType.Evasion:    gains.evasion++; break;
+                            case StatType.Luck:       gains.luck++; break;
+                        }
+                    }
+                }
+
+                if (totalGainsCount >= 2) break;
             }
 
-            yield return StartCoroutine(combatMenuManager.LevelUpMenu(this, hlt, atk, mag, spd, def, res, eva, luk));
+            yield return StartCoroutine(combatMenuManager.LevelUpMenu(
+                this, 
+                gains.health, 
+                gains.attack, 
+                gains.magic, 
+                gains.speed, 
+                gains.defense, 
+                gains.resistance, 
+                gains.evasion, 
+                gains.luck
+            ));
 
-            stats.Health += hlt;
-            stats.Attack += atk;
-            stats.Magic += mag;
-            stats.Defense += def;
-            stats.Resistance += res;
-            stats.Evasion += eva;
-            stats.Luck += luk;
-            stats.Speed += spd;
+            pStats.BaseStats.health     += gains.health;
+            pStats.BaseStats.attack     += gains.attack;
+            pStats.BaseStats.magic      += gains.magic;
+            pStats.BaseStats.defense    += gains.defense;
+            pStats.BaseStats.resistance += gains.resistance;
+            pStats.BaseStats.speed      += gains.speed;
+            pStats.BaseStats.evasion    += gains.evasion;
+            pStats.BaseStats.luck       += gains.luck;
 
-            stats.Level++;
-            stats.Experience -= 100;
+            pStats.CurrentHealth += gains.health;
+
+            pStats.Level++;
+            pStats.Experience -= 100;
         }
 
         yield return null;
@@ -157,12 +173,12 @@ public class PlayerUnit : UnitManager
 
     public PlayerClass GetPlayerClass() => GetPlayerStats().GetClass();
 
-    public override int GetMove() => AdjustMovement(Mathf.Max(0, stats.GetClass().Movement + base.GetMove()));
+    public override int GetMove() => AdjustMovement(Mathf.Max(0, stats.GetClass().GetGrowth(StatType.Movement) + base.GetMove()));
     // Returns info about the characters unit/class type
-    public override bool GetAirBorn() => GetPlayerClass().AirBorn;
-    public override bool GetArmored() => GetPlayerClass().Armored;
-    public override bool GetMounted() => GetPlayerClass().Mounted;
-    public override bool GetWhisper() => GetPlayerClass().Whisper;
+    public override bool GetAirBorn() => GetPlayerClass().HassAttribute(ClassAttributes.Airborn);
+    public override bool GetArmored() => GetPlayerClass().HassAttribute(ClassAttributes.Armored);
+    public override bool GetMounted() => GetPlayerClass().HassAttribute(ClassAttributes.Mounted);
+    public override bool GetWhisper() => GetPlayerClass().HassAttribute(ClassAttributes.Whisper);
 
 
     

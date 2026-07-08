@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using LTWB.GridGameplay.StatusAilments;
+// using LTWB.UnitStats;
 
 public abstract class UnitManager : MonoBehaviour
 {
@@ -55,32 +56,31 @@ public abstract class UnitManager : MonoBehaviour
         }
     }
 
-    // Gets stats based on the units stats + status aliments + etc.
     public virtual int GetMove() => 
-        statusAilments.Any(s => s is FreezeAilment) ? int.MinValue : stats.Movement + SumStatusAilments(s => s.Modifiers.movement);
+        statusAilments.Any(s => s is FreezeAilment) ? int.MinValue : stats.GetStat(StatType.Movement) + SumStatusAilments(s => s.Modifiers.movement);
 
     public virtual int GetAttack() => 
-        Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.Attack + SumStatusAilments(s => s.Modifiers.attack));
+        Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.GetStat(StatType.Attack) + SumStatusAilments(s => s.Modifiers.attack));
 
     public virtual int GetMagic() => 
-        Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.Magic + SumStatusAilments(s => s.Modifiers.magic));
+        Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.GetStat(StatType.Magic) + SumStatusAilments(s => s.Modifiers.magic));
 
     public virtual int GetDefense() => 
-        Mathf.Max(0, stats.Defense + SumStatusAilments(s => s.Modifiers.defense));
+        Mathf.Max(0, stats.GetStat(StatType.Defense) + SumStatusAilments(s => s.Modifiers.defense));
 
     public virtual int GetResistance() => 
-        Mathf.Max(0, stats.Resistance + SumStatusAilments(s => s.Modifiers.resistance));
+        Mathf.Max(0, stats.GetStat(StatType.Resistance) + SumStatusAilments(s => s.Modifiers.resistance));
 
     public virtual int GetSpeed() => 
-        Mathf.Max(0, stats.Speed + SumStatusAilments(s => s.Modifiers.speed));
+        Mathf.Max(0, stats.GetStat(StatType.Speed) + SumStatusAilments(s => s.Modifiers.speed));
 
     public virtual int GetLuck() => 
-        Mathf.Max(0, stats.Luck + SumStatusAilments(s => s.Modifiers.luck));
+        Mathf.Max(0, stats.GetStat(StatType.Luck) + SumStatusAilments(s => s.Modifiers.luck));
 
     public virtual int GetEvasion() => 
-        Mathf.Max(0, stats.Evasion + SumStatusAilments(s => s.Modifiers.evasion));
+        Mathf.Max(0, stats.GetStat(StatType.Evasion) + SumStatusAilments(s => s.Modifiers.evasion));
 
-    public virtual int GetHealth() => stats.Health;
+    public virtual int GetHealth() => stats.GetStat(StatType.Health);
     public virtual int GetCurrentHealth() => stats.CurrentHealth;
 
     // Calculates the chance that the attack will hit
@@ -123,24 +123,26 @@ public abstract class UnitManager : MonoBehaviour
     public virtual Animator GetAnimator() => animator;
 
     // Returns info about the characters unit/class type
-    public virtual bool GetAirBorn() => stats.AirBorn;
-    public virtual bool GetArmored() => stats.Armored;
-    public virtual bool GetMounted() => stats.Mounted;
-    public virtual bool GetWhisper() => stats.Whisper;
+    public virtual bool GetAirBorn() => stats.HasAttribute(ClassAttributes.Airborn);
+    public virtual bool GetArmored() => stats.HasAttribute(ClassAttributes.Armored);
+    public virtual bool GetMounted() => stats.HasAttribute(ClassAttributes.Mounted);
+    public virtual bool GetWhisper() => stats.HasAttribute(ClassAttributes.Whisper);
 
     // Get the original stats from stats class with aliments, etc.
-    public virtual int GetBaseHealth() => stats.Health;
-    public virtual int GetBaseAttack() => stats.Attack;
-    public virtual int GetBaseMagic() => stats.Magic;
-    public virtual int GetBaseDefense() => stats.Defense;
-    public virtual int GetBaseResistance() => stats.Resistance;
-    public virtual int GetBaseEvasion() => stats.Evasion;
-    public virtual int GetBaseSpeed() => stats.Speed;
-    public virtual int GetBaseLuck() => stats.Luck;
+    // public virtual int GetBaseHealth() => stats.Health;
+    // public virtual int GetBaseAttack() => stats.Attack;
+    // public virtual int GetBaseMagic() => stats.Magic;
+    // public virtual int GetBaseDefense() => stats.Defense;
+    // public virtual int GetBaseResistance() => stats.Resistance;
+    // public virtual int GetBaseEvasion() => stats.Evasion;
+    // public virtual int GetBaseSpeed() => stats.Speed;
+    // public virtual int GetBaseLuck() => stats.Luck;
+
+    public virtual int GetBaseStat(StatType statType) => stats.GetStat(statType);
 
     // Heal and take damage
     public virtual void TakeDamage(int health) => stats.TakeDamage(health);
-    public virtual void HealUnit(int health) => stats.CurrentHealth = Mathf.Min(GetCurrentHealth() + health, stats.Health);
+    public virtual void HealUnit(int health) => stats.CurrentHealth = Mathf.Min(GetCurrentHealth() + health, GetHealth());
 
 
     // Only used for player unit
@@ -191,7 +193,7 @@ public abstract class UnitManager : MonoBehaviour
 
         healthBar.fillAmount = 1;
 
-        HealUnit(stats.Health);
+        HealUnit(GetHealth());
 
         yield return null;
 
@@ -205,15 +207,15 @@ public abstract class UnitManager : MonoBehaviour
         float initialFillAmount = healthBar.fillAmount;
 
         int newHealth = hlt + GetCurrentHealth();
-        if (newHealth > stats.Health)
+        if (newHealth > GetHealth())
         {
-            newHealth = stats.Health;
+            newHealth = GetHealth();
         }
 
         while (elapsed < 1f)
         {
 
-            healthBar.fillAmount = Mathf.Lerp(initialFillAmount, newHealth / stats.Health, elapsed / 1f);
+            healthBar.fillAmount = Mathf.Lerp(initialFillAmount, newHealth / GetHealth(), elapsed / 1f);
 
             elapsed += Time.deltaTime;
             yield return null;
@@ -224,24 +226,6 @@ public abstract class UnitManager : MonoBehaviour
 
         HealUnit(hlt);
     }
-
-    // Add status aliments to the list
-    // public virtual void AddStatusAliment(string n, string t, int a, int m, int d, int r, int s, int e, int l, int mov, bool tsd, bool freeze, int turns)
-    // {
-    //     if (tsd)
-    //     {
-    //         foreach (StatusAilments sta in statusAilments)
-    //         {
-    //             if (sta.TurnStartDamage) return;
-    //         }
-    //     }
-
-    //     Type staTemp = Type.GetType(t);
-
-    //     StatusAilments tempStatus = (StatusAilments)Activator.CreateInstance(staTemp, n, t, a, m, d, r, s, e, l, mov, tsd, freeze, turns);
-
-    //     statusAilments.Add(tempStatus);
-    // }
 
 
     // Returns both physical weapons and magical weapons
@@ -277,6 +261,69 @@ public abstract class UnitManager : MonoBehaviour
 
     // Getters and setters for primary weapons
     public virtual Weapon GetPrimaryWeapon() => stats.GetPrimaryWeapon();
+
+    public void IncNumberTimesActed() => numberTimesActed++;
+    public void ResetNumberTimesActed() => numberTimesActed = 0;
+    public int GetNumberTimesActed() => numberTimesActed;
+
+
+    protected int AdjustMovement(int m) => Mathf.FloorToInt((float)m * (1.0f / (float)Mathf.Pow(2, numberTimesActed)));
+
+
+    
+    private Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
+
+            Transform result = FindDeepChild(child, name);
+
+            if (result != null)
+                return result;
+        }
+
+        return null;
+    }
+
+    public virtual List<Weapon> GetUsableWeapons() {
+        List<Weapon> temp = GetWeapons();
+        FindPath findPath = GameObject.Find("GameManager/Player").GetComponent<FindPath>();
+        PlayerGridMovement moveGrid = GameObject.Find("GameManager/Player").GetComponent<PlayerGridMovement>();
+        GenerateGrid generateGrid = GameObject.Find("GameManager/GridManager").GetComponent<GenerateGrid>();
+        List<Weapon> usableWeapons = new List<Weapon>();
+
+
+        List<Weapon> tempWeap = GetWeapons();
+
+        foreach (Weapon wep in tempWeap) { 
+            bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
+            for (int i = 0; i < generateGrid.GetWidth(); i++) {
+                for (int j = 0; j < generateGrid.GetLength(); j++) {
+                    if (attackGrid[i,j] && !usableWeapons.Contains(wep) && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
+                        usableWeapons.Add(wep); 
+                    }
+                }
+            }
+        }
+
+        return usableWeapons;
+    }
+
+
+    public virtual List<Faith> GetUsableFaith() {
+        List<Faith> checking = GetFaith();
+        List<Faith> usableFaith = new List<Faith>();
+
+        foreach(Faith fai in checking) {
+            if(fai.CanUse(this)) {
+                usableFaith.Add(fai);
+            } 
+        }
+        return usableFaith;
+    }
+
     public virtual void SetPrimaryWeapon(Weapon temp) {
         stats.SetPrimaryWeapon(temp);
         Destroy(weaponInstance);
@@ -323,80 +370,5 @@ public abstract class UnitManager : MonoBehaviour
 
     }
 
-    public void IncNumberTimesActed() => numberTimesActed++;
-    public void ResetNumberTimesActed() => numberTimesActed = 0;
-    public int GetNumberTimesActed() => numberTimesActed;
-
-
-    protected int AdjustMovement(int m) => Mathf.FloorToInt((float)m * (1.0f / (float)Mathf.Pow(2, numberTimesActed)));
-
-
-    
-    private Transform FindDeepChild(Transform parent, string name)
-    {
-        foreach (Transform child in parent)
-        {
-            if (child.name == name)
-                return child;
-
-            Transform result = FindDeepChild(child, name);
-
-            if (result != null)
-                return result;
-        }
-
-        return null;
-    }
-
-
-
-    // public bool HasUsableWeapons() {
-
-    //     List<Weapon> temp = GetWeapons();
-    //     FindPath findPath = GameObject.Find("GameManager/Player").GetComponent<FindPath>();
-
-    //     foreach (Weapon t in temp) {
-
-    //     }
-    // }
-
-    public virtual List<Weapon> GetUsableWeapons() {
-        List<Weapon> temp = GetWeapons();
-        FindPath findPath = GameObject.Find("GameManager/Player").GetComponent<FindPath>();
-        PlayerGridMovement moveGrid = GameObject.Find("GameManager/Player").GetComponent<PlayerGridMovement>();
-        GenerateGrid generateGrid = GameObject.Find("GameManager/GridManager").GetComponent<GenerateGrid>();
-        List<Weapon> usableWeapons = new List<Weapon>();
-
-
-        List<Weapon> tempWeap = GetWeapons();
-
-        foreach (Weapon wep in tempWeap) { 
-            bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
-            for (int i = 0; i < generateGrid.GetWidth(); i++) {
-                for (int j = 0; j < generateGrid.GetLength(); j++) {
-                    if (attackGrid[i,j] && !usableWeapons.Contains(wep) && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
-                        usableWeapons.Add(wep); 
-                    }
-                }
-            }
-        }
-
-        return usableWeapons;
-    }
-
-
-    public virtual List<Faith> GetUsableFaith() {
-        List<Faith> checking = GetFaith();
-        List<Faith> usableFaith = new List<Faith>();
-
-        foreach(Faith fai in checking) {
-            if(fai.CanUse(this)) {
-                usableFaith.Add(fai);
-            } 
-        }
-        return usableFaith;
-    }
-
-    
 }
 

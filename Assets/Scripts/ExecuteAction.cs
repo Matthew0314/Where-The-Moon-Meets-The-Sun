@@ -24,8 +24,8 @@ public class ExecuteAction : MonoBehaviour
     [SerializeField] CinemachineVirtualCamera combatCam;
     Gamepad gamepad;
 
-    private bool isAnimating = false;
-    private bool isUpdatingHealth = false;
+    // private bool isAnimating = false;
+    // private bool isUpdatingHealth = false;
     void Start() {
         playerCurs = GameObject.Find("Player");
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
@@ -50,6 +50,7 @@ public class ExecuteAction : MonoBehaviour
         }
     }
 
+    // Called when the 
     public void unitWait()
     {
         // Makes sure that the action menu and any path is deactivated
@@ -337,7 +338,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
-            turnManager.RemovePlayer(AttackingUnit.GetStats());
+            turnManager.RemovePlayer(AttackingUnit);
             ResetAfterAction(AttackingUnit);
             yield return StartCoroutine(_currentMap.CheckClearCondition());
             yield return StartCoroutine(_currentMap.CheckDefeatCondition());
@@ -757,7 +758,7 @@ public class ExecuteAction : MonoBehaviour
 
     public void PlayAttack(Animator animator, string triggerName)
     {
-        isAnimating = true;
+        // isAnimating = true;
         animator.ResetTrigger(triggerName);
         animator.SetTrigger(triggerName);
     }
@@ -1066,7 +1067,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
-            turnManager.RemovePlayer(AttackingUnit.GetStats());
+            turnManager.RemovePlayer(AttackingUnit);
             // unitWait();
             ResetAfterAction(AttackingUnit);
             

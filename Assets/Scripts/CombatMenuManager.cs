@@ -16,7 +16,6 @@ public class CombatMenuManager : MonoBehaviour
     [SerializeField] ExecuteAction executeAction;
     [SerializeField] FindPath findPath;
     [SerializeField] ActionMenu actionMenu;
-    [SerializeField] AttackingMenu attackingMenu;
     [SerializeField] ItemMenu itemMenu;
 
 
@@ -140,7 +139,7 @@ public class CombatMenuManager : MonoBehaviour
 
     Gamepad gamepad;
 
-    private float sensitivity = 0.2f;
+    // private float sensitivity = 0.2f;
     private Vector2 moveInput;
     [SerializeField] PlayerInput playerInput;
     bool skipCutscene = false;
@@ -562,10 +561,12 @@ public class CombatMenuManager : MonoBehaviour
         expNext.text = (expThreshold - currentExp).ToString();
     }
 
-    private IEnumerator AnimateSkill(UnitManager unit, string skillType, int skillInc)
+    private IEnumerator AnimateSkill(UnitManager unit, string skillT, int skillInc)
     {
         // total exp the unit currently has
-        int skillExp = unit.GetStats().GetSkillExperience(skillType);
+
+        SkillType targetSkill = Enum.TryParse<SkillType>(skillT, true, out var sT) ? sT : SkillType.Sword;
+        int skillExp = (unit.GetStats() as PlayerStats)?.GetSkillExperience(targetSkill) ?? 0;
 
         // determine current level & thresholds
         int currLevel = UnitRosterManager.GetCurrentLevel(skillExp);
@@ -579,7 +580,7 @@ public class CombatMenuManager : MonoBehaviour
         int remainingSkillExp = skillInc;
 
         // setup UI
-        skillName.text = skillType;
+        skillName.text = skillT;
         skillGained.text = "+" + remainingSkillExp;
         skillNext.text = UnitRosterManager.GetExpToNextLevel(skillExp).ToString();
 
@@ -720,14 +721,14 @@ public class CombatMenuManager : MonoBehaviour
         lvClass.text = unit.GetClass();
         lvLevel.text = unit.GetLevel().ToString();
 
-        int HP = unit.GetBaseHealth();
-        int Str = unit.GetBaseAttack();
-        int Mag = unit.GetBaseMagic();
-        int Spd = unit.GetBaseSpeed();
-        int Def = unit.GetBaseDefense();
-        int Res = unit.GetBaseResistance();
-        int Eva = unit.GetBaseEvasion();
-        int Lck = unit.GetBaseLuck();
+        int HP = unit.GetBaseStat(StatType.Health);
+        int Str = unit.GetBaseStat(StatType.Attack);
+        int Mag = unit.GetBaseStat(StatType.Magic);
+        int Spd = unit.GetBaseStat(StatType.Speed);
+        int Def = unit.GetBaseStat(StatType.Defense);
+        int Res = unit.GetBaseStat(StatType.Resistance);
+        int Eva = unit.GetBaseStat(StatType.Evasion);
+        int Lck = unit.GetBaseStat(StatType.Luck);
 
         // Display current stats
         lvHP.text = HP.ToString();

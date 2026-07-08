@@ -263,7 +263,7 @@ public abstract class MapManager : MonoBehaviour
             mapUnits.Remove(unit.GetStats());
             Destroy(tempObj);
             mapGameUnits.Remove(unit);
-            manageTurn.RemovePlayer(unit.GetStats());
+            manageTurn.RemovePlayer(unit);
         }
     }
 
@@ -309,7 +309,7 @@ public abstract class MapManager : MonoBehaviour
         if (!mapUnits.Contains(stats)) mapUnits.Add(stats);
         mapGameUnits.Add(gridUnit.GetComponent<UnitManager>());
 
-        manageTurn.AddPlayer(stats);
+        manageTurn.AddPlayer(unitToGrid);
         
     }
 
@@ -321,7 +321,7 @@ public abstract class MapManager : MonoBehaviour
         grid.GetGridTile(unit.XPos, unit.ZPos).UnitOnTile = null;
 
         Destroy(unit.gameObject);
-        manageTurn.RemovePlayer(unit.GetStats());
+        manageTurn.RemovePlayer(unit);
     }
 
 
