@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-
+// using LTWB.UnitStats;
 
 public class EnemyInitializer : MonoBehaviour
 {
@@ -104,9 +104,19 @@ public class EnemyInitializer : MonoBehaviour
 
 
         // Create the UnitStats instance
-        UnitStats eStats = (UnitStats)Activator.CreateInstance(
-            unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss
-        );
+        // UnitStats eStats = (UnitStats)Activator.CreateInstance(
+        //     unitType, eID, cName, cDesc, cType, level, HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE, air, mount, armored, whisp, healthBars, boss
+        // );
+
+        CoreStats baseStats = new CoreStats(HP, ATK, MAG, DEF, RES, SPD, EVA, LUCK, MOVE);
+
+        ClassAttributes attributes = ClassAttributes.None;
+        if (air) attributes |= ClassAttributes.Airborn;
+        if (mount) attributes |= ClassAttributes.Mounted;
+        if (armored) attributes |= ClassAttributes.Armored;
+        if (whisp) attributes |= ClassAttributes.Whisper;
+
+        UnitStats eStats = new EnemyStats(eID, cName, cDesc, cType, level, baseStats, attributes, healthBars, boss);
 
         string[] items = new string[6];
         for (int j = 0; j < 6; j++) items[j] = fields[index++];

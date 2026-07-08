@@ -27,7 +27,7 @@ public class PlayerGridMovement : MonoBehaviour
     public static float cursorSen = .35f;
     private GenerateGrid gridControl;
     private FindPath pathFinder;
-    public bool inMenu;
+    private bool inMenu;
     public bool isAttacking;
     public bool enemyRangeActive = false;
     private bool isSwapping = false;
@@ -82,6 +82,8 @@ public class PlayerGridMovement : MonoBehaviour
             return;
         }
 
+        Debug.LogWarning("YAYAYYAYAYAYYAY");
+
 
         if (isAttacking || !manageTurn.IsPlayerTurn()) { }
 
@@ -97,6 +99,7 @@ public class PlayerGridMovement : MonoBehaviour
         }
         else if (playerInput.actions["Select"].WasPressedThisFrame() && gridControl.GetGridTile(x, z).UnitOnTile == null && !inMenu && !charSelected) {
             inMenu = true;
+            // ActionMenu actionMenu = GameObject.Find("Canvas").GetComponent<ActionMenu>();
             StartCoroutine(combatMenu.PassiveMenu());
 
         }
@@ -116,7 +119,7 @@ public class PlayerGridMovement : MonoBehaviour
 
 
         // else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && playerCollide.collPlayer && manageTurn.IsActive(playerCollide.GetPlayer().stats)) {
-        else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && gridControl.GetGridTile(x, z).UnitOnTile?.UnitType == "Player" && manageTurn.IsActive((gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit)?.GetStats()))
+        else if (playerInput.actions["Select"].WasPressedThisFrame() && !charSelected && gridControl.GetGridTile(x, z).UnitOnTile?.UnitType == "Player" && manageTurn.IsActive((gridControl.GetGridTile(x, z).UnitOnTile as PlayerUnit)))
         {
             pathFinder.ResetArea();
             // currUnit = playerCollide.GetPlayerObject();
@@ -403,6 +406,8 @@ public class PlayerGridMovement : MonoBehaviour
 
     public void OutOfMenu()
     {
+        // ActionMenu actionMenu = GameObject.Find("Canvas").GetComponent<ActionMenu>();
+        // actionMenu.DeactivateActionMenu();
         combatMenu.DeactivateActionMenu();
         pathFinder.DestroyArea();
         pathFinder.DestroyRange();
@@ -452,6 +457,9 @@ public class PlayerGridMovement : MonoBehaviour
     }
 
     public bool DidUnitMove() => x != orgX || z != orgZ;
+
+
+    public bool SetInMenu(bool menu) => inMenu = menu;
     
     
 

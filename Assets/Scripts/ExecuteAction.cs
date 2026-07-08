@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Cinemachine;
+using System.Reflection;
+// using System.Diagnostics;
 
 public class ExecuteAction : MonoBehaviour
 {
@@ -21,6 +23,9 @@ public class ExecuteAction : MonoBehaviour
     [SerializeField]  CinemachineVirtualCamera mainCam;
     [SerializeField] CinemachineVirtualCamera combatCam;
     Gamepad gamepad;
+
+    // private bool isAnimating = false;
+    // private bool isUpdatingHealth = false;
     void Start() {
         playerCurs = GameObject.Find("Player");
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
@@ -45,9 +50,12 @@ public class ExecuteAction : MonoBehaviour
         }
     }
 
+    // Called when the 
     public void unitWait()
     {
         // Makes sure that the action menu and any path is deactivated
+        // ActionMenu actionMenu = GameObject.Find("Canvas").GetComponent<ActionMenu>();
+        // actionMenu.DeactivateActionMenu();
         combatMenuManager.DeactivateActionMenu();
         findPath.DestroyRange();
 
@@ -60,7 +68,7 @@ public class ExecuteAction : MonoBehaviour
         temp.ZPos = playerGridMovement.GetCurZ();
 
         playerGridMovement.charSelected = false;
-        playerGridMovement.inMenu = false;
+        playerGridMovement.SetInMenu(false);
 
         // playerGridMovement.GetPlayerCollide().removePlayer();
 
@@ -83,7 +91,7 @@ public class ExecuteAction : MonoBehaviour
         
         playerGridMovement.isAttacking = false;
         playerGridMovement.charSelected = false;
-        playerGridMovement.inMenu = false; 
+        playerGridMovement.SetInMenu(false);
         // playerGridMovement.GetPlayerCollide().removePlayer();
     }
 
@@ -218,11 +226,11 @@ public class ExecuteAction : MonoBehaviour
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
                 AttackingUnit.SetPrimaryWeapon(orgPrimWeapon);
-                StartCoroutine(combatMenuManager.WeaponList(generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile));
+                StartCoroutine(combatMenuManager.AttackingList(generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile));
 
                 
                 
-                playerGridMovement.inMenu = true;
+                playerGridMovement.SetInMenu(true);
                 break;
             }
 
@@ -330,7 +338,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
-            turnManager.RemovePlayer(AttackingUnit.GetStats());
+            turnManager.RemovePlayer(AttackingUnit);
             ResetAfterAction(AttackingUnit);
             yield return StartCoroutine(_currentMap.CheckClearCondition());
             yield return StartCoroutine(_currentMap.CheckDefeatCondition());
@@ -489,12 +497,9 @@ public class ExecuteAction : MonoBehaviour
         // Calculates Expected Attack for both defender and attacker that will be used in the battle menu
         int defAttack = defendingUnit.GetDamage(attackingUnit);
         int atkAttack = attackingUnit.GetDamage(defendingUnit);
-        
-
-        
-        
-            
-        if (atkAttack < 0) atkAttack = 0;
+    
+        // If the attack is less than 0, set it to 0 for the battle menu
+        if(atkAttack < 0) atkAttack = 0;
         if(defAttack < 0) defAttack = 0;
 
         // Opens battle menu and switches to combat cam with a 3f transition
@@ -508,6 +513,8 @@ public class ExecuteAction : MonoBehaviour
         // Get the Count of the queue at its original state
         int coun = AttackingQueue.Count;
 
+        bool miss = false;
+
         for (int i = 0; i < coun; i++) {
             // Dequeue both the attacker and defender
             UnitManager atk = AttackingQueue.Dequeue();
@@ -516,6 +523,12 @@ public class ExecuteAction : MonoBehaviour
             // Calculates the damage
             int damage = atk.GetPrimaryWeapon().UnitAttack(atk, def, false);
             if(damage < 0) { damage = 0; }
+
+            if (atk.GetPrimaryWeapon().miss) {
+                miss = true;
+            } else {
+                miss = false;
+            }
 
             // Damages the defender
             def.TakeDamage(damage);
@@ -556,10 +569,43 @@ public class ExecuteAction : MonoBehaviour
                 // }
             }
 
+            if (!skipCutscene)
+            {
+                Debug.LogWarning("Playing Animation");
+                //play animation
+                // PlayAttack(atk.GetAnimator(), atk.GetPrimaryWeapon().AnimationType);
+                UnitAnimationController animController = atk.gameObject.GetComponent<UnitAnimationController>();
+                UnitAnimationController animControllerDef = def.gameObject.GetComponent<UnitAnimationController>();
+                animControllerDef.animator.SetBool("Guard", true);
+                animController.PlayAttack(atk.GetPrimaryWeapon().AnimationType);
+                while (animController.IsAnimating || animControllerDef.IsAnimating)
+                {
+                    Debug.LogWarning("Waiting for animation to finish...");
+                    if (animController.IsUpdatingHealth)
+                    {
+                        Debug.LogWarning("Updating Battle Menu Health...");
+                        StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.GetCurrentHealth(), defendingUnit.GetCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
+                        animController.IsUpdatingHealth = false;
 
+                        if(miss) continue;
+
+                        if (def.GetCurrentHealth() <= 0) {
+                            animControllerDef.PlayAttack("Die");
+
+                        } else {
+                            animControllerDef.PlayAttack("Damage");
+                        }
+                        // animControllerDef.animator.SetTrigger("Damage");
+                    }
+                    yield return null; // Wait until the animation is finished
+                }
+                animControllerDef.animator.SetBool("Guard", false);
+
+                yield return new WaitForSeconds(0.5f); // Small delay after the animation
+            }
             // Sets up combat battle menu with updated health
-            if (!skipCutscene) yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.GetCurrentHealth(), defendingUnit.GetCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
-            if (!skipCutscene) yield return new WaitForSeconds(1f);
+            // if (!skipCutscene) yield return StartCoroutine(combatMenuManager.BattleMenu(attackingUnit, defendingUnit, attackingUnit.GetCurrentHealth(), defendingUnit.GetCurrentHealth(), atkAttack, defAttack, leftCou, rightCou, leftWeap, rightWeap));
+            // if (!skipCutscene) yield return new WaitForSeconds(1f);
 
             
 
@@ -594,11 +640,11 @@ public class ExecuteAction : MonoBehaviour
         }
 
         // Deactivate Expected Battle Menu
-            combatMenuManager.DeactivateExpectedMenu();
+        combatMenuManager.DeactivateExpectedMenu();
 
         Quaternion targetRotation;
 
-        
+        UnitAnimationController aController = null;
 
         if (attackingUnit.GetUnitType() == "Player" && playerUnit.GetCurrentHealth() > 0) {
             // Transforms the camera to face the player, but have them slightly to the right
@@ -619,6 +665,10 @@ public class ExecuteAction : MonoBehaviour
 
             // Set LookAt target to maintain focus on the object
             combatCam.LookAt = atkObj.transform;
+
+            aController = attackingUnit.gameObject.GetComponent<UnitAnimationController>();
+            // animController.PlayAttack("Victory_" + attackingUnit.GetPrimaryWeapon().AnimationType);
+            aController.animator.SetBool("Victory_" + attackingUnit.GetPrimaryWeapon().AnimationType, true);
         }
 
         
@@ -663,6 +713,11 @@ public class ExecuteAction : MonoBehaviour
 
         
         yield return new WaitForSeconds(1f);
+        if (aController != null) {
+            aController.animator.SetBool("Victory_" + attackingUnit.GetPrimaryWeapon().AnimationType, false);
+
+        }
+
 
         // Set the circle to active again, and the player to its original rotationb
         if (atkObj != null) {
@@ -701,109 +756,14 @@ public class ExecuteAction : MonoBehaviour
         yield return null;
     }
 
+    public void PlayAttack(Animator animator, string triggerName)
+    {
+        // isAnimating = true;
+        animator.ResetTrigger(triggerName);
+        animator.SetTrigger(triggerName);
+    }
 
 
-    // public void SwitchToCombatCamera(Transform attacker, Transform defender)
-    // {
-    //     // Disable Cinemachine Brain temporarily to prevent override
-    //     CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
-    //     brain.enabled = false;
-
-    //     // Temporarily remove LookAt target to prevent Cinemachine from overriding rotation
-    //     Transform previousLookAt = combatCam.LookAt;
-    //     combatCam.LookAt = null;
-
-    //     // Ensure that the attacker is on the left side and the defender is on the right side
-    //     Transform leftCharacter = attacker.position.x < defender.position.x ? attacker : defender;
-    //     Transform rightCharacter = leftCharacter == attacker ? defender : attacker;
-
-    //     // Get the midpoint between the two characters
-    //     Transform midpoint = GetMidpoint(leftCharacter, rightCharacter);
-    //     // combatCam.LookAt = midpoint;
-    //     // combatCam.Follow = midpoint;
-
-    //     // Calculate the direction from left character to right character
-    //     Vector3 directionToFace = rightCharacter.position - leftCharacter.position;
-
-    //     // Calculate the angle between the two characters (in 2D plane, using X and Z axis)
-    //     float angle = Mathf.Atan2(directionToFace.z, directionToFace.x) * Mathf.Rad2Deg;
-
-    //     // Normalize the angle to the range [0, 360] degrees
-
-
-    //     Debug.Log("Angle " + angle);
-
-    //     if (angle == 0f || Mathf.Abs(angle) == 180f || Mathf.Abs(angle) == 270f || Mathf.Abs(angle) == 90) {
-    //         if (angle == 0f) {
-    //             if (rightCharacter == attacker) {
-    //                 angle = 180;
-    //             }
-    //         }
-    //         angle = (angle + 360f) % 360f;
-    //     } else if (angle > 0) {
-    //         if (leftCharacter == attacker) {
-    //             angle = (angle - 90f + 360f) % 360f;
-    //         } else {
-    //             angle = (angle + 90f + 360f) % 360f;
-    //         }
-
-    //     } else {
-    //     if (rightCharacter == attacker) {
-    //             angle = (angle - 90f + 360f) % 360f;
-    //         } else {
-    //             angle = (angle + 90f + 360f) % 360f;
-    //         }
-    //     }
-
-
-
-    //     float characterDistance = Vector3.Distance(leftCharacter.position, rightCharacter.position);
-
-    //     // Scale the offset distance based on character distance
-    //     // For example, offset is proportional to distance (adjust multiplier as needed)
-    //     float baseOffsetDistance = 7f; // Default offset distance
-    //     float offsetDistance = baseOffsetDistance + (characterDistance * 0.5f);
-    //     float angleInRadians = angle * Mathf.Deg2Rad;
-    //     // float xOffset = 10f;
-
-    //     // Calculate the X and Z offsets based on the angle
-    //     float xOffset = Mathf.Sin(angleInRadians) * offsetDistance;
-    //     float zOffset = Mathf.Cos(angleInRadians) * offsetDistance;
-
-    //     // float totalDistance = Mathf.Sqrt(xOffset * xOffset + zOffset * zOffset); // Calculate diagonal distance
-    //     // xOffset = (xOffset / totalDistance) * offsetDistance; // Scale the xOffset
-    //     // zOffset = (zOffset / totalDistance) * offsetDistance; // Scale the zOffset
-
-
-    //     // Debug.Log("Angle " + angle + " xOffset " + xOffset + " zOffset ");
-
-    //     // Set the camera's position 10 units away from the midpoint, adjusting X and Z based on angle
-    //     Vector3 cameraPosition = new Vector3(midpoint.position.x - xOffset, midpoint.position.y, midpoint.position.z - zOffset); // 5f is the y-offset
-
-    //     Debug.Log("Angle " + angle + " xOffset " + xOffset +  " zOffset " + zOffset + " midpoint " + midpoint.transform.position + " Camera poisiton " + cameraPosition);
-
-    //     // Move the camera to the new position
-    //     combatCam.transform.position = cameraPosition;
-
-    //     // Optionally, use the angle to set the rotation (only affecting Y-axis)
-    //     Vector3 newRotation = combatCam.transform.eulerAngles;
-    //     newRotation.y = angle;
-    //     combatCam.transform.eulerAngles = newRotation;
-
-    //     // Adjust the camera's field of view based on the distance between characters
-    //     float distance = Vector3.Distance(leftCharacter.position, rightCharacter.position);
-    //     combatCam.m_Lens.FieldOfView = Mathf.Clamp(distance * 2, 40f, 60f);
-
-    //     combatCam.Priority = 1000; // Activate combat camera (higher priority)
-
-    //     // // Quaternion targetRotation = Quaternion.Euler(22f, 0f, 0f);
-
-    //     // // Apply the calculated rotation to the camera
-    //     // combatCam.transform.rotation = targetRotation;
-
-    //     // Re-enable CinemachineBrain
-    //     brain.enabled = true;
-    // }
 
     public IEnumerator SwitchToCombatCamera(Transform attacker, Transform defender)
     {
@@ -983,7 +943,7 @@ public class ExecuteAction : MonoBehaviour
         int attackerZ = playerGridMovement.GetCurZ();
         // int defenderX = UnitsInRange[currentIndex].GetGridX();
         // int defenderZ = UnitsInRange[currentIndex].GetGridZ();
-        playerGridMovement.inMenu = true;
+        playerGridMovement.SetInMenu(true);
         
     
         
@@ -1017,6 +977,7 @@ public class ExecuteAction : MonoBehaviour
                 playerGridMovement.IsAttacking = true;
                 yield return StartCoroutine(faithInUse.Use(AttackingUnit, DefendingEnemy));
                 Debug.LogWarning("Howdy");
+                
                 break;
             }
 
@@ -1025,11 +986,10 @@ public class ExecuteAction : MonoBehaviour
                 combatMenuManager.DeactivateExpectedMenu();
                 playerGridMovement.moveCursor.position = new Vector3(generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetXPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetYPos(), generateGrid.GetGridTile(playerGridMovement.GetCurX(), playerGridMovement.GetCurZ()).GetZPos());
                 // AttackingUnit.primaryWeapon = orgPrimWeapon;
-                combatMenuManager.PlayerAssist();
+                // combatMenuManager.PlayerAssist(AttackingUnit);
+                StartCoroutine(combatMenuManager.AssistMenu(AttackingUnit));
 
-                
-                
-                playerGridMovement.inMenu = true;
+                playerGridMovement.SetInMenu(true);
                 break;
             }
 
@@ -1107,7 +1067,7 @@ public class ExecuteAction : MonoBehaviour
             UnitManager temp = generateGrid.GetGridTile(playerGridMovement.getX(), playerGridMovement.getZ()).UnitOnTile;
             temp.XPos = playerGridMovement.GetCurX();
             temp.ZPos = playerGridMovement.GetCurZ();
-            turnManager.RemovePlayer(AttackingUnit.GetStats());
+            turnManager.RemovePlayer(AttackingUnit);
             // unitWait();
             ResetAfterAction(AttackingUnit);
             
@@ -1116,13 +1076,13 @@ public class ExecuteAction : MonoBehaviour
             // turnManager.CheckPhase();
             turnManager.AfterAction(temp);
 
-            
+            playerGridMovement.SetInMenu(false);
+                playerGridMovement.IsAttacking = false;
             
 
         }
         // Debug.Log(generateGrid.GetGridTile(5, 4).UnitOnTile.stats.UnitName);
-        playerGridMovement.inMenu = false;
-        playerGridMovement.IsAttacking = false;
+        
         yield return null;
     }
 

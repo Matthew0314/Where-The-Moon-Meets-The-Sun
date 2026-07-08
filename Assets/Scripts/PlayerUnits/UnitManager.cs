@@ -4,16 +4,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using System.Reflection;
+using LTWB.GridGameplay.StatusAilments;
+// using LTWB.UnitStats;
 
 public abstract class UnitManager : MonoBehaviour
 {
     protected CombatMenuManager combatMenuManager;
+    protected GameObject weaponSocket;
     public GameObject unitCircle;
+    protected Animator animator;
     public Image healthBar;
     public Image extraHealth1;
     protected int numHealthBars = 0;
     protected int gaugeCharge = 0;
     protected int numberTimesActed = 0;
+    GameObject weaponInstance;
+    // UnitAnimationController unitAnimationController;
 
     protected UnitStats stats;
     public string UnitType { get; set; }
@@ -24,12 +31,13 @@ public abstract class UnitManager : MonoBehaviour
     public int XPos { get; set; }
     public int ZPos { get; set; }
 
-    private List<StatusAilments> statusAilments = new List<StatusAilments>();
+    private List<StatusAilment> statusAilments = new List<StatusAilment>();
 
     public abstract void InitializeUnitData();
 
     protected virtual void Start()
     {
+        animator = GetComponent<Animator>();
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
 
@@ -48,16 +56,31 @@ public abstract class UnitManager : MonoBehaviour
         }
     }
 
-    // Gets stats based on the units stats + status aliments + etc.
-    public virtual int GetMove() => BoolStatusAilments(s => s.Freeze) ? int.MinValue : stats.Movement + SumStatusAilments(s => s.Movement);
-    public virtual int GetAttack() => Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.Attack + SumStatusAilments(s => s.Attack));
-    public virtual int GetMagic() => Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.Magic + SumStatusAilments(s => s.Magic));
-    public virtual int GetDefense() => Mathf.Max(0, stats.Defense + SumStatusAilments(s => s.Defense));
-    public virtual int GetResistance() => Mathf.Max(0, stats.Resistance + SumStatusAilments(s => s.Resistance));
-    public virtual int GetSpeed() => Mathf.Max(0, stats.Speed + SumStatusAilments(s => s.Speed));
-    public virtual int GetLuck() => stats.Luck + SumStatusAilments(s => s.Luck);
-    public virtual int GetEvasion() => stats.Evasion + SumStatusAilments(s => s.Evasion);
-    public virtual int GetHealth() => stats.Health;
+    public virtual int GetMove() => 
+        statusAilments.Any(s => s is FreezeAilment) ? int.MinValue : stats.GetStat(StatType.Movement) + SumStatusAilments(s => s.Modifiers.movement);
+
+    public virtual int GetAttack() => 
+        Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.GetStat(StatType.Attack) + SumStatusAilments(s => s.Modifiers.attack));
+
+    public virtual int GetMagic() => 
+        Mathf.Max(0, (stats.GetPrimaryWeapon()?.Attack ?? 0) + stats.GetStat(StatType.Magic) + SumStatusAilments(s => s.Modifiers.magic));
+
+    public virtual int GetDefense() => 
+        Mathf.Max(0, stats.GetStat(StatType.Defense) + SumStatusAilments(s => s.Modifiers.defense));
+
+    public virtual int GetResistance() => 
+        Mathf.Max(0, stats.GetStat(StatType.Resistance) + SumStatusAilments(s => s.Modifiers.resistance));
+
+    public virtual int GetSpeed() => 
+        Mathf.Max(0, stats.GetStat(StatType.Speed) + SumStatusAilments(s => s.Modifiers.speed));
+
+    public virtual int GetLuck() => 
+        Mathf.Max(0, stats.GetStat(StatType.Luck) + SumStatusAilments(s => s.Modifiers.luck));
+
+    public virtual int GetEvasion() => 
+        Mathf.Max(0, stats.GetStat(StatType.Evasion) + SumStatusAilments(s => s.Modifiers.evasion));
+
+    public virtual int GetHealth() => stats.GetStat(StatType.Health);
     public virtual int GetCurrentHealth() => stats.CurrentHealth;
 
     // Calculates the chance that the attack will hit
@@ -76,10 +99,10 @@ public abstract class UnitManager : MonoBehaviour
     public virtual bool IsDoubleFaster(UnitManager other) => GetSpeed() >= other.GetSpeed() + 4;
 
     // Calculates the sum of the status aliments for a given stat
-    private int SumStatusAilments(Func<StatusAilments, int> selector) => statusAilments.Sum(selector);
+    private int SumStatusAilments(Func<StatusAilment, int> selector) => statusAilments.Sum(selector);
 
     // If any for a certain value in statusAliment is true, will return true, otherwise false;
-    private bool BoolStatusAilments(Func<StatusAilments, bool> selector) => statusAilments.Any(selector);
+    private bool BoolStatusAilments(Func<StatusAilment, bool> selector) => statusAilments.Any(selector);
 
     // return and set stats
     public virtual UnitStats GetStats() => stats;
@@ -97,25 +120,29 @@ public abstract class UnitManager : MonoBehaviour
 
     public virtual void AddHealthBar() => numHealthBars++;
 
+    public virtual Animator GetAnimator() => animator;
+
     // Returns info about the characters unit/class type
-    public virtual bool GetAirBorn() => stats.AirBorn;
-    public virtual bool GetArmored() => stats.Armored;
-    public virtual bool GetMounted() => stats.Mounted;
-    public virtual bool GetWhisper() => stats.Whisper;
+    public virtual bool GetAirBorn() => stats.HasAttribute(ClassAttributes.Airborn);
+    public virtual bool GetArmored() => stats.HasAttribute(ClassAttributes.Armored);
+    public virtual bool GetMounted() => stats.HasAttribute(ClassAttributes.Mounted);
+    public virtual bool GetWhisper() => stats.HasAttribute(ClassAttributes.Whisper);
 
     // Get the original stats from stats class with aliments, etc.
-    public virtual int GetBaseHealth() => stats.Health;
-    public virtual int GetBaseAttack() => stats.Attack;
-    public virtual int GetBaseMagic() => stats.Magic;
-    public virtual int GetBaseDefense() => stats.Defense;
-    public virtual int GetBaseResistance() => stats.Resistance;
-    public virtual int GetBaseEvasion() => stats.Evasion;
-    public virtual int GetBaseSpeed() => stats.Speed;
-    public virtual int GetBaseLuck() => stats.Luck;
+    // public virtual int GetBaseHealth() => stats.Health;
+    // public virtual int GetBaseAttack() => stats.Attack;
+    // public virtual int GetBaseMagic() => stats.Magic;
+    // public virtual int GetBaseDefense() => stats.Defense;
+    // public virtual int GetBaseResistance() => stats.Resistance;
+    // public virtual int GetBaseEvasion() => stats.Evasion;
+    // public virtual int GetBaseSpeed() => stats.Speed;
+    // public virtual int GetBaseLuck() => stats.Luck;
+
+    public virtual int GetBaseStat(StatType statType) => stats.GetStat(statType);
 
     // Heal and take damage
     public virtual void TakeDamage(int health) => stats.TakeDamage(health);
-    public virtual void HealUnit(int health) => stats.CurrentHealth = Mathf.Min(GetCurrentHealth() + health, stats.Health);
+    public virtual void HealUnit(int health) => stats.CurrentHealth = Mathf.Min(GetCurrentHealth() + health, GetHealth());
 
 
     // Only used for player unit
@@ -166,7 +193,7 @@ public abstract class UnitManager : MonoBehaviour
 
         healthBar.fillAmount = 1;
 
-        HealUnit(stats.Health);
+        HealUnit(GetHealth());
 
         yield return null;
 
@@ -180,15 +207,15 @@ public abstract class UnitManager : MonoBehaviour
         float initialFillAmount = healthBar.fillAmount;
 
         int newHealth = hlt + GetCurrentHealth();
-        if (newHealth > stats.Health)
+        if (newHealth > GetHealth())
         {
-            newHealth = stats.Health;
+            newHealth = GetHealth();
         }
 
         while (elapsed < 1f)
         {
 
-            healthBar.fillAmount = Mathf.Lerp(initialFillAmount, newHealth / stats.Health, elapsed / 1f);
+            healthBar.fillAmount = Mathf.Lerp(initialFillAmount, newHealth / GetHealth(), elapsed / 1f);
 
             elapsed += Time.deltaTime;
             yield return null;
@@ -198,24 +225,6 @@ public abstract class UnitManager : MonoBehaviour
         healthBar.fillAmount = 1;
 
         HealUnit(hlt);
-    }
-
-    // Add status aliments to the list
-    public virtual void AddStatusAliment(string n, string t, int a, int m, int d, int r, int s, int e, int l, int mov, bool tsd, bool freeze, int turns)
-    {
-        if (tsd)
-        {
-            foreach (StatusAilments sta in statusAilments)
-            {
-                if (sta.TurnStartDamage) return;
-            }
-        }
-
-        Type staTemp = Type.GetType(t);
-
-        StatusAilments tempStatus = (StatusAilments)Activator.CreateInstance(staTemp, n, t, a, m, d, r, s, e, l, mov, tsd, freeze, turns);
-
-        statusAilments.Add(tempStatus);
     }
 
 
@@ -252,7 +261,6 @@ public abstract class UnitManager : MonoBehaviour
 
     // Getters and setters for primary weapons
     public virtual Weapon GetPrimaryWeapon() => stats.GetPrimaryWeapon();
-    public virtual void SetPrimaryWeapon(Weapon temp) => stats.SetPrimaryWeapon(temp);
 
     public void IncNumberTimesActed() => numberTimesActed++;
     public void ResetNumberTimesActed() => numberTimesActed = 0;
@@ -263,8 +271,104 @@ public abstract class UnitManager : MonoBehaviour
 
 
     
+    private Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
+
+            Transform result = FindDeepChild(child, name);
+
+            if (result != null)
+                return result;
+        }
+
+        return null;
+    }
+
+    public virtual List<Weapon> GetUsableWeapons() {
+        List<Weapon> temp = GetWeapons();
+        FindPath findPath = GameObject.Find("GameManager/Player").GetComponent<FindPath>();
+        PlayerGridMovement moveGrid = GameObject.Find("GameManager/Player").GetComponent<PlayerGridMovement>();
+        GenerateGrid generateGrid = GameObject.Find("GameManager/GridManager").GetComponent<GenerateGrid>();
+        List<Weapon> usableWeapons = new List<Weapon>();
 
 
-    
+        List<Weapon> tempWeap = GetWeapons();
+
+        foreach (Weapon wep in tempWeap) { 
+            bool[,] attackGrid = findPath.CalculateAttack(moveGrid.getX(), moveGrid.getZ(), wep.Range, wep.Range1, wep.Range2, wep.Range3);
+            for (int i = 0; i < generateGrid.GetWidth(); i++) {
+                for (int j = 0; j < generateGrid.GetLength(); j++) {
+                    if (attackGrid[i,j] && !usableWeapons.Contains(wep) && generateGrid.GetGridTile(i,j).UnitOnTile != null && generateGrid.GetGridTile(i,j).UnitOnTile.UnitType.Equals("Enemy")) {
+                        usableWeapons.Add(wep); 
+                    }
+                }
+            }
+        }
+
+        return usableWeapons;
+    }
+
+
+    public virtual List<Faith> GetUsableFaith() {
+        List<Faith> checking = GetFaith();
+        List<Faith> usableFaith = new List<Faith>();
+
+        foreach(Faith fai in checking) {
+            if(fai.CanUse(this)) {
+                usableFaith.Add(fai);
+            } 
+        }
+        return usableFaith;
+    }
+
+    public virtual void SetPrimaryWeapon(Weapon temp) {
+        stats.SetPrimaryWeapon(temp);
+        Destroy(weaponInstance);
+        // Transform weaponSocketTran = transform.Find("mixamorig1:Hips/mixamorig1:Spine/mixamorig1:Spine1/mixamorig1:Spine2/mixamorig1:RightShoulder/mixamorig1:RightArm/mixamorig1:RightForeArm/mixamorig1:RightHand/weapon_socket_r");
+        Transform weaponSocketTran = FindDeepChild(transform, "weapon_socket_r");
+        if (weaponSocketTran != null) {
+            weaponSocket = weaponSocketTran.gameObject;
+            GameObject weaponPrefab = Resources.Load<GameObject>("Weapons/" + stats.GetPrimaryWeapon().ModelType);
+            if (weaponPrefab == null)
+            {
+                Debug.LogError($"!!!!!Weapon prefab not found at Resources/Weapons/{stats.GetPrimaryWeapon().ModelType}");
+                return;
+            }
+
+            // Instantiate as a child of the socket
+            weaponInstance = Instantiate(weaponPrefab, weaponSocket.transform);
+            Debug.LogError("Made Weapon " + weaponInstance);
+
+            RuntimeAnimatorController controller = Resources.Load<RuntimeAnimatorController>("Animations/Controller/" + temp.AnimationType);
+            animator = GetComponent<Animator>();
+
+            if (animator == null)
+                Debug.Log("Animator is NULL");
+
+            if (controller == null)
+                Debug.Log("Controller is NULL");
+
+            if (controller != null)
+            {
+                animator.runtimeAnimatorController = controller;
+            }
+            else
+            {
+                Debug.LogError("Animator Controller not found!");
+            }
+
+            // Reset local transform
+            // weaponInstance.transform.localPosition = Vector3.zero;
+            // weaponInstance.transform.localRotation = Quaternion.identity;
+            // weaponInstance.transform.localScale = Vector3.one; 
+        } else {
+            Debug.LogError("Howdy");
+        }
+
+    }
+
 }
 

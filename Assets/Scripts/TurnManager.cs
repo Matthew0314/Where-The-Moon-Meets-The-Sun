@@ -4,24 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-//This class is currently being worked on right now please ignore for now
 public class TurnManager : MonoBehaviour
-{
-    [SerializeField] UnitRosterManager playerList;
-    [SerializeField] MapManager _currentMap;
-    private List<UnitStats> currUnits = new List<UnitStats>();  // Current player units
-    private Queue<UnitManager> currEnemies;
-    private Queue<UnitManager> currEnemies2;
-    private Queue<UnitManager> currAllies;
-    private int turns = 0;
-    private bool playerTurn;
-    private bool enemyTurn; //possibly add another one for ally later on
-    private int currentCP;
-    private int currentActionCost;
-    [SerializeField] PlayerGridMovement moveGrid;
-    [SerializeField] GenerateGrid grid;
-    [SerializeField] CombatMenuManager combatMenuManager;
-
+{ 
     enum Turn
     {
         Player,
@@ -30,11 +14,24 @@ public class TurnManager : MonoBehaviour
         Ally
     }
 
+    [SerializeField] UnitRosterManager playerList;
+    [SerializeField] MapManager _currentMap;
+    [SerializeField] PlayerGridMovement moveGrid;
+    [SerializeField] GenerateGrid grid;
+    [SerializeField] CombatMenuManager combatMenuManager;
+
+    // private List<UnitStats> currUnits = new List<UnitStats>();  // Current player units
+    private List<UnitManager> playerUnits = new List<UnitManager>(); // All player units
+    private Queue<UnitManager> currEnemies;
+    private Queue<UnitManager> currEnemies2;
+    private Queue<UnitManager> currAllies;
+    private int turns = 0;
+    private int currentCP;
+    private int currentActionCost;
     Turn currentTurn;
 
     private void Awake() {
         _currentMap = GameObject.Find("GridManager").GetComponent<MapManager>();
-        // moveGrid = GameObject.Find("Player").GetComponent<PlayerGridMovement>();
         grid = GameObject.Find("GridManager").GetComponent<GenerateGrid>();
         combatMenuManager = GameObject.Find("Canvas").GetComponent<CombatMenuManager>();
     }
@@ -48,18 +45,20 @@ public class TurnManager : MonoBehaviour
     //Resets Player List after every player turn
     private void SetLists()
     {
-        currUnits = new List<UnitStats>();
-
-        List<UnitStats> temp = _currentMap.GetMapUnitStats();
+        // currUnits = new List<UnitStats>();
+        playerUnits = new List<UnitManager>();
+        // List<UnitStats> temp = _currentMap.GetMapUnitStats();
+        List<UnitManager> temp = _currentMap.GetMapUnits();
  
         for (int i = 0; i < temp.Count; i++)
         {
-            currUnits.Add(temp[i]);
+            // currUnits.Add(temp[i]);
+            playerUnits.Add(temp[i]);
         }
 
-        List<UnitManager> tempU = _currentMap.GetMapUnits();
+        // List<UnitManager> tempU = _currentMap.GetMapUnits();
 
-        foreach (UnitManager t in tempU) {
+        foreach (UnitManager t in temp) {
             Debug.LogError("YAYAYAYAYAYAAY " + t.GetStats().UnitName);
             t.ResetNumberTimesActed();
         }
@@ -87,13 +86,13 @@ public class TurnManager : MonoBehaviour
 
     //After unit completes an action this is called
     //Possibly see if you can pass object as a parameter
-    public void RemovePlayer(UnitStats player)
+    public void RemovePlayer(UnitManager player)
     {
         if(!_currentMap.UsingCP())
-            currUnits.Remove(player);
+            playerUnits.Remove(player);
     }
 
-    public void AddPlayer(UnitStats player) => currUnits.Add(player);
+    public void AddPlayer(UnitManager player) => playerUnits.Add(player);
 
     //Removes Enemy from the queue if they have been killed during the player phase
     public void RemoveEnemy(UnitManager ene)
@@ -182,9 +181,15 @@ public class TurnManager : MonoBehaviour
         Debug.Log("PLAYER PHASE");
         Debug.Log("Turn: " + turns);
 
-        currentTurn = Turn.Player;
+        
+
+        
 
         StartCoroutine(combatMenuManager.UpdateCommandPointMenu());
+
+        yield return StartCoroutine(CheckAilments());
+
+        currentTurn = Turn.Player;
 
        
 
@@ -192,11 +197,11 @@ public class TurnManager : MonoBehaviour
     }
 
     //After every action the player makes it checks to see if there are still units, if not then it starts the enemy phase
-    public void CheckPhase()
+    private void CheckPhase()
     {
         if (currentTurn == Turn.Player)
         {
-            if (currUnits.Count == 0 || (_currentMap.UsingCP() && currentCP == 0))
+            if (playerUnits.Count == 0 || (_currentMap.UsingCP() && currentCP == 0))
             {
                 currentTurn = Turn.Enemy1;
                 SetLists();
@@ -214,17 +219,12 @@ public class TurnManager : MonoBehaviour
     }
 
     public void EndTurn() {
-        currUnits.Clear();
+        playerUnits.Clear();
         currentCP = 0;
         SetCurrentActionCost(0);
         CheckPhase();
     }
 
-    // public bool IsPlayerTurn()
-    // {
-    //     return playerTurn;
-    // }
-    // public bool IsEnemyTurn() { return enemyTurn; }
 
     public bool IsPlayerTurn()
     {
@@ -239,10 +239,10 @@ public class TurnManager : MonoBehaviour
     }
 
     //Checks if a player hasn't been moved yet
-    public bool IsActive(UnitStats player)
+    public bool IsActive(UnitManager player)
     {
         // Debug.LogError(currUnits.Contains(player));
-        return currUnits.Contains(player);
+        return playerUnits.Contains(player);
     }
 
     public int GetTurns() {
@@ -254,7 +254,8 @@ public class TurnManager : MonoBehaviour
     }
 
     public void AfterAction(UnitManager unit) {
-        currentCP -= currentActionCost;
+        if(_currentMap.UsingCP())
+            currentCP -= currentActionCost;
         SetCurrentActionCost(0);
         unit.IncNumberTimesActed();
         StartCoroutine(combatMenuManager.UpdateCommandPointMenu());
@@ -263,6 +264,16 @@ public class TurnManager : MonoBehaviour
 
     public int GetCP() {
         return currentCP;
+    }
+
+    public IEnumerator CheckAilments() {
+        // List<UnitManager> allUnits = _currentMap.GetMapUnits();
+
+        // foreach (UnitManager unit in allUnits) {
+        //     yield return StartCoroutine(unit.CheckAilments());
+        // }
+        
+        yield break;
     }
     
 }

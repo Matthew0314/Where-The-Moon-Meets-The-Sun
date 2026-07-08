@@ -9,3 +9,4 @@ public abstract class UnitAbility : MonoBehaviour
     public int abilityCost;
     public bool isUnique; //if true, only if this is unique to a certain unit
 }
+

@@ -41,9 +41,6 @@ public class BattleStartMenu : MonoBehaviour
     private int buttonsPerRow = 2;
 
 
-
-
-
     [SerializeField] private GameObject InfoTextData;
     [SerializeField] private Image expBar;
     [SerializeField] private GameObject unitItemBar;
@@ -309,7 +306,7 @@ public class BattleStartMenu : MonoBehaviour
                 var n when n.Contains("level") => stats.Level.ToString(),
                 var n when n.Contains("name") => stats.Name,
                 var n when n.Contains("exp") => stats.Experience.ToString(),
-                var n when n.Contains("health") => $"{stats.CurrentHealth}/{stats.Health}",
+                var n when n.Contains("health") => $"{stats.CurrentHealth}/{stats.GetStat(StatType.Health)}",
                 var n when n.Contains("class") => stats.UnitClass,
                 _ => text.text
             };
@@ -456,7 +453,7 @@ public class BattleStartMenu : MonoBehaviour
                 }
                 else if (text.name.ToLower().Contains("health"))
                 {
-                    text.text = $"{stats.CurrentHealth}/{stats.Health}";
+                    text.text = $"{stats.CurrentHealth}/{stats.GetStat(StatType.Health)}";
                 }
             }
 

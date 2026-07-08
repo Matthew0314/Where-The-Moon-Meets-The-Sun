@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
+// using LTWB.UnitStats;
 
 // Holds how much experience is needed to obtain each skill level
 public struct SkillLevelData
@@ -28,16 +29,6 @@ public class UnitRosterManager : MonoBehaviour
 
 
     private void Awake() {
-        // skillLevels[0] = new SkillLevelData(1, 0);
-        // skillLevels[1] = new SkillLevelData(2, 40);
-        // skillLevels[2] = new SkillLevelData(3, 90);
-        // skillLevels[3] = new SkillLevelData(4, 150);
-        // skillLevels[4] = new SkillLevelData(5, 400);
-        // skillLevels[5] = new SkillLevelData(6, 1100);
-        // skillLevels[6] = new SkillLevelData(7, 1500);
-        // skillLevels[7] = new SkillLevelData(8, 2000);
-        // skillLevels[8] = new SkillLevelData(9, 2800);
-        // skillLevels[9] = new SkillLevelData(10, 3500);
         skillLevels[0] = new SkillLevelData(1, 0);
         skillLevels[1] = new SkillLevelData(2, 40);
         skillLevels[2] = new SkillLevelData(3, 130);
@@ -56,66 +47,85 @@ public class UnitRosterManager : MonoBehaviour
         faithTextData = Resources.Load<TextAsset>("TextData/PlayerInfoCSV/FaithList");
         magicTextData = Resources.Load<TextAsset>("TextData/PlayerInfoCSV/MagicList");
 
-        string[] lines = statTextData.text.Trim().Split('\n');
-        string[] faithLines = faithTextData.text.Trim().Split('\n');
-        string[] magicLines = magicTextData.text.Trim().Split('\n');
-        Type unitType = Type.GetType("PlayerStats");
+        if (statTextData == null || faithTextData == null || magicTextData == null)
+        {
+            Debug.LogError("Failed to load one or more player CSV data files from Resources.");
+            return;
+        }
+
+        string[] lines = statTextData.text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] faithLines = faithTextData.text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] magicLines = magicTextData.text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
         int lineIndex = 0;
 
+        // Skip(1) bypasses the header line safely
         foreach (string line in lines.Skip(1))
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
 
             string[] data = line.Trim().Split(',');
-
             int index = 0;
 
-
+            // 1. Core Meta Data
             int unitID = int.Parse(data[index++]);
             string chrName = data[index++];
-            Debug.Log("adding " + chrName);
+            Debug.Log("Adding " + chrName);
 
             string dName = data[index++];
             string chrDesc = data[index++];
             int lev = int.Parse(data[index++]);
-            int HPGR = int.Parse(data[index++]);
-            int ATKGR = int.Parse(data[index++]);
-            int MAGGR = int.Parse(data[index++]);
-            int DEFGR = int.Parse(data[index++]);
-            int RESGR = int.Parse(data[index++]);
-            int SPDGR = int.Parse(data[index++]);
-            int EVAGR = int.Parse(data[index++]);
-            int LCKGR = int.Parse(data[index++]);
-            int HP = int.Parse(data[index++]);
-            int ATK = int.Parse(data[index++]);
-            int MAG = int.Parse(data[index++]);
-            int DEF = int.Parse(data[index++]);
-            int RES = int.Parse(data[index++]);
-            int SPD = int.Parse(data[index++]);
-            int EVA = int.Parse(data[index++]);
-            int LCK = int.Parse(data[index++]);
-            int MOV = int.Parse(data[index++]);
+
+            // 2. Personal Growth Rates Struct Assignment
+            UnitStatGrowths personalGrowths = new UnitStatGrowths
+            {
+                health     = int.Parse(data[index++]),
+                attack     = int.Parse(data[index++]),
+                magic      = int.Parse(data[index++]),
+                defense    = int.Parse(data[index++]),
+                resistance = int.Parse(data[index++]),
+                speed      = int.Parse(data[index++]),
+                evasion    = int.Parse(data[index++]),
+                luck       = int.Parse(data[index++])
+            };
+
+            // 3. Base Core Stats Struct Assignment
+            CoreStats baseStats = new CoreStats
+            {
+                health     = int.Parse(data[index++]),
+                attack     = int.Parse(data[index++]),
+                magic      = int.Parse(data[index++]),
+                defense    = int.Parse(data[index++]),
+                resistance = int.Parse(data[index++]),
+                speed      = int.Parse(data[index++]),
+                evasion    = int.Parse(data[index++]),
+                luck       = int.Parse(data[index++]),
+                movement   = int.Parse(data[index++])
+            };
+
             string charClass = data[index++];
-            int faithRank = int.Parse(data[index++ + 6]);
-            int magicRank = int.Parse(data[index++ + 6]);
+            
+            
 
-            UnitStats stats = (UnitStats)Activator.CreateInstance(unitType, unitID, chrName, dName, chrDesc, lev, HPGR, ATKGR, MAGGR, DEFGR, RESGR, SPDGR, EVAGR, LCKGR, HP, ATK, MAG, DEF, RES, SPD, EVA, LCK, MOV, charClass, faithRank, magicRank);
+            // Clean direct initialization—completely skipping costly Activator methods!
+            PlayerStats stats = new PlayerStats(unitID, chrName, dName, chrDesc, lev, baseStats, personalGrowths, charClass);
+            
 
-            // Add items and weapons
+            // 5. Weapon and Item Parsing (Uses the uniform index counter to find the inventory slots)
             for (int j = 0; j < 6; j++)
             {
-                string itemName = data[23 + j];
-                if (itemName == "NULL")
-                    break;
+                string itemName = data[index++]; // Reads through items dynamically based on file position
+                if (itemName == "NULL") continue;
 
                 Weapon tempWeapon = WeaponManager.MakeWeapon(itemName);
-
                 if (tempWeapon != null)
+                {
                     stats.AddWeapon(tempWeapon);
+                }
                 else
                 {
-                    Type itemType = Type.GetType(itemName);
+                    // Simple factory method replacement alternative for generic inventory tools
+                    Type itemType = Type.GetType(itemName); 
                     if (itemType != null)
                     {
                         Item tempItem = (Item)Activator.CreateInstance(itemType);
@@ -124,10 +134,17 @@ public class UnitRosterManager : MonoBehaviour
                 }
             }
 
-            // Faith and Magic parsing using corresponding lines
+            // 4. Safely handle the rank offset indexes
+            int faithRank = int.Parse(data[index++]);
+            int magicRank = int.Parse(data[index++]);
+
+            stats.faithRank = faithRank;
+            stats.magicRank = magicRank;
+
+            // 6. Parallel Magic and Faith List Line Matrix Mapping
             if (lineIndex + 1 < magicLines.Length && lineIndex + 1 < faithLines.Length)
             {
-                string[] magicFields = magicLines[lineIndex + 1].Trim().Split(','); // Skip header
+                string[] magicFields = magicLines[lineIndex + 1].Trim().Split(','); 
                 string[] faithFields = faithLines[lineIndex + 1].Trim().Split(',');
 
                 for (int i = 1; i <= 10 && i < magicFields.Length && i < faithFields.Length; i++)
@@ -138,8 +155,13 @@ public class UnitRosterManager : MonoBehaviour
             }
 
             stats.FindAPrimaryWeapon();
+            stats.SetFaith(); // Triggers internal spell database lists parsing
 
-            fullRoster.Add(chrName, stats);
+            if (!fullRoster.ContainsKey(chrName))
+            {
+                fullRoster.Add(chrName, stats);
+            }
+            
             lineIndex++;
         }
     }

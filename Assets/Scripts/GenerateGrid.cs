@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 
 //Purpose of this class is to initlize the information for the grid based on the layer that the tile collides with
 public class GenerateGrid : MonoBehaviour
@@ -86,7 +87,10 @@ public class GenerateGrid : MonoBehaviour
 
                 tileNum++;
             }
+
         }
+            ExportTerrainGridJSON();
+
     }
 
     //Initlize to where we want the cursor to be for each map
@@ -125,6 +129,48 @@ public class GenerateGrid : MonoBehaviour
     public int GetLength() => length; 
     public float GetCellSize() => cellSize; 
     public GridTile GetGridTile(int x, int z) => grid[x,z]; 
+
+    [ContextMenu("Export Terrain Grid JSON")]
+    public void ExportTerrainGridJSON()
+    {
+        if (grid == null)
+        {
+            Debug.LogError("Grid has not been generated yet! Run the game first or call GenGrid.");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("  \"terrainGrid\": [");
+
+        // Loop from the top of the map (length - 1) down to 0
+        // This guarantees the visual text formatting lines up perfectly with Unity's Z axis top edge
+        for (int z = length - 1; z >= 0; z--)
+        {
+            sb.Append("    [");
+            for (int x = 0; x < width; x++)
+            {
+                // Accessing your grid. If the tile is NOT walkable (like an obstacle or tall obstacle), mark as 1.
+                // Otherwise, mark it as 0 (walkable, slow terrain is still walkable)
+                int terrainValue = grid[x, z].GetPassable() ? 0 : 1;
+
+                sb.Append(terrainValue);
+
+                // Add commas between values, but not after the last column element
+                if (x < width - 1) sb.Append(", ");
+            }
+
+            sb.Append("]");
+            
+            // Add commas between rows, but not after the last row element
+            if (z > 0) sb.Append(",");
+            sb.AppendLine();
+        }
+
+        sb.Append("  ]");
+
+        // This prints out the exact text chunk into your Unity Editor Console
+        Debug.Log("--- COPY VALUE BELOW FOR YOUR JSON --- \n" + sb.ToString());
+    }
     
 }
 
