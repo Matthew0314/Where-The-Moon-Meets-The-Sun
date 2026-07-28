@@ -10,7 +10,7 @@
 
 Players command a party of unique characters across grid-based battlefields, completing objectives such as defeating enemy commanders, escorting allies, surviving enemy assaults, and escaping dangerous situations. Success depends on careful positioning, resource management, and long-term tactical planning rather than simply defeating every enemy.
 
-This project was created to explore scalable game architecture while building a complete tactical combat system. Every major gameplay feature—from movement and combat to enemy AI—was designed with modularity and extensibility in mind, allowing new mechanics, abilities, maps, and enemy behaviors to be added with minimal changes to the existing codebase.
+This project was created to explore scalable game architecture while building a complete tactical combat system. Every major gameplay feature, from movement and combat to enemy AI, was designed with modularity and extensibility in mind, allowing new mechanics, abilities, maps, and enemy behaviors to be added with minimal changes to the existing codebase.
 
 ---
 
